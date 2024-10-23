@@ -56,7 +56,7 @@ const PostButton = styled.button`
   border: none;
   outline: none;
   background-color: transparent;
-  margin-right: 3px;
+  margin-right: 5px;
 `
 
 const PostInfoText = styled.span`
