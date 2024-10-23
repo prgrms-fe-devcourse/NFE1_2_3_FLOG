@@ -1,8 +1,0 @@
-#logoImg {
-  width: 100px;
-}
-
-#logoImg > img {
-  display: block;
-  width: 100%;
-}

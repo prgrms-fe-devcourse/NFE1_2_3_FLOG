@@ -11,7 +11,7 @@ const MainWrapper = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   width: 1304px;
-  margin: 0 auto;
+  margin: 50px auto 0;
 `;
 
 const MainPostWrapper = styled.section`

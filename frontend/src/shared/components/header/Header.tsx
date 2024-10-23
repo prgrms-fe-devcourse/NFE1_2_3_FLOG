@@ -1,4 +1,3 @@
-import "./Header.css";
 import styled from "styled-components";
 import Logo from "./asset/Logo.svg";
 import { useEffect, useState } from "react";
@@ -49,6 +48,14 @@ const HeaderCate = styled.div`
   gap: 20px;
 `;
 
+const HeaderLogo = styled.div`
+  width: 100px;
+  & > img {
+    width: 100%;
+    display: block;
+  }
+`
+
 const Header = () => {
   const [scrollbarWidth, setScrollbarWidth] = useState("0px");
   const [isLogin, setIsLogin] = useState(true);
@@ -62,9 +69,9 @@ const Header = () => {
     <HeaderWrap id="header" scrollbarWidth={scrollbarWidth}>
       {/* 헤더 좌측 로고, 카테고리 */}
       <HeaderFlexWrap isEnd={false}>
-        <div id="logoImg">
+        <HeaderLogo id="logoImg">
           <img src={Logo} alt="Flog" />
-        </div>
+        </HeaderLogo>
         <HeaderCate>
           <span>일정</span>
           <span>큐레이션</span>
