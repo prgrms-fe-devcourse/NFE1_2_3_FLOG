@@ -1,1 +1,57 @@
-node_modules
+# Node.js 패키지
+node_modules/
+
+# 로그 파일들
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 환경설정 파일
+.env
+.env.local
+.env.*.local
+
+# 빌드 디렉터리
+build/
+dist/
+
+# 임시 파일들
+*.tmp
+*.temp
+
+# 운영체제에 의해 생성된 파일들
+.DS_Store
+Thumbs.db
+
+# IDE 설정 파일
+.idea/
+.vscode/
+
+# 테스트 커버리지 결과
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# PM2 또는 기타 프로세스 매니저의 설정 파일 및 로그
+pm2.log
+*.pid
+
+# Docker 파일 및 볼륨
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.yml
+
+# Git merge 충돌 파일
+*.orig
+
+# Sentry와 같은 외부 서비스에 사용하는 설정 파일들 (선택적으로 추가)
+.sentryclirc
+
+# 기타 데이터베이스 관련 파일 (선택 사항)
+*.sqlite
+*.db
+
+# ESLint, Prettier 캐시 파일
+eslintcache
