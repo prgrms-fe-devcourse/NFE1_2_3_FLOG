@@ -1,5 +1,4 @@
 import './Header.css'
-import { Link } from '@tanstack/react-router';
 import styled from 'styled-components';
 
 import Logo from './asset/Logo.svg'
@@ -32,6 +31,7 @@ const Header = () => {
 
   return (
     <header id='header'>
+      {/* 헤더 좌측 로고, 카테고리 */}
       <HeaderFlexWrap isEnd={false}>
         <div id="logoImg">
           <img src={Logo} alt="Flog" />
@@ -42,6 +42,7 @@ const Header = () => {
           <span>가게홍보</span>
         </HeaderCate>
       </HeaderFlexWrap>
+      {/* 헤더 우측 기능관련 */}
       <HeaderFlexWrap isEnd={true}>
         {
           isLogin
