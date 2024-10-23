@@ -29,7 +29,7 @@ const PostTitle = styled.h2`
   font-size: 24px;
   font-weight: 600;
   color: #212529;
-  margin: 8px auto 0;
+  margin: 6px auto 0;
 `
 
 const PostDescription = styled.p`

@@ -19,7 +19,7 @@ const MainPostWrapper = styled.section`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 24px;
+  gap: 30px;
 `;
 
 const MainSideBar = styled.section`
