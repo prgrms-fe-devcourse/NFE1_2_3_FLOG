@@ -1,10 +1,10 @@
 import React from 'react';
-import Header from '../shared/components/header/Header';
+import MainPage from '../pages/main/MainPage';
 
 function App() {
   return (
     <div>
-      <Header />
+      <MainPage />
     </div>
   );
 }

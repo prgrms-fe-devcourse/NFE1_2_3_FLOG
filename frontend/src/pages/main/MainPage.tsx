@@ -1,8 +1,9 @@
+import PostItem from "../../shared/components/postItem/PostItem";
 
 const MainPage = () => {
   return (
     <main>
-      <img src="/frontend/public/header/Logo.svg" alt="로고" />
+      <PostItem />
     </main>
   );
 };
