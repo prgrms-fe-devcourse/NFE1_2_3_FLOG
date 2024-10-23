@@ -2,6 +2,7 @@ import styled from "styled-components";
 import PostItem from "../../shared/components/postItem/PostItem";
 import TopSearched from "../../shared/components/sidebar/TopSearched/TopSearched";
 import RecommendPost from "../../shared/components/sidebar/TopSearched/RecommendPost";
+import RecommendCuration from "../../shared/components/sidebar/TopSearched/RecommendCuration";
 
 const MainWrapper = styled.div`
   display: flex;
@@ -51,8 +52,9 @@ const MainPage = () => {
         </MainPostWrapper>
 
         <MainSideBar>
-          <TopSearched></TopSearched>
-          <RecommendPost></RecommendPost>
+          <TopSearched />
+          <RecommendPost />
+          <RecommendCuration />
         </MainSideBar>
       </MainWrapper>
     </main>

@@ -63,7 +63,7 @@ const RecommendPostButton = styled.button`
     width: 100%;
     display: block;
   }
-`
+`;
 
 const RecommendPost = () => {
   return (
@@ -81,7 +81,81 @@ const RecommendPost = () => {
 
         {/* 추천 포스트 내용 */}
         <RecommendPostDescription>
-          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
+          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
+        </RecommendPostDescription>
+
+        {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
+        <RecommendPostInfo style={{ gap: '10px' }}>
+
+          {/* 좋아요 */}
+          <RecommendPostInfo className="like">
+            <RecommendPostButton>
+              <img src={Like} alt="좋아요 아이콘" />
+            </RecommendPostButton>
+            <RecommendPostText>33</RecommendPostText>
+          </RecommendPostInfo>
+
+          {/* 댓글 */}
+          <RecommendPostInfo className="comment">
+            <RecommendPostButton>
+              <img src={Comment} alt="댓글 아이콘" />
+            </RecommendPostButton>
+            <RecommendPostText>33</RecommendPostText>
+          </RecommendPostInfo>
+
+          {/* 작성시간 */}
+          <RecommendPostText>1일전</RecommendPostText>
+        </RecommendPostInfo>
+      </RecommendPostWrap>
+
+      {/* 인기 검색어 리스트 */}
+      <RecommendPostWrap>
+
+        {/* 추천 포스트 제목 */}
+        <RecommendPostHeader>
+          이거 읽ㅇ어보지않을래재밌을걸
+        </RecommendPostHeader>
+
+        {/* 추천 포스트 내용 */}
+        <RecommendPostDescription>
+          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
+        </RecommendPostDescription>
+
+        {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
+        <RecommendPostInfo style={{ gap: '10px' }}>
+
+          {/* 좋아요 */}
+          <RecommendPostInfo className="like">
+            <RecommendPostButton>
+              <img src={Like} alt="좋아요 아이콘" />
+            </RecommendPostButton>
+            <RecommendPostText>33</RecommendPostText>
+          </RecommendPostInfo>
+
+          {/* 댓글 */}
+          <RecommendPostInfo className="comment">
+            <RecommendPostButton>
+              <img src={Comment} alt="댓글 아이콘" />
+            </RecommendPostButton>
+            <RecommendPostText>33</RecommendPostText>
+          </RecommendPostInfo>
+
+          {/* 작성시간 */}
+          <RecommendPostText>1일전</RecommendPostText>
+        </RecommendPostInfo>
+      </RecommendPostWrap>
+
+      {/* 인기 검색어 리스트 */}
+      <RecommendPostWrap>
+
+        {/* 추천 포스트 제목 */}
+        <RecommendPostHeader>
+          이거 읽ㅇ어보지않을래재밌을걸
+        </RecommendPostHeader>
+
+        {/* 추천 포스트 내용 */}
+        <RecommendPostDescription>
+          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
         </RecommendPostDescription>
 
         {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
