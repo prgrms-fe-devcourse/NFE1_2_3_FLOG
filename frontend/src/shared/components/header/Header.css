@@ -1,0 +1,34 @@
+#header {
+  width: 100%;
+  max-width: 1780px;
+  height: 92px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin: 0 auto;
+
+  position: relative;
+}
+
+#header::after {
+  content: '';
+  display: block;
+  width: 100vw;
+  height: 1px;
+  background-color: #393939;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+}
+
+#logoImg {
+  width: 100px;
+}
+
+#logoImg > img {
+  display: block;
+  width: 100%;
+}
