@@ -7,6 +7,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# src 디렉터리에서 생성된 .js 파일 무시
+src/**/*.js
+
 # 환경설정 파일
 .env
 .env.local
