@@ -96,7 +96,7 @@ const SignupForm = () => {
   });
 
   // 타이핑 데이터 : 유효성 검사
-  const validation = useState(false);
+  const [validation, setValidation] = useState(false);
 
   const checkValidation = (currentForm: any) => {
     // ID 유효성 검사
@@ -116,6 +116,10 @@ const SignupForm = () => {
     const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
     const validNickname = nicknameRegex.test(currentForm.nickname);
 
+    // 모든 유효성 검사를 통과 시 -> 회원가입 요청 가능하도록
+    if (validId && validPassword && validPasswordCheck && validNickname) {
+      setValidation(true);
+    }
     setForm((prevForm) => ({
       ...prevForm,
       validId,
@@ -123,7 +127,6 @@ const SignupForm = () => {
       validPasswordCheck,
       validNickname,
     }));
-    console.log(form);
   };
 
   // 아이디 중복 확인
@@ -134,7 +137,20 @@ const SignupForm = () => {
   };
 
   // 타이핑 데이터 : Axios를 통해 서버로 전달 -> 서버에서도 유효성 검사 진행
-  const onClickSignupButton = () => {
+  const onClickSignupButton = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/users/signup", {
+        userId: form.id,
+        password: form.password,
+        passwordCheck: form.passwordCheck,
+        nickname: form.nickname,
+      });
+      const result = res.data;
+      console.log(res);
+      alert(`회원가입 완료: ${result}`);
+    } catch (error: any) {
+      alert(`실패 : ${error.response?.data?.message || "회원가입 실패"}`);
+    }
     // 1. Axios로 서버에 회원가입 요청 (form 데이터 중 id, pw, nickname 보내기)
     // 1-1. 성공 : "회원가입 완료" 알림 return && 로그인 페이질 이동
     // 1-2. 실패 : "실패 : {실패 사유}" return && 회원가입 페이지 그대로 대기
@@ -148,11 +164,7 @@ const SignupForm = () => {
 
   return (
     <div>
-      <Form
-        onChange={() => {
-          /** 함수 추가하기 */
-        }}
-      >
+      <Form>
         <Title>회원가입</Title>
         <DetailForm>
           <TextLabel>아이디</TextLabel>
@@ -250,7 +262,14 @@ const SignupForm = () => {
         </DetailForm>
         <ButtonBox>
           <Button onClick={() => {}}>가입취소</Button>
-          <Button onClick={() => {}}>가입하기</Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              onClickSignupButton();
+            }}
+          >
+            가입하기
+          </Button>
         </ButtonBox>
       </Form>
     </div>
