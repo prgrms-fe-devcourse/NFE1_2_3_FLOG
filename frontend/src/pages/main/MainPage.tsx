@@ -1,11 +1,9 @@
 import styled from "styled-components";
 
 import PostItem from "../../shared/components/postItem/PostItem";
-import TopSearched from "../../shared/components/sidebar/TopSearched";
-import RecommendPost from "../../shared/components/sidebar/RecommendPost";
-import RecommendCuration from "../../shared/components/sidebar/RecommendCuration";
 import Search from "../../shared/components/search/Search";
 import Sort from "../../shared/components/search/Sort";
+import SideBar from "../../shared/components/sidebar/SideBar";
 
 const MainWrapper = styled.div`
   display: flex;
@@ -21,15 +19,6 @@ const MainPostWrapper = styled.section`
   align-items: center;
   flex-direction: column;
   gap: 30px;
-`;
-
-const MainSideBar = styled.section`
-  width: 309px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 70px;
 `;
 
 const MainRightWrap = styled.section`
@@ -70,11 +59,7 @@ const MainPage = () => {
           </MainPostWrapper>
         </MainRightWrap>
 
-        <MainSideBar>
-          <TopSearched />
-          <RecommendPost />
-          <RecommendCuration />
-        </MainSideBar>
+        <SideBar />
       </MainWrapper>
     </main>
   );
