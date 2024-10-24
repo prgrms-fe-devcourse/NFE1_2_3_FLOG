@@ -1,6 +1,9 @@
+import '../animation.css'
+
 import styled from "styled-components";
 
 import Exit from '../asset/Exit.svg'
+import { useEffect, useState } from 'react';
 
 interface CategoryProps {
   onModal: () => void
@@ -83,8 +86,21 @@ const CategoryModalTagButton = styled.div`
 `;
 
 const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
+
+  // 페이드 애니메이션
+  const [fade, setFade] = useState('');
+
+  // 페이드 애니메이션
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => { setFade('end') }, 50);
+    return () => {
+      clearTimeout(fadeTimer);
+      setFade('')
+    }
+  }, [onModal])
+
   return (
-    <CategoryModalWrap>
+    <CategoryModalWrap className={`start ${fade}`}>
       <CategoryModalInner>
 
         {/* 카테고리 타이틀 */}

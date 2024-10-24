@@ -1,6 +1,9 @@
+import '../animation.css'
+
 import styled from "styled-components";
 
 import Exit from '../asset/Exit.svg';
+import { useEffect, useState } from 'react';
 
 interface AlarmPropTypes {
   onAlarm: () => void
@@ -104,8 +107,19 @@ const NewAlarmPoint = styled.div`
 `;
 
 const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
+
+  const [fade, setFade] = useState('');
+
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => { setFade('end') }, 50);
+    return () => {
+      clearTimeout(fadeTimer);
+      setFade('')
+    }
+  }, [onAlarm])
+
   return (
-    <AlarmWrap>
+    <AlarmWrap className={`start ${fade}`}>
       {/* 알림 모달 타이틀 */}
       <AlarmTitle>
         알림
