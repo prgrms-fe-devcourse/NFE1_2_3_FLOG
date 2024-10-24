@@ -8,20 +8,29 @@ export const validateSignup = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { userId, password, nickname } = req.body;
+  const { userId, password, passwordCheck, nickname } = req.body;
+  const idRegex = /^[a-zA-Z0-9]{8,16}$/;
+  const passwordRegex =
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`])[a-zA-Z\d!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`]{8,16}$/;
+  const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
 
-  if (!userId || typeof userId !== "string" || userId.length < 3) {
-    res.status(400).json({ message: "Invalid userId" });
+  if (!idRegex.test(userId) || typeof userId !== "string") {
+    res.status(400).json({ message: "userId가 올바르지 않습니다" });
     return; // 응답 후 함수 종료
   }
 
-  if (!password || typeof password !== "string" || password.length < 6) {
-    res.status(400).json({ message: "Invalid password" });
+  if (!passwordRegex.test(password) || typeof password !== "string") {
+    res.status(400).json({ message: "비밀번호가 올바르지 않습니다" });
     return; // 응답 후 함수 종료
   }
 
-  if (!nickname || typeof nickname !== "string" || nickname.length < 2) {
-    res.status(400).json({ message: "Invalid nickname" });
+  if (password !== passwordCheck) {
+    res.status(400).json({ message: "비밀번호가 서로 일치하지 않습니다" });
+    return; // 응답 후 함수 종료
+  }
+
+  if (!nicknameRegex.test(nickname) || typeof nickname !== "string") {
+    res.status(400).json({ message: "닉네임이 올바르지 않습니다" });
     return; // 응답 후 함수 종료
   }
 
