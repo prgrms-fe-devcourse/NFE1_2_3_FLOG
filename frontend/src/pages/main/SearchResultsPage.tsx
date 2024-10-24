@@ -68,12 +68,15 @@ const SearchResultListWrap = styled.div`
 
 const SearchResultsPage = () => {
 
+  // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
 
+  // 카테고리 모달 핸들 함수
   const handleModal = () => {
     setModalStatus(true)
   }
 
+  // 카테고리 모달 props 함수
   const onModal = () => {
     setModalStatus(false)
   }

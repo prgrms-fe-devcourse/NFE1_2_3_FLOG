@@ -60,8 +60,10 @@ const HeaderLogo = styled.div`
 const Header = () => {
   const [scrollbarWidth, setScrollbarWidth] = useState("0px");
   const [isLogin, setIsLogin] = useState(true);
+  // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
 
+  // 헤더 알림 모달 핸들 함수
   const handleAlarmModal = (e: React.MouseEvent<HTMLSpanElement>) => {
     // 이벤트 버블링 때문에 내로잉 했어요
     if (e.target instanceof HTMLSpanElement) {
@@ -69,6 +71,7 @@ const Header = () => {
     }
   };
 
+  // 헤더 알림 모달 props 함수
   const onAlarmModal = () => {
     setAlarmStatus(false)
   };
