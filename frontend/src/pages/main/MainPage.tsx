@@ -5,6 +5,7 @@ import TopSearched from "../../shared/components/sidebar/TopSearched";
 import RecommendPost from "../../shared/components/sidebar/RecommendPost";
 import RecommendCuration from "../../shared/components/sidebar/RecommendCuration";
 import Search from "../../shared/components/search/Search";
+import Sort from "../../shared/components/search/Sort";
 
 const MainWrapper = styled.div`
   display: flex;
@@ -59,6 +60,7 @@ const MainPage = () => {
         <MainRightWrap>
           <SearchSortWrap>
             <Search />
+            <Sort />
           </SearchSortWrap>
           <MainPostWrapper>
             <PostItem />
