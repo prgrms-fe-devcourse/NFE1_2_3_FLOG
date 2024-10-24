@@ -3,7 +3,7 @@ import { createCurationController, getCurationList, getCuration } from '../contr
 import { authMiddleware } from '../middlewares/authMiddleware';  // 사용자 인증 미들웨어
 
 const router = Router();
-
+  
 // 큐레이션 관련 라우트
 router.get('/curations', getCurationList);  // 큐레이션 리스트 조회
 router.get('/curations/:curationId', getCuration);  // 특정 큐레이션 조회
