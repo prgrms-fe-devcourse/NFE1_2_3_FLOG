@@ -60,13 +60,10 @@ export const login = async (userId: string, password: string) => {
   }
 
   // JWT 토큰 생성
-  const token = jwt.sign(
-    { userId: user._id, isAdmin: user.isAdmin },
-    process.env.JWT_SECRET!,
-    {
-      expiresIn: "1h",
-    }
-  );
+  const secret = process.env.JWT_SECRET;
+  const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
+    expiresIn: "1h",
+  });
 
   return token;
 };
