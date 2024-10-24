@@ -103,7 +103,8 @@ const Header = () => {
             <span
               onClick={handleAlarmModal}
               style={{
-                position: 'relative'
+                position: 'relative',
+                cursor: 'pointer'
               }}
             >
               알림

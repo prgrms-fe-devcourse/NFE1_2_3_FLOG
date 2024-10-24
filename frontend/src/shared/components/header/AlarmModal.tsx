@@ -119,8 +119,10 @@ const NewAlarmPoint = styled.div`
 `;
 
 const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
+
   // 애니메이션 클래스 state
   const [fade, setFade] = useState("");
+  
   const [alarmList, setAlarmList] = useState<AlarmData[]>(alarmData);
 
   // 시간 계산 함수
@@ -179,7 +181,7 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
     const filtedAlarmList = copyAlarmList.filter((alarm) => {
       return alarm._id !== alarmId;
     })
-    
+
     setAlarmList(filtedAlarmList);
   };
 

@@ -15,6 +15,10 @@ interface CategoryData {
   styleFilter: string[];
 }
 
+interface CategoryButtonTypes {
+  isClicked?: boolean
+}
+
 const CategoryModalWrap = styled.div`
   position: fixed;
   top: 0;
@@ -77,15 +81,15 @@ const CategoryModalTagInner = styled.div`
   gap: 10px 30px;
 `;
 
-const CategoryModalTagButton = styled.div`
+const CategoryModalTagButton = styled.div<CategoryButtonTypes>`
   width: 84px;
   line-height: 31px;
   height: 31px;
-  background-color: #edeaea;
+  background-color: ${({ isClicked }) => (isClicked ? "slateblue" : "#edeaea")};
   border-radius: 10px;
 
   font-size: 14px;
-  color: #212529;
+  color: ${({ isClicked }) => (isClicked ? "#fff" : "#212529")};
   text-align: center;
 
   cursor: pointer;
@@ -104,6 +108,10 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
   const [fade, setFade] = useState("");
 
   const [category, setCategory] = useState<CategoryData>(categoryData);
+
+  const [genderKeyword, setGenderKeyword] = useState('');
+  const [ageKeyword, setAgeKeyword] = useState('');
+  const [styleKeyword, setStyleKeyword] = useState('');
 
   // 페이드 애니메이션
   useEffect(() => {
@@ -136,7 +144,11 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
           <CategoryModalTagInner>
             {category.genderFilter.map((gender, index) => {
               return (
-                <CategoryModalTagButton key={index}>
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setGenderKeyword(gender)}
+                  isClicked={genderKeyword === gender ? true : false}
+                >
                   {gender}
                 </CategoryModalTagButton>
               );
@@ -153,7 +165,11 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
           <CategoryModalTagInner>
             {category.ageFilter.map((age, index) => {
               return (
-                <CategoryModalTagButton key={index}>
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setAgeKeyword(age)}
+                  isClicked={ageKeyword === age ? true : false}
+                >
                   {age}
                 </CategoryModalTagButton>
               );
@@ -170,7 +186,11 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
           <CategoryModalTagInner>
             {category.styleFilter.map((style, index) => {
               return (
-                <CategoryModalTagButton key={index}>
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setStyleKeyword(style)}
+                  isClicked={styleKeyword === style ? true : false}
+                >
                   {style}
                 </CategoryModalTagButton>
               );
