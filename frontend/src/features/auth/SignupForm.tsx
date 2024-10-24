@@ -145,15 +145,11 @@ const SignupForm = () => {
         passwordCheck: form.passwordCheck,
         nickname: form.nickname,
       });
-      const result = res.data;
-      console.log(res);
-      alert(`회원가입 완료: ${result}`);
+      alert(`회원가입 완료`);
+      navigate("/signin");
     } catch (error: any) {
       alert(`실패 : ${error.response?.data?.message || "회원가입 실패"}`);
     }
-    // 1. Axios로 서버에 회원가입 요청 (form 데이터 중 id, pw, nickname 보내기)
-    // 1-1. 성공 : "회원가입 완료" 알림 return && 로그인 페이질 이동
-    // 1-2. 실패 : "실패 : {실패 사유}" return && 회원가입 페이지 그대로 대기
   };
 
   // 비밀번호 창 내 "아이콘" 클릭시 비밀번호 보여주기.
@@ -265,7 +261,9 @@ const SignupForm = () => {
           <Button
             onClick={(e) => {
               e.preventDefault();
-              onClickSignupButton();
+              validation
+                ? onClickSignupButton()
+                : alert("올바른 회원가입 형식이 아닙니다");
             }}
           >
             가입하기
