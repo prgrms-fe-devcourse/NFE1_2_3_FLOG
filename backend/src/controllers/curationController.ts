@@ -21,7 +21,8 @@ export const getCurationList = async (req: Request, res: Response) => {
     filters.genderFilter = gender;
   }
   if (age && age !== '전체') {
-    filters.ageFilter = age;
+    const ageArray = (age as string).split(',');  // "20대,30대" 형식으로 나이를 배열로 변환
+    filters.ageFilter = { $in: ageArray };
   }
   if (searchQuery) {
     filters.$or = [
