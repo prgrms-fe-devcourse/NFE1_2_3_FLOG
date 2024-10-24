@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import authRoutes from "./routes/authRoutes";
 
 // 환경변수 로드
 dotenv.config();
@@ -18,6 +19,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("서버가 정상적으로 작동 중입니다!");
 });
+
+// 회원가입 라우터 설정
+app.use("/", authRoutes);
 
 mongoose
   .connect(MONGO_URI)
