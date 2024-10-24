@@ -1,12 +1,24 @@
-import '../animation.css'
+import "../animation.css";
 
 import styled from "styled-components";
+import { useEffect, useState } from "react";
 
-import Exit from '../asset/Exit.svg';
-import { useEffect, useState } from 'react';
+import Exit from "../asset/Exit.svg";
+import { alarmData } from "./data/alarmMockData";
 
+interface AlarmData {
+  _id: string;
+  userId: string;
+  fromUserId: string;
+  type: string;
+  postId: string;
+  postUrl: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
 interface AlarmPropTypes {
-  onAlarm: () => void
+  onAlarm: () => void;
 }
 
 const AlarmWrap = styled.div`
@@ -107,145 +119,128 @@ const NewAlarmPoint = styled.div`
 `;
 
 const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
+  // 애니메이션 클래스 state
+  const [fade, setFade] = useState("");
+  const [alarmList, setAlarmList] = useState<AlarmData[]>(alarmData);
 
-  const [fade, setFade] = useState('');
+  // 시간 계산 함수
+  const timeForToday = (value: AlarmData) => {
+    const today = new Date();
+    const timeValue = new Date(value.createdAt);
+    const betweenTime = Math.floor(
+      (today.getTime() - timeValue.getTime()) / 1000 / 60
+    );
 
+    if (betweenTime < 1) {
+      return "방금 전";
+    }
+    if (betweenTime < 60) {
+      return `${betweenTime}분 전`;
+    }
+
+    const betweenTimeHour = Math.floor(betweenTime / 60);
+    if (betweenTimeHour < 24) {
+      return `${betweenTimeHour}시간 전`;
+    }
+
+    const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+    if (betweenTimeDay < 7) {
+      return `${betweenTimeDay}일 전`;
+    }
+
+    const betweenTimeWeek = Math.floor(betweenTimeDay / 7);
+    if (betweenTimeWeek < 4) {
+      return `${betweenTimeWeek}주 전`;
+    }
+
+    const betweenTimeMonth = Math.floor(betweenTimeDay / 30);
+    if (betweenTimeMonth < 12) {
+      return `${betweenTimeMonth}달 전`;
+    }
+
+    return `${Math.floor(betweenTimeDay / 365)}년 전`;
+  };
+
+  // 알림 타입별 구문 출력
+  const alarmTypeDivision = (value: AlarmData) => {
+    switch (value.type) {
+      case "newPost":
+        return `${value.fromUserId}님이 새로운 게시물을 작성하였습니다.`;
+      case "like":
+        return `${value.fromUserId}님이 좋아요를 눌렀습니다.`;
+      case "comment":
+        return `${value.fromUserId}님이 댓글을 남겼습니다.`;
+    }
+  };
+
+  // 알림 삭제 기능
+  const handleAlarmDelete = (alarmId: string) => {
+    const copyAlarmList:AlarmData[] = [...alarmList];
+    const filtedAlarmList = copyAlarmList.filter((alarm) => {
+      return alarm._id !== alarmId;
+    })
+    
+    setAlarmList(filtedAlarmList);
+  };
+
+  // 진입시 애니메이션
   useEffect(() => {
-    const fadeTimer = setTimeout(() => { setFade('end') }, 50);
+    const fadeTimer = setTimeout(() => {
+      setFade("end");
+    }, 50);
     return () => {
       clearTimeout(fadeTimer);
-      setFade('')
-    }
-  }, [onAlarm])
+      setFade("");
+    };
+  }, []);
+
+  // 시간순 알림 정렬
+  useEffect(() => {
+    const copyAlarmList: AlarmData[] = [...alarmList];
+    copyAlarmList.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return () => {
+      setAlarmList(copyAlarmList)
+    };
+  }, []);
 
   return (
     <AlarmWrap className={`start ${fade}`}>
       {/* 알림 모달 타이틀 */}
-      <AlarmTitle>
-        알림
-      </AlarmTitle>
+      <AlarmTitle>알림</AlarmTitle>
 
       {/* 알림 모달 닫기 버튼 */}
       <AlarmButton
-        onClick={onAlarm} 
-        style={{ 
-          position: 'absolute',
-          top: '30px',
-          right: '20px'
+        onClick={onAlarm}
+        style={{
+          position: "absolute",
+          top: "30px",
+          right: "20px",
         }}
       >
         <img src={Exit} alt="알림 닫기" />
       </AlarmButton>
 
-       {/* 알림 내부 래퍼 */}
+      {/* 알림 내부 래퍼 */}
       <AlarmInnerWrap>
-
-        {/* 알림 내용 부분 */}
-        <AlarmInner>
-
-          {/* 새로운 알림 */}
-          <NewAlarmPoint />
-
-          {/* 알림 링크 */}
-          <AlarmLink>
-            fromUserId님이 type을 남겼습니다.
-          </AlarmLink>
-
-          {/* 알림 하단 삭제 시간 래퍼 */}
-          <AlarmInnerBottom>
-
-            {/* 알림 시간 */}
-            <AlarmGrayText>
-              1시간 전
-            </AlarmGrayText>
-
-            {/* 알림 삭제 */}
-            <AlarmButton>
-              <AlarmGrayText>
-                삭제
-              </AlarmGrayText>
-            </AlarmButton>
-          </AlarmInnerBottom>
-        </AlarmInner>
-
-        {/* 알림 내용 부분 */}
-        <AlarmInner>
-
-          {/* 새로운 알림 */}
-          <NewAlarmPoint />
-
-          {/* 알림 링크 */}
-          <AlarmLink>
-            닉네임이 존나게 긴 사람님이 새로운 게시글을 작성하였습니다.
-          </AlarmLink>
-
-          {/* 알림 하단 삭제 시간 래퍼 */}
-          <AlarmInnerBottom>
-
-            {/* 알림 시간 */}
-            <AlarmGrayText>
-              1시간 전
-            </AlarmGrayText>
-
-            {/* 알림 삭제 */}
-            <AlarmButton>
-              <AlarmGrayText>
-                삭제
-              </AlarmGrayText>
-            </AlarmButton>
-          </AlarmInnerBottom>
-        </AlarmInner>
-
-        {/* 알림 내용 부분 */}
-        <AlarmInner>
-
-          {/* 알림 링크 */}
-          <AlarmLink>
-            닉네임이 준내게 길고 또 긴사람님이 댓글을 남겼습니다.
-          </AlarmLink>
-
-          {/* 알림 하단 삭제 시간 래퍼 */}
-          <AlarmInnerBottom>
-
-            {/* 알림 시간 */}
-            <AlarmGrayText>
-              1시간 전
-            </AlarmGrayText>
-
-            {/* 알림 삭제 */}
-            <AlarmButton>
-              <AlarmGrayText>
-                삭제
-              </AlarmGrayText>
-            </AlarmButton>
-          </AlarmInnerBottom>
-        </AlarmInner>
-
-        {/* 알림 내용 부분 */}
-        <AlarmInner>
-
-          {/* 알림 링크 */}
-          <AlarmLink>
-            fromUserId님이 새로운 게시글을 작성하였습니다.
-          </AlarmLink>
-
-          {/* 알림 하단 삭제 시간 래퍼 */}
-          <AlarmInnerBottom>
-
-            {/* 알림 시간 */}
-            <AlarmGrayText>
-              1시간 전
-            </AlarmGrayText>
-
-            {/* 알림 삭제 */}
-            <AlarmButton>
-              <AlarmGrayText>
-                삭제
-              </AlarmGrayText>
-            </AlarmButton>
-          </AlarmInnerBottom>
-        </AlarmInner>
-
+        {alarmList.map((alarm, index) => {
+          return (
+            <AlarmInner key={index}>
+              {/* 알림 읽었는지 안 읽었는지 */}
+              {alarm.isRead ? null : <NewAlarmPoint />}
+              {/* 댓글 & 좋아요 인지 새로운 게시물인지? */}
+              <AlarmLink>{alarmTypeDivision(alarm)}</AlarmLink>
+              <AlarmInnerBottom>
+                <AlarmGrayText>{timeForToday(alarm)}</AlarmGrayText>
+                <AlarmButton onClick={() => handleAlarmDelete(alarm._id)}>
+                  <AlarmGrayText>삭제</AlarmGrayText>
+                </AlarmButton>
+              </AlarmInnerBottom>
+            </AlarmInner>
+          );
+        })}
       </AlarmInnerWrap>
     </AlarmWrap>
   );
