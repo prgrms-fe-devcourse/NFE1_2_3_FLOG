@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
 import PostItem from "../../shared/components/postItem/PostItem";
-import TopSearched from "../../shared/components/sidebar/TopSearched/TopSearched";
-import RecommendPost from "../../shared/components/sidebar/TopSearched/RecommendPost";
-import RecommendCuration from "../../shared/components/sidebar/TopSearched/RecommendCuration";
+import TopSearched from "../../shared/components/sidebar/TopSearched";
+import RecommendPost from "../../shared/components/sidebar/RecommendPost";
+import RecommendCuration from "../../shared/components/sidebar/RecommendCuration";
 import Search from "../../shared/components/search/Search";
 
 const MainWrapper = styled.div`
