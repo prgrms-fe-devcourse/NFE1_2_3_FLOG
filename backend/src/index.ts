@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import curationRoutes from './routes/curationRoutes'; // 큐레이션 라우트 임포트
+import authRoutes from './routes/authRoutes';  // 인증 라우트 임포트
 
 // 환경변수 로드
 dotenv.config();
@@ -18,6 +20,12 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('서버가 정상적으로 작동 중입니다!');
 });
+
+// 큐레이션 관련 라우트 추가
+app.use('/api', curationRoutes); // '/api/curations' 경로로 큐레이션 관련 라우트 등록
+
+// 인증 관련 라우트 추가
+app.use('/api', authRoutes);  // 인증 라우트 등록
 
 mongoose
   .connect(MONGO_URI)
