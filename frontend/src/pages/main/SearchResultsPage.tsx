@@ -1,8 +1,27 @@
 import styled from "styled-components";
 import PostItem from "../../shared/components/postItem/PostItem";
-import SearchIcon from './asset/BlackSearch.svg'
+import SearchIcon from "./asset/BlackSearch.svg";
 import CategoryModal from "../../shared/components/categoryModal/CategoryModal";
 import { useState } from "react";
+import { postData } from "../../shared/components/postItem/mockData";
+
+interface PostDataTypes {
+  _id: string;
+  title: string;
+  authorId: string;
+  thumbnail: string;
+  content: string[];
+  tags: string[];
+  likes: string[];
+  comments: string[];
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  postType: string;
+  genderFilter: string[];
+  ageFilter: string[];
+  styleFilter: string[];
+}
 
 const SearchResultsPageWrap = styled.section`
   width: 997px;
@@ -13,9 +32,9 @@ const SearchResultSearchWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
-  padding: 20px 20px 20px 36px; 
-  
+
+  padding: 20px 20px 20px 36px;
+
   border: 1px solid #7d7d7d;
   border-radius: 20px;
 
@@ -67,19 +86,20 @@ const SearchResultListWrap = styled.div`
 `;
 
 const SearchResultsPage = () => {
-
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
 
+  const [postList, setPostList] = useState<PostDataTypes[]>(postData);
+
   // 카테고리 모달 핸들 함수
   const handleModal = () => {
-    setModalStatus(true)
-  }
+    setModalStatus(true);
+  };
 
   // 카테고리 모달 props 함수
   const onModal = () => {
-    setModalStatus(false)
-  }
+    setModalStatus(false);
+  };
 
   return (
     <SearchResultsPageWrap>
@@ -94,10 +114,7 @@ const SearchResultsPage = () => {
 
           {/* 상단 검색창 검색 버튼 */}
           <SearchResultsPageButton>
-            <img
-              src={SearchIcon}
-              alt="검색"
-            />
+            <img src={SearchIcon} alt="검색" />
           </SearchResultsPageButton>
         </SearchResultSearchWrap>
 
@@ -105,18 +122,14 @@ const SearchResultsPage = () => {
         <SearchResultSetCategoryText onClick={handleModal}>
           카테고리 설정
         </SearchResultSetCategoryText>
-        {
-          modalStatus
-          ? <CategoryModal onModal={onModal} />
-          : null
-        }
+        {modalStatus ? <CategoryModal onModal={onModal} /> : null}
       </form>
       <SearchResultListWrap>
-        <PostItem />
-        <PostItem />
-        <PostItem />
-        <PostItem />
-        <PostItem />
+        {
+          postList.map((post) => {
+            return <PostItem post={post} key={post._id} />;
+          })
+        }
       </SearchResultListWrap>
     </SearchResultsPageWrap>
   );
