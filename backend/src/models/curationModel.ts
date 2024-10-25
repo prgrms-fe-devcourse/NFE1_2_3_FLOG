@@ -29,15 +29,15 @@ const curationSchema: Schema<ICuration> = new mongoose.Schema({
   endDate: { type: Date, required: true },
   content: [{ type: String }],
   tags: [{ type: String }],
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
-  entries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Entry' }],
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: [] }],
+  entries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Entry', default: [] }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['published', 'draft'], default: 'draft' },
-  genderFilter: [{ type: String, enum: ['남자', '여자', '전체'] }],
-  ageFilter: [{ type: String, enum: ['10대 미만', '10대', '20대', '30대', '40대', '50대 이상', '전체'] }],
-  styleFilter: [{ type: String, enum: ['casual', 'street', 'feminine', 'punk', 'sporty', 'business', '전체'] }],
+  genderFilter: [{ type: String, enum: ['남자', '여자', '전체'], default: '전체' }], // 기본값 "전체"
+  ageFilter: [{ type: String, enum: ['10대 미만', '10대', '20대', '30대', '40대', '50대 이상', '전체'], default: '전체' }], // 기본값 "전체"
+  styleFilter: [{ type: String, enum: ['casual', 'street', 'feminine', 'punk', 'sporty', 'business', '전체'], default: '전체' }], // 기본값 "전체"
 });
 
 export const Curation = mongoose.model<ICuration>('Curation', curationSchema);

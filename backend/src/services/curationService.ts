@@ -3,16 +3,29 @@ import { Curation, ICuration } from '../models/curationModel';
 // 큐레이션 리스트 조회 (필터링 및 검색)
 export const getCurations = async (
   page: number, 
-  filters: { style?: string; gender?: string; age?: string; searchQuery?: string; status?: string }
+  filters: { style?: string; gender?: string; age?: string[] | string; searchQuery?: string; status?: string }
 ): Promise<ICuration[]> => {
   const pageSize = 10;
   const query: any = {};
 
-  if (filters.style) query.styleFilter = filters.style;
-  if (filters.gender) query.genderFilter = filters.gender;
-  if (filters.age) query.ageFilter = filters.age;
-  if (filters.status) query.status = filters.status;
+  // 필터 값이 존재하고 '전체'가 아닐 경우에만 필터 조건에 추가
+  if (filters.style && filters.style !== '전체') {
+    query.styleFilter = filters.style;
+  }
+  if (filters.gender && filters.gender !== '전체') {
+    query.genderFilter = filters.gender;
+  }
+   // age 필터가 배열로 들어올 경우 $in 연산자로 처리
+   if (filters.age && Array.isArray(filters.age)) {
+    query.ageFilter = { $in: filters.age };  // age가 배열일 경우 $in 연산자로 필터링
+  } else if (filters.age && filters.age !== '전체') {
+    query.ageFilter = filters.age;  // age가 단일 값일 경우
+  }
+  if (filters.status) {
+    query.status = filters.status;
+  }
 
+  // 검색어가 있을 경우에만 검색 조건 추가
   if (filters.searchQuery) {
     query.$or = [
       { title: { $regex: filters.searchQuery, $options: 'i' } },

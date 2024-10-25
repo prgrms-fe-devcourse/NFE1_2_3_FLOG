@@ -7,7 +7,7 @@ import {
 import { authMiddleware } from "../middlewares/authMiddleware"; // 사용자 인증 미들웨어
 
 const router = Router();
-
+  
 // 큐레이션 관련 라우트
 router.get("/api/curations", getCurationList); // 큐레이션 리스트 조회
 router.get("/api/curations/:curationId", getCuration); // 특정 큐레이션 조회

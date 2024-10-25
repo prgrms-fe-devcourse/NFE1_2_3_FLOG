@@ -3,10 +3,33 @@ import { getCurations, getCurationById, createCuration } from '../services/curat
 
 // 큐레이션 리스트 조회 (어드민과 일반 사용자 구분)
 export const getCurationList = async (req: Request, res: Response) => {
-  const { page = 1, style, gender, age, searchQuery } = req.query;
+  const { page = 1, style = '전체', gender = '전체', age = '전체', searchQuery } = req.query;
   const isAdmin = (req as any).user?.isAdmin || false;  // 어드민 여부 확인 (JWT 등의 인증방식에서 가져옴)
 
-  const filters: any = { style, gender, age, searchQuery };
+   // 필터 객체 초기화
+   const filters: any = {
+    styleFilter: '전체',
+    genderFilter: '전체',
+    ageFilter: '전체',
+   };
+
+   // 필터 값이 있을 경우에만 필터 추가 ('전체'는 필터링에서 제외)
+  if (style && style !== '전체') {
+    filters.styleFilter = style;
+  }
+  if (gender && gender !== '전체') {
+    filters.genderFilter = gender;
+  }
+  if (age && age !== '전체') {
+    const ageArray = (age as string).split(',');  // "20대,30대" 형식으로 나이를 배열로 변환
+    filters.ageFilter = { $in: ageArray };
+  }
+  if (searchQuery) {
+    filters.$or = [
+      { title: { $regex: searchQuery, $options: 'i' } }, // 대소문자 구분 없이 검색
+      { content: { $regex: searchQuery, $options: 'i' } }
+    ];
+  }
 
   if (!isAdmin) {
     // 어드민이 아닐 경우 출간된 큐레이션만 조회 가능
