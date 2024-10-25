@@ -56,7 +56,19 @@ const TopSearchedRank = styled.div<RankColor>`
 `;
 
 const TopSearched = () => {
+
   const [searchList, setSearchList] = useState<TopSearchTypes[] | null>(null);
+
+  const getTime = () => {
+    const date = new Date();
+
+    const month = (date.getMonth() + 1);
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+
+    return `${("00" + month.toString()).slice(-2)}.${("00" + day.toString()).slice(-2)}.${hour}:${minute} 기준`;
+  }
 
   // 인기 검색어 리스트 state에 return
   useEffect(() => {
@@ -78,7 +90,7 @@ const TopSearched = () => {
       {/* 인기 검색어 상단 */}
       <TopSearchedTopWrapper>
         <TopSearchedTitle>인기 검색어</TopSearchedTitle>
-        <TopSearchedText>10.20.18:50 기준</TopSearchedText>
+        <TopSearchedText>{ getTime() }</TopSearchedText>
       </TopSearchedTopWrapper>
       {/* 인기 검색어 리스트 */}
       <TopSearchedChart>
