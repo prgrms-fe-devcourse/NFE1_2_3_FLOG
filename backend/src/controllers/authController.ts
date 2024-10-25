@@ -26,7 +26,6 @@ export const login = async (req: Request, res: Response) => {
     console.log("Login Request Body:", req.body); // 로그인 요청 데이터 로그
     const token = await loginService(userId, password);
     console.log("Login successful, token:", token); // 로그인 성공 시 토큰 로그
-    window.localStorage.setItem("token", token);
     res.status(200).json({ success: true, token });
   } catch (error: unknown) {
     // error의 타입을 unknown으로 명시
