@@ -6,6 +6,7 @@ import SearchResultsPage from "../pages/main/SearchResultsPage";
 import Header from "../shared/components/header/Header";
 import StorePromotionPage from "../pages/promotion/StorePromotionPage";
 import EventSchedulePage from "../pages/event/EventSchedulePage";
+import SigninPage from "../pages/auth/SigninPage";
 
 function App() {
   return (
@@ -18,10 +19,7 @@ function App() {
         <Route path="/event" element={<EventSchedulePage />} />
         <Route path="/promotion" element={<StorePromotionPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route
-          path="/signin"
-          element={<div>로그인 페이지입니다 (수정 예정)</div>}
-        />
+        <Route path="/signin" element={<SigninPage />} />
       </Routes>
     </div>
   );
