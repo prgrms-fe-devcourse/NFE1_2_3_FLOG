@@ -6,7 +6,7 @@ export interface IEntry extends Document {
   title: string;
   authorId: mongoose.Types.ObjectId;
   photos: string[];
-  description: string;
+  description?: string;
   votes: mongoose.Types.ObjectId[];
   createdAt: Date;
 }
@@ -16,8 +16,17 @@ const entrySchema: Schema<IEntry> = new mongoose.Schema({
   curationId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Curation' },
   title: { type: String, required: true, maxlength: 50 },
   authorId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-  photos: [{ type: String, required: true, maxlength: 3 }],  // 최대 3개의 사진
-  description: { type: String, required: true, maxlength: 20 },
+  photos: [{ 
+    type: String, 
+    required: true, 
+    validate: {
+      validator: function(v: string[]) {
+        return v.length >= 1 && v.length <= 3;  // 최소 1개, 최대 3개 사진
+      },
+      message: '사진은 최소 1장, 최대 3장이어야 합니다.'
+    }
+  }],
+  description: { type: String, maxlength: 20 },
   votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
   createdAt: { type: Date, default: Date.now }
 });
