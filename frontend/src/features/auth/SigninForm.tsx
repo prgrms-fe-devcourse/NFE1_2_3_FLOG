@@ -3,6 +3,7 @@ import axios from "axios";
 import styled from "styled-components";
 import closePw from "../../shared/assets/auth-icons/closePw.png";
 import openPw from "../../shared/assets/auth-icons/openPw.png";
+import { useNavigate } from "react-router-dom";
 
 const black = "#212529";
 const gray = "#7D7D7D";
@@ -85,12 +86,12 @@ const GoSignup = styled.div`
 `;
 
 const SigninForm = () => {
+  const navigate = useNavigate();
   // InputData
   const [inputData, setInputData] = useState({
     id: "",
     password: "",
   });
-  console.log(inputData);
 
   // 비밀번호 아이콘 클릭 여부에 따라 type="text or password"
   const [isOpenPassword, setIsOpenPassword] = useState(false);
@@ -98,12 +99,17 @@ const SigninForm = () => {
   // POST 요청
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/user/login", {
+      const res = await axios.post("http://localhost:5000/api/users/login", {
         userId: inputData.id,
         password: inputData.password,
       });
+      const data = await res.data;
+      localStorage.setItem("token", data.token);
+      alert("로그인 성공");
+      navigate("/");
     } catch (error) {
       console.error(error);
+      alert("로그인 실패");
     }
   };
   return (
@@ -136,7 +142,14 @@ const SigninForm = () => {
         ></InputIcon>
       </DetailForm>
       <ButtonBox>
-        <Button>로그인</Button>
+        <Button
+          onClick={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
+          로그인
+        </Button>
         <GoSignup>아이다가 없으신가요? 회원가입</GoSignup>
       </ButtonBox>
     </Form>
