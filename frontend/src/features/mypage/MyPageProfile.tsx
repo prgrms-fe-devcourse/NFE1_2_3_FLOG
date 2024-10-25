@@ -55,7 +55,7 @@ const MyPageProfile = () => {
       </FollowBox>
       <MoveBox>
         <MoveButton>
-          <MoveText>내가 작성한 글</MoveText>
+          <MoveText>작성한 글</MoveText>
         </MoveButton>
         <MoveButton>
           <MoveText>북마크</MoveText>
