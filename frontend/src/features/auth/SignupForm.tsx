@@ -52,6 +52,7 @@ const InputIcon = styled.img`
   margin-left: 360px;
   width: 18px;
   height: 12px;
+  cursor: pointer;
 `;
 
 const WarningMessage = styled.div`
@@ -75,6 +76,7 @@ const Button = styled.button`
   height: 40px;
   border: 1px solid ${black};
   color: ${black};
+  cursor: pointer;
 `;
 
 const SignupForm = () => {
@@ -109,8 +111,7 @@ const SignupForm = () => {
     const validPassword = passwordRegex.test(currentForm.password);
 
     // PW-Check 유효성 검사
-    const validPasswordCheck =
-      currentForm.password === currentForm.passwordCheck;
+    const validPasswordCheck = currentForm.password === currentForm.passwordCheck;
 
     // Nickname 유효성 검사
     const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
@@ -177,9 +178,7 @@ const SignupForm = () => {
               });
             }}
           ></Input>
-          {!form.validId && (
-            <WarningMessage>사용 할 수 없는 아이디입니다</WarningMessage>
-          )}
+          {!form.validId && <WarningMessage>사용 할 수 없는 아이디입니다</WarningMessage>}
         </DetailForm>
         <DetailForm>
           <TextLabel>비밀번호</TextLabel>
@@ -252,18 +251,14 @@ const SignupForm = () => {
               });
             }}
           ></Input>
-          {!form.validNickname && (
-            <WarningMessage>사용 할 수 없는 닉네임입니다</WarningMessage>
-          )}
+          {!form.validNickname && <WarningMessage>사용 할 수 없는 닉네임입니다</WarningMessage>}
         </DetailForm>
         <ButtonBox>
           <Button onClick={() => {}}>가입취소</Button>
           <Button
             onClick={(e) => {
               e.preventDefault();
-              validation
-                ? onClickSignupButton()
-                : alert("올바른 회원가입 형식이 아닙니다");
+              validation ? onClickSignupButton() : alert("올바른 회원가입 형식이 아닙니다");
             }}
           >
             가입하기
