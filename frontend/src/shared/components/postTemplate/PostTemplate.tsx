@@ -3,7 +3,7 @@ import Search from "../search/Search";
 import Sort from "../search/Sort";
 import PostItem from "../postItem/PostItem";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { postData } from "../postItem/mockData";
 
@@ -60,7 +60,8 @@ const SearchSortWrap = styled.div`
 
 const PostTemplate = () => {
 
-  const [postList, setPostList] = useState<PostDataTypes[]>(postData.slice(0, 4));
+  const [postList, setPostList] = useState<PostDataTypes[]>([]);
+  const [sortType, setSortType] = useState('new');
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(4);
 
@@ -84,10 +85,35 @@ const PostTemplate = () => {
       setHasMore(false)
     } else {
       setPostList((prev) => [...prev, ...postData.slice(page, page + 4)])
-
       setPage((prev) => prev + 4);
     }
   }
+
+  // 솔트 전달 함수
+  const onSortingPost = (value: string) => {
+    setSortType(value)
+  }
+
+  // sort 정렬 구문
+  /* useEffect(() => {
+    const copyData = [...postData];
+    switch (sortType) {
+      case 'new':
+        setPage(4)
+        setPostList([...copyData.slice(0, 4)])
+        break;
+      case 'like':
+        setPage(4)
+        const likeCopyData = copyData.sort((a, b) => b.likes.length - a.likes.length)
+        setPostList([...likeCopyData.slice(0, 4)])
+        break;
+      case 'comment':
+        setPage(4)
+        const commentCopyData = copyData.sort((a, b) => b.likes.length - a.likes.length)
+        setPostList([...commentCopyData.slice(0, 4)])
+        break;
+    }
+  }, [sortType]) */
 
   // 무한스크롤 실행 구문
   useEffect(() => {
@@ -111,7 +137,9 @@ const PostTemplate = () => {
       <PostTemplateRightWrap>
         <SearchSortWrap>
           <Search />
-          <Sort />
+          <Sort
+            onSortingPost={onSortingPost}
+          />
         </SearchSortWrap>
         <PostTemplatePostWrapper>
           {
