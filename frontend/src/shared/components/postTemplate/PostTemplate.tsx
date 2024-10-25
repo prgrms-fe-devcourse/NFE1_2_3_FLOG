@@ -3,7 +3,7 @@ import Search from "../search/Search";
 import Sort from "../search/Sort";
 import PostItem from "../postItem/PostItem";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { postData } from "../postItem/mockData";
 
@@ -34,6 +34,7 @@ const PostTemplatePostWrapper = styled.section`
   align-items: center;
   flex-direction: column;
   gap: 30px;
+  margin-bottom: 100px;
 `;
 
 const PostTemplateRightWrap = styled.section`
@@ -59,7 +60,51 @@ const SearchSortWrap = styled.div`
 
 const PostTemplate = () => {
 
-  const [postList, setPostList] = useState<PostDataTypes[]>(postData.slice(0, 2));
+  const [postList, setPostList] = useState<PostDataTypes[]>(postData.slice(0, 4));
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(4);
+
+  // 무한스크롤 Ref
+  const elementRef = useRef(null);
+
+  // 인터섹션 함수
+  const onIntersection = (entries: IntersectionObserverEntry[]) => {
+    const firstEntry = entries[0]
+
+    if (firstEntry.isIntersecting && hasMore) {
+      loadMorePosts();
+    }
+  }
+
+  // 포스트 로드함수
+  const loadMorePosts = () => {
+    // 더이상 로드할게 없을시 스크롤 종료, 그게 아니라면 로드
+    // api에 맞게 수정예정
+    if (postData.length === postList.length) {
+      setHasMore(false)
+    } else {
+      setPostList((prev) => [...prev, ...postData.slice(page, page + 4)])
+
+      setPage((prev) => prev + 4);
+    }
+  }
+
+  // 무한스크롤 실행 구문
+  useEffect(() => {
+    const observer = new IntersectionObserver(onIntersection, {
+      threshold: 1,
+    });
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current)
+    }
+
+    return () => {
+      if (elementRef.current) {
+        observer.unobserve(elementRef.current)
+      }
+    }
+  }, [onIntersection])
 
   return (
     <div>
@@ -70,7 +115,7 @@ const PostTemplate = () => {
         </SearchSortWrap>
         <PostTemplatePostWrapper>
           {
-            postList.map((post) => {
+            postList && postList.map((post) => {
               return (
                 <PostItem post={post} key={post._id} />
               )
@@ -78,6 +123,11 @@ const PostTemplate = () => {
           }
         </PostTemplatePostWrapper>
       </PostTemplateRightWrap>
+      { hasMore && (
+        <div ref={elementRef} style={{ textAlign: 'center' }}>
+          새로운 포스트를 불러오는 중...
+        </div>
+      ) }
     </div>
   );
 };
