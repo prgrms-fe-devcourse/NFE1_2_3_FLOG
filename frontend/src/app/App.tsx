@@ -1,12 +1,15 @@
 import React from "react";
 import SignupPage from "../pages/auth/SignupPage";
 import { Route, Routes } from "react-router-dom";
+import MainPage from "../pages/main/MainPage";
+import Search from "../shared/components/search/Search";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<div>메인페이지</div>} />
+        <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/detail" element={<div>디테일페이지</div>} />
         <Route path="/signup" element={<SignupPage />} />
         <Route
