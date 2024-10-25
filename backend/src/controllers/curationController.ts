@@ -71,16 +71,18 @@ export const getCuration = async (req: Request, res: Response): Promise<void> =>
   // 큐레이션 생성 (어드민만 가능)
   export const createCurationController = async (req: Request, res: Response): Promise<void> => {
     const isAdmin = (req as any).user?.isAdmin || false; // 어드민 여부 확인
-  
+    const adminId = (req as any).user?._id; // 토큰에서 추출한 admin의 userId
+
     if (!isAdmin) {
       res.status(403).json({ success: false, message: '큐레이션을 생성할 권한이 없습니다.' });
       return;
     }
   
     try {
-      const newCuration = await createCuration(req.body);
+      const newCuration = await createCuration({ ...req.body, adminId });
       res.status(201).json({ success: true, curation: newCuration });
     } catch (error) {
+      console.error('큐레이션 생성 중 오류:', error); // 오류 메시지 출력
       res.status(500).json({ success: false, message: '큐레이션 생성 중 오류가 발생했습니다.' });
     }
   };  

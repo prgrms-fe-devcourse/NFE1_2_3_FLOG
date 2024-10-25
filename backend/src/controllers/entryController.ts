@@ -70,7 +70,7 @@ export const voteForEntryController = async (req: Request, res: Response): Promi
   }
 
   try {
-    const updatedEntry = await voteForEntry(entryId, userId);
+    const updatedEntry = await voteForEntry(entryId, userId.toString());
     if (!updatedEntry) {
       res.status(404).json({ success: false, message: '출품작을 찾을 수 없습니다.' });
       return;
