@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-import Like from '../../asset/Like.svg'
-import Comment from '../../asset/Comment.svg'
+import Like from '../asset/Like.svg'
+import Comment from '../asset/Comment.svg'
 
 const RecommendPostTitle = styled.h2`
   font-size: 20px;
