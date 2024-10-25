@@ -4,16 +4,23 @@ import { createEntry, getEntriesByCurationId, getEntryById, voteForEntry } from 
 
 // 출품작 생성 컨트롤러
 export const createEntryController = async (req: Request, res: Response): Promise<void> => {
-  const { curationId, title, photos, description } = req.body;
+  const { title, photos, description } = req.body;
+  const { curationId } = req.params; // URL에서 curationId 가져옴
   const authorId = req.user?._id; // 인증된 사용자 ID
+
   if (!authorId) {
     res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
     return;
   }
 
+  if (!mongoose.Types.ObjectId.isValid(curationId)) {
+    res.status(400).json({ success: false, message: "유효하지 않은 큐레이션 ID입니다." });
+    return;
+  }
+  
   try {
     const newEntry = await createEntry({
-        curationId, 
+        curationId: new mongoose.Types.ObjectId(curationId), // URL에서 가져온 curationId를 ObjectId로 변환
         title,
         authorId: new mongoose.Types.ObjectId(authorId), // ObjectId로 변환
         photos,

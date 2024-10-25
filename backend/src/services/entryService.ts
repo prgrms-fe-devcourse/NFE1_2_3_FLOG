@@ -1,10 +1,22 @@
 import { Entry, IEntry } from '../models/entryModel';
+import { Curation } from '../models/curationModel'; 
 
 // 출품작 생성 서비스
 export const createEntry = async (entryData: Partial<IEntry>): Promise<IEntry> => {
-  const newEntry = new Entry(entryData);
-  return await newEntry.save(); // DB에 저장
-};
+    if (!entryData.curationId) {
+      throw new Error('Curation ID is required to create an entry');
+    }
+  
+    const newEntry = new Entry(entryData);
+    await newEntry.save();
+  
+    // 큐레이션에 출품작 추가
+    await Curation.findByIdAndUpdate(entryData.curationId, {
+      $push: { entries: newEntry._id }
+    });
+  
+    return newEntry;
+  };
 
 // 출품작 조회 서비스 (큐레이션 ID로 조회)
 export const getEntriesByCurationId = async (curationId: string): Promise<IEntry[]> => {
