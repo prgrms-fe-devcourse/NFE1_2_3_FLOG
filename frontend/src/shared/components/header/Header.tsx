@@ -13,8 +13,9 @@ interface HeaderFlexWrapProps {
 }
 
 const HeaderWrap = styled.header<HeaderScrollbar>`
+  box-sizing: border-box;
   width: 100%;
-  max-width: 1780px;
+  padding: 0 70px;
   height: 92px;
   display: flex;
   justify-content: space-between;
@@ -24,7 +25,7 @@ const HeaderWrap = styled.header<HeaderScrollbar>`
   &::after {
     content: "";
     display: block;
-    width: ${({ scrollbarWidth = "0px" }) => `calc(100vw - ${scrollbarWidth})`};
+    width: 100%;
     height: 1px;
     background-color: #393939;
     position: absolute;
@@ -59,7 +60,6 @@ const HeaderLogo = styled.div`
 `
 
 const Header = () => {
-  const [scrollbarWidth, setScrollbarWidth] = useState("0px");
   const [isLogin, setIsLogin] = useState(true);
   // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
@@ -77,13 +77,8 @@ const Header = () => {
     setAlarmStatus(false)
   };
 
-  useEffect(() => {
-    const scrollbarWidthValue = `${window.innerWidth - document.documentElement.clientWidth}px`;
-    setScrollbarWidth(scrollbarWidthValue);
-  }, []);
-
   return (
-    <HeaderWrap id="header" scrollbarWidth={scrollbarWidth}>
+    <HeaderWrap id="header">
       {/* 헤더 좌측 로고, 카테고리 */}
       <HeaderFlexWrap isEnd={false}>
         <HeaderLogo id="logoImg">

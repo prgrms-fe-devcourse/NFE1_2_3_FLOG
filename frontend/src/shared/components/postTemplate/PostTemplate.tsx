@@ -59,7 +59,7 @@ const SearchSortWrap = styled.div`
 
 const PostTemplate = () => {
 
-  const [postList, setPostList] = useState<PostDataTypes[]>(postData);
+  const [postList, setPostList] = useState<PostDataTypes[]>(postData.slice(0, 2));
 
   return (
     <div>
