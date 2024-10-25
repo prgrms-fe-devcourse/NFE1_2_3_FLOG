@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import testImg from "../../../public/testImg.png";
 import settingIcon from "../../../public/setting.svg";
+import { useNavigate } from "react-router-dom";
 
 const Button = styled.button`
   display: flex;
@@ -29,6 +30,8 @@ const UserInfoBox = styled.div`
 `;
 
 const UserInfo = ({ isFollow = false }) => {
+  const navigate = useNavigate();
+
   //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
   const mypage = true;
   return (
@@ -49,7 +52,7 @@ const UserInfo = ({ isFollow = false }) => {
           >
             <h2>닉넴머하지</h2>
             {!isFollow && mypage && (
-              <Button>
+              <Button onClick={() => navigate("/mypage/edit")}>
                 <img src={settingIcon} alt="settingIcon"></img>
               </Button>
             )}

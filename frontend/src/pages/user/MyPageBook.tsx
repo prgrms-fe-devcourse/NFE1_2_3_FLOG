@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import MyPageHeader from "../../features/mypage/MyPageHeader";
 import PostItem from "../../shared/components/postItem/PostItem";
+
 const Box = styled.div`
   display: flex;
   flex-direction: column;
@@ -13,13 +14,13 @@ const Box = styled.div`
 `;
 
 const MyPageBook = () => {
-  //해당 마이페이지의 유저가 북마크 한 글만
+  //해당 마이페이지의 유저가 북마크 한 글만hgwertyhjklfghfgbhtf jyhfvb jygvholjnimnhsrerxihhi
   return (
     <div>
       <MyPageHeader />
       <Box>
         <PostItem />
-        <PostItem />
+        <PostItem /> vh
         <PostItem />
         <PostItem />
       </Box>
