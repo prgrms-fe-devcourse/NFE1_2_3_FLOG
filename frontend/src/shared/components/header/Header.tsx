@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Logo from "./asset/Logo.svg";
 import { useEffect, useState } from "react";
+import AlarmModal from "./AlarmModal";
 
 interface HeaderScrollbar {
   scrollbarWidth?: string;
@@ -59,6 +60,21 @@ const HeaderLogo = styled.div`
 const Header = () => {
   const [scrollbarWidth, setScrollbarWidth] = useState("0px");
   const [isLogin, setIsLogin] = useState(true);
+  // 헤더 알림 모달 상태 관리
+  const [alarmStatus, setAlarmStatus] = useState(false);
+
+  // 헤더 알림 모달 핸들 함수
+  const handleAlarmModal = (e: React.MouseEvent<HTMLSpanElement>) => {
+    // 이벤트 버블링 때문에 내로잉 했어요
+    if (e.target instanceof HTMLSpanElement) {
+      setAlarmStatus(true)
+    }
+  };
+
+  // 헤더 알림 모달 props 함수
+  const onAlarmModal = () => {
+    setAlarmStatus(false)
+  };
 
   useEffect(() => {
     const scrollbarWidthValue = `${window.innerWidth - document.documentElement.clientWidth}px`;
@@ -84,7 +100,20 @@ const Header = () => {
           <HeaderCate>
             <span>글쓰기</span>
             <span>로그아웃</span>
-            <span>알림</span>
+            <span
+              onClick={handleAlarmModal}
+              style={{
+                position: 'relative',
+                cursor: 'pointer'
+              }}
+            >
+              알림
+              {
+                alarmStatus
+                ? <AlarmModal onAlarm={onAlarmModal} />
+                : null
+              }
+            </span>
             <span>마이페이지</span>
           </HeaderCate>
         ) : (
