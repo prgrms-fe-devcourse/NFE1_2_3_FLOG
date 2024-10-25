@@ -5,23 +5,24 @@ import Comment from "../asset/Comment.svg";
 
 import { postData } from "../postItem/mockData";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface PostDataTypes {
-  _id: string
-  title: string
-  authorId: string
-  thumbnail: string
-  content: string[]
-  tags: string[]
-  likes: string[]
-  comments: string[]
-  createdAt: string
-  updatedAt: string
-  status: string
-  postType: string
-  genderFilter: string[]
-  ageFilter: string[]
-  styleFilter: string[]
+  _id: string;
+  title: string;
+  authorId: string;
+  thumbnail: string;
+  content: string[];
+  tags: string[];
+  likes: string[];
+  comments: string[];
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  postType: string;
+  genderFilter: string[];
+  ageFilter: string[];
+  styleFilter: string[];
 }
 
 const RecommendPostTitle = styled.h2`
@@ -130,61 +131,58 @@ const RecommendPost = () => {
   // 포스트 데이터에서 3개만 쓰기
   useEffect(() => {
     const copyPostList = [...postData];
-    const slicedPostList = copyPostList.slice(0, 3)
-    
+    const slicedPostList = copyPostList.slice(0, 3);
+
     return () => {
-      setPostList(slicedPostList)
-    }
-  }, [])
+      setPostList(slicedPostList);
+    };
+  }, []);
 
   return (
     <div style={{ width: "100%" }}>
       {/* 추천 포스트 상단 */}
       <RecommendPostTitle>추천 포스트</RecommendPostTitle>
 
-      { postList && postList.map((post) => {
-        return (
-          <RecommendPostWrap>
-            {/* 추천 포스트 제목 */}
-            <RecommendPostHeader>
-              { post.title }
-            </RecommendPostHeader>
+      {postList &&
+        postList.map((post) => {
+          return (
+            <Link to={'/'}>
+              <RecommendPostWrap>
+                {/* 추천 포스트 제목 */}
+                <RecommendPostHeader>{post.title}</RecommendPostHeader>
 
-            {/* 추천 포스트 내용 */}
-            <RecommendPostDescription>
-              { post.content }
-            </RecommendPostDescription>
+                {/* 추천 포스트 내용 */}
+                <RecommendPostDescription>
+                  {post.content}
+                </RecommendPostDescription>
 
-            {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
-            <RecommendPostInfo style={{ gap: "10px" }}>
-              {/* 좋아요 */}
-              <RecommendPostInfo className="like">
-                <RecommendPostButton>
-                  <img src={Like} alt="좋아요 아이콘" />
-                </RecommendPostButton>
-                <RecommendPostText>
-                  { post.likes.length }
-                </RecommendPostText>
-              </RecommendPostInfo>
+                {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
+                <RecommendPostInfo style={{ gap: "10px" }}>
+                  {/* 좋아요 */}
+                  <RecommendPostInfo className="like">
+                    <RecommendPostButton>
+                      <img src={Like} alt="좋아요 아이콘" />
+                    </RecommendPostButton>
+                    <RecommendPostText>{post.likes.length}</RecommendPostText>
+                  </RecommendPostInfo>
 
-              {/* 댓글 */}
-              <RecommendPostInfo className="comment">
-                <RecommendPostButton>
-                  <img src={Comment} alt="댓글 아이콘" />
-                </RecommendPostButton>
-                <RecommendPostText>
-                  { post.comments.length }
-                </RecommendPostText>
-              </RecommendPostInfo>
+                  {/* 댓글 */}
+                  <RecommendPostInfo className="comment">
+                    <RecommendPostButton>
+                      <img src={Comment} alt="댓글 아이콘" />
+                    </RecommendPostButton>
+                    <RecommendPostText>
+                      {post.comments.length}
+                    </RecommendPostText>
+                  </RecommendPostInfo>
 
-              {/* 작성시간 */}
-              <RecommendPostText>
-                { timeForToday(post) }
-              </RecommendPostText>
-            </RecommendPostInfo>
-          </RecommendPostWrap>
-        );
-      })}
+                  {/* 작성시간 */}
+                  <RecommendPostText>{timeForToday(post)}</RecommendPostText>
+                </RecommendPostInfo>
+              </RecommendPostWrap>
+            </Link>
+          );
+        })}
     </div>
   );
 };
