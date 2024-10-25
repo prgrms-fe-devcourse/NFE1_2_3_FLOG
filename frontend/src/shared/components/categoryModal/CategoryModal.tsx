@@ -1,9 +1,22 @@
+import "../animation.css";
+
 import styled from "styled-components";
+import { useEffect, useState } from "react";
 
-import Exit from '../asset/Exit.svg'
-
+import Exit from "../asset/Exit.svg";
+import { categoryData } from "./mockData";
 interface CategoryProps {
-  onModal: () => void
+  onModal: () => void;
+}
+
+interface CategoryData {
+  genderFilter: string[];
+  ageFilter: string[];
+  styleFilter: string[];
+}
+
+interface CategoryButtonTypes {
+  isClicked?: boolean
 }
 
 const CategoryModalWrap = styled.div`
@@ -37,7 +50,7 @@ const CategoryModalTitle = styled.p`
   color: #212529;
   text-align: center;
   margin-bottom: 45px;
-`
+`;
 
 const CategoryModalExitButton = styled.div`
   position: absolute;
@@ -47,7 +60,7 @@ const CategoryModalExitButton = styled.div`
   & > img {
     display: block;
   }
-`
+`;
 
 const CategoryModalTagWrap = styled.div`
   margin-bottom: 30px;
@@ -68,29 +81,54 @@ const CategoryModalTagInner = styled.div`
   gap: 10px 30px;
 `;
 
-const CategoryModalTagButton = styled.div`
+const CategoryModalTagButton = styled.div<CategoryButtonTypes>`
   width: 84px;
   line-height: 31px;
   height: 31px;
-  background-color: #EDEAEA;
+  background-color: ${({ isClicked }) => (isClicked ? "slateblue" : "#edeaea")};
   border-radius: 10px;
 
   font-size: 14px;
-  color: #212529;
+  color: ${({ isClicked }) => (isClicked ? "#fff" : "#212529")};
   text-align: center;
 
   cursor: pointer;
 `;
 
-const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
-  return (
-    <CategoryModalWrap>
-      <CategoryModalInner>
+const CategoryComplete = styled.p`
+  font-size: 14px;
+  color: #212529;
+  text-align: center;
+  margin: 28px auto 0;
+  cursor: pointer;
+`;
 
+const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
+  // 페이드 애니메이션
+  const [fade, setFade] = useState("");
+
+  const [category, setCategory] = useState<CategoryData>(categoryData);
+
+  const [genderKeyword, setGenderKeyword] = useState('');
+  const [ageKeyword, setAgeKeyword] = useState('');
+  const [styleKeyword, setStyleKeyword] = useState('');
+
+  // 페이드 애니메이션
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => {
+      setFade("end");
+    }, 50);
+    return () => {
+      clearTimeout(fadeTimer);
+      setFade("");
+    };
+  }, [onModal]);
+
+  return (
+    <CategoryModalWrap className={`start ${fade}`}>
+      <CategoryModalInner>
         {/* 카테고리 타이틀 */}
-        <CategoryModalTitle>
-          카테고리
-        </CategoryModalTitle>
+        <CategoryModalTitle>카테고리</CategoryModalTitle>
 
         {/* 모달 닫기 버튼 */}
         <CategoryModalExitButton onClick={onModal}>
@@ -99,95 +137,70 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
 
         {/* 카테고리 하단 래퍼 */}
         <CategoryModalTagWrap>
-          {/* 카테고리 종류 */}
-          <CategoryModalTagTitle>
-            성별
-          </CategoryModalTagTitle>
+          {/* 카테고리 종류 성별 */}
+          <CategoryModalTagTitle>성별</CategoryModalTagTitle>
 
           {/* 카테고리 버튼 래퍼 */}
           <CategoryModalTagInner>
-            <CategoryModalTagButton>
-              전체
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              남자
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              여자
-            </CategoryModalTagButton>
+            {category.genderFilter.map((gender, index) => {
+              return (
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setGenderKeyword(gender)}
+                  isClicked={genderKeyword === gender ? true : false}
+                >
+                  {gender}
+                </CategoryModalTagButton>
+              );
+            })}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
+        {/* 카테고리 하단 래퍼 */}
         <CategoryModalTagWrap>
-          <CategoryModalTagTitle>
-            남자
-          </CategoryModalTagTitle>
+          {/* 카테고리 종류 나이 */}
+          <CategoryModalTagTitle>나이</CategoryModalTagTitle>
+
+          {/* 카테고리 버튼 래퍼 */}
           <CategoryModalTagInner>
-            <CategoryModalTagButton>
-              ~ 9세
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              10 ~ 14세
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              15 ~ 19세
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              20 ~ 24세
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              25 ~ 29세
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              30 ~ 34세
-            </CategoryModalTagButton>
+            {category.ageFilter.map((age, index) => {
+              return (
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setAgeKeyword(age)}
+                  isClicked={ageKeyword === age ? true : false}
+                >
+                  {age}
+                </CategoryModalTagButton>
+              );
+            })}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
+        {/* 카테고리 하단 래퍼 */}
         <CategoryModalTagWrap>
-          <CategoryModalTagTitle>
-            스타일
-          </CategoryModalTagTitle>
+          {/* 카테고리 종류 스타일 */}
+          <CategoryModalTagTitle>스타일</CategoryModalTagTitle>
+
+          {/* 카테고리 버튼 래퍼 */}
           <CategoryModalTagInner>
-            <CategoryModalTagButton>
-              전체
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              캐주얼
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              스트릿
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              페미닌
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              펑크
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              스포티
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              비지니스
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              댄디
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              포멀
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              미니멀
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              청순
-            </CategoryModalTagButton>
-            <CategoryModalTagButton>
-              섹시
-            </CategoryModalTagButton>
+            {category.styleFilter.map((style, index) => {
+              return (
+                <CategoryModalTagButton
+                  key={index}
+                  onClick={() => setStyleKeyword(style)}
+                  isClicked={styleKeyword === style ? true : false}
+                >
+                  {style}
+                </CategoryModalTagButton>
+              );
+            })}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
+        <CategoryComplete>
+          완료
+        </CategoryComplete>
       </CategoryModalInner>
     </CategoryModalWrap>
   );
