@@ -60,6 +60,12 @@ const PostTitle = styled.h2`
   font-weight: 600;
   color: #212529;
   margin: 6px auto 0;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const PostDescription = styled.p`

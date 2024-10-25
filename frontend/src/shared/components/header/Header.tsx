@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Logo from "./asset/Logo.svg";
 import { useEffect, useState } from "react";
 import AlarmModal from "./AlarmModal";
+import { Link } from "react-router-dom";
 
 interface HeaderScrollbar {
   scrollbarWidth?: string;
@@ -51,7 +52,7 @@ const HeaderCate = styled.div`
 
 const HeaderLogo = styled.div`
   width: 100px;
-  & > img {
+  & > a > img {
     width: 100%;
     display: block;
   }
@@ -86,35 +87,34 @@ const Header = () => {
       {/* 헤더 좌측 로고, 카테고리 */}
       <HeaderFlexWrap isEnd={false}>
         <HeaderLogo id="logoImg">
-          <img src={Logo} alt="Flog" />
+          <Link to={'/'} >
+            <img src={Logo} alt="Flog" />
+          </Link>
         </HeaderLogo>
         <HeaderCate>
-          <span>일정</span>
+          <Link to={'/event'}>일정</Link>
           <span>큐레이션</span>
-          <span>가게홍보</span>
+          <Link to={'/promotion'}>가게홍보</Link>
         </HeaderCate>
       </HeaderFlexWrap>
       {/* 헤더 우측 기능관련 */}
       <HeaderFlexWrap isEnd={true}>
         {isLogin ? (
           <HeaderCate>
-            <span>글쓰기</span>
-            <span>로그아웃</span>
-            <span
+            <p>글쓰기</p>
+            <p>로그아웃</p>
+            <p
               onClick={handleAlarmModal}
-              style={{
-                position: 'relative',
-                cursor: 'pointer'
-              }}
+              style={{ position: 'relative' }}
             >
-              알림
+              <span style={{ cursor: 'pointer' }}>알림</span>
               {
                 alarmStatus
                 ? <AlarmModal onAlarm={onAlarmModal} />
                 : null
               }
-            </span>
-            <span>마이페이지</span>
+            </p>
+            <p>마이페이지</p>
           </HeaderCate>
         ) : (
           <HeaderCate>로그인</HeaderCate>
