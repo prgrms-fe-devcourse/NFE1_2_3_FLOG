@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import curationRoutes from "./routes/curationRoutes"; // 큐레이션 라우트 임포트
 import authRoutes from "./routes/authRoutes"; // 인증 라우트 임포트
 import entryRoutes from "./routes/entryRoutes"; // 출품작 관련 라우트 임포트
+import commentRoutes from "./routes/commentRoutes"; // 댓글 관련 라우트 임포트
 
 // 환경변수 로드
 dotenv.config();
@@ -30,6 +31,9 @@ app.use("/", authRoutes); // 인증 라우트 등록
 
 // 큐레이션 출품작 관련 라우트 추가
 app.use("/", entryRoutes); // '/api/curations/:curationId/entry' 등의 경로로 출품작 관련 라우트 등록
+
+// 댓글 관련 라우트 추가
+app.use("/", commentRoutes); // '/api/comments' 경로로 댓글 관련 라우트 등록
 
 mongoose
   .connect(MONGO_URI)
