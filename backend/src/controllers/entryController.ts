@@ -8,6 +8,9 @@ export const createEntryController = async (req: Request, res: Response): Promis
   const { curationId } = req.params; // URL에서 curationId 가져옴
   const authorId = req.user?._id; // 인증된 사용자 ID
 
+  // photos 필드가 배열로 전달되는지 확인하는 로그
+  console.log("Request body photos field: ", req.body.photos); // 여기에서 req.body.photos의 값 확인
+
   if (!authorId) {
     res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
     return;
@@ -17,10 +20,16 @@ export const createEntryController = async (req: Request, res: Response): Promis
     res.status(400).json({ success: false, message: "유효하지 않은 큐레이션 ID입니다." });
     return;
   }
+
+   // photos 필드가 배열인지 확인
+   if (!Array.isArray(photos)) {
+    res.status(400).json({ success: false, message: "photos 필드는 배열이어야 합니다." });
+    return;
+  }
   
   try {
     const newEntry = await createEntry({
-        curationId: new mongoose.Types.ObjectId(curationId), // URL에서 가져온 curationId를 ObjectId로 변환
+      curationId: new mongoose.Types.ObjectId(curationId), // URL에서 가져온 curationId를 ObjectId로 변환
         title,
         authorId: new mongoose.Types.ObjectId(authorId), // ObjectId로 변환
         photos,
@@ -28,7 +37,11 @@ export const createEntryController = async (req: Request, res: Response): Promis
       });
     res.status(201).json({ success: true, entry: newEntry });
   } catch (error) {
-    res.status(500).json({ success: false, message: '출품작 생성 중 오류가 발생했습니다.' });
+    if (error instanceof Error) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(500).json({ success: false, message: '출품작 생성 중 알 수 없는 오류가 발생했습니다.' });
+    }
   }
 };
 
