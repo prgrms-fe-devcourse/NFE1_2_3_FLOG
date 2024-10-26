@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from "mongoose"; 
 import { createEntry, getEntriesByCurationId, getEntryById, voteForEntry } from '../services/entryService';
+import { Entry } from '../models/entryModel'; 
 
 // 출품작 생성 컨트롤러
 export const createEntryController = async (req: Request, res: Response): Promise<void> => {
@@ -77,12 +78,32 @@ export const getEntryController = async (req: Request, res: Response): Promise<v
 export const voteForEntryController = async (req: Request, res: Response): Promise<void> => {
   const { entryId } = req.params;
   const userId = req.user?._id;
+
   if (!userId) {
     res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
     return;
   }
 
   try {
+    // 투표하려는 출품작을 먼저 찾습니다.
+    const entry = await Entry.findById(entryId).populate('curationId');
+    if (!entry) {
+      res.status(404).json({ success: false, message: '출품작을 찾을 수 없습니다.' });
+      return;
+    }
+
+    // 본인이 해당 큐레이션에 출품했는지 확인합니다.
+    const userEntry = await Entry.findOne({
+      curationId: entry.curationId, // 현재 출품작의 큐레이션 ID
+      authorId: userId              // 본인 ID
+    });
+
+    if (userEntry) {
+      res.status(403).json({ success: false, message: "해당 큐레이션에 출품한 사용자는 투표할 수 없습니다." });
+      return;
+    }
+
+    // 본인이 출품하지 않았다면 투표 처리
     const updatedEntry = await voteForEntry(entryId, userId.toString());
     if (!updatedEntry) {
       res.status(404).json({ success: false, message: '출품작을 찾을 수 없습니다.' });
