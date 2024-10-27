@@ -34,6 +34,7 @@ export interface IPost extends Document {
   )[];
 }
 
+//IPost 스키마
 const postSchema: Schema<IPost> = new Schema({
   title: { type: String, required: true },
   authorId: {
