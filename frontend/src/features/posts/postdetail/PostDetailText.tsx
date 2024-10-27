@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const PostDetailText = styled.p`
+const PostDetail = styled.p`
   font-color: #212529;
   font-weight: regular;
   line-height: 2;
@@ -10,7 +10,7 @@ const PostDetailText = styled.p`
 
 const PostDetailText = () => {
   return (
-    <PostDetailText>
+    <PostDetail>
       에서 부터 이 편지는 영 이 편지는 영국에서 부터 시작에서 부터 이 편지는 영
       이 편지는 영국에서 부터 시작에서 부터 이 편지는 영 이 편지는 영국에서 부터
       시작에서 부터 이 편지는 영 이 편지는 영국에서 부터 시작에서 부터 이 편지는
@@ -35,7 +35,7 @@ const PostDetailText = () => {
       부터 이 편지는 영 이 편지는 영국에서 부터 시작에서 부터 이 편지는 영 이
       편지는 영국에서 부터 시작에서 부터 이 편지는 영 이 편지는 영국에서 부터
       시작에서 부터 이 편지는 영 이 편지는 영국에서 부터 시작
-    </PostDetailText>
+    </PostDetail>
   );
 };
 export default PostDetailText;

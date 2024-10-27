@@ -55,6 +55,7 @@ export const validateSignup = async (
 
 // 로그인 미들웨어 - 민주님
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 interface DecodedToken {
   userId: string;
 }
@@ -62,7 +63,7 @@ interface DecodedToken {
 // Request 인터페이스 확장
 declare module "express-serve-static-core" {
   interface Request {
-    user?: IUser & { _id: string };
+    user?: IUser & { _id: mongoose.Types.ObjectId }; // _id를 ObjectId로 설정
   }
 }
 
@@ -91,7 +92,12 @@ export const authMiddleware = async (
       return;
     }
 
-    req.user = user.toObject() as IUser & { _id: string }; // req.user에 사용자 정보 추가
+    // req.user에 사용자 정보 추가, _id는 ObjectId 타입으로 지정
+    req.user = {
+      ...user.toObject(),
+      _id: user._id, // ObjectId를 명확하게 포함
+    } as IUser & { _id: mongoose.Types.ObjectId };
+    
     next(); // 다음 미들웨어 또는 라우트로 이동
   } catch (error) {
     console.error("Authentication error:", error); // 에러 로깅
