@@ -1,4 +1,6 @@
 import { Comment, IComment, IReply } from '../models/commentModel';
+import { Curation } from '../models/curationModel'; 
+import { Post } from '../models/postModel'; 
 
 // 댓글 생성 서비스
 export const createComment = async (
@@ -13,7 +15,24 @@ export const createComment = async (
     authorId,
     content,
   });
-  return await newComment.save();
+ 
+   // 댓글 저장
+   const savedComment = await newComment.save();
+
+   // 큐레이션 또는 게시물에 댓글 ID 추가
+   if (postType === "Curation") {
+     await Curation.findByIdAndUpdate(
+       postId,
+       { $push: { comments: savedComment._id } }
+     );
+   } else if (postType === "Post") {
+     await Post.findByIdAndUpdate(
+       postId,
+       { $push: { comments: savedComment._id } }
+     );
+   }
+ 
+   return savedComment;
 };
 
 // 특정 댓글 또는 대댓글에 대댓글 추가
