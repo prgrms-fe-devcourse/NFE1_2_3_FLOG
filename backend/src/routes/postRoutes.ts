@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { getPost } from "../controllers/postController";
+import { getPost, Like, Bookmark } from "../controllers/postController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 
 router.get("/posts/:postId", getPost);
-//:postId는 URL파라미터
+router.post("/posts/:postId/like", authMiddleware, Like);
+router.post("/posts/:postId/bookmark", authMiddleware, Bookmark);
+router.delete("/posts/:postId/bookmark", authMiddleware, Bookmark);
 
 export default router;
