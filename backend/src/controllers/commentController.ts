@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { createComment, getCommentsByPostId } from '../services/commentService';
-// 댓글 생성 컨트롤러
+import { addReply, createComment, getCommentsByPostId } from '../services/commentService';
+import mongoose from 'mongoose';
 
+// 댓글 생성 컨트롤러
 export const createCommentController = async (req: Request, res: Response) => {
   const { postId, postType } = req.params;
   const { content } = req.body;
@@ -16,7 +17,7 @@ export const createCommentController = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: '유효하지 않은 postType입니다.' });
     return;
   }
-
+  
   try {
     const comment = await createComment(
         postId,
@@ -29,6 +30,42 @@ export const createCommentController = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: '댓글 생성 중 오류가 발생했습니다.' });
   }
 };
+
+// 특정 댓글 또는 대댓글에 대댓글 추가 컨트롤러
+export const addReplyController = async (req: Request, res: Response): Promise<void> => {
+    const { commentId } = req.params;
+    const { parentReplyId, content } = req.body; // 대댓글을 추가할 대댓글 ID와 내용
+    const authorId = req.user?._id; // 인증된 사용자 ID
+  
+    if (!authorId) {
+      res.status(401).json({ success: false, message: '인증된 사용자가 아닙니다.' });
+      return;
+    }
+  
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+      res.status(400).json({ success: false, message: '유효하지 않은 댓글 ID입니다.' });
+      return;
+    }
+  
+    try {
+      const updatedComment = await addReply(commentId, {
+        authorId: new mongoose.Types.ObjectId(authorId),
+        content,
+        likes: [],
+        createdAt: new Date(),
+      }, parentReplyId);
+  
+      if (!updatedComment) {
+        res.status(404).json({ success: false, message: '댓글을 찾을 수 없습니다.' });
+        
+        return;
+      }
+  
+      res.status(201).json({ success: true, comment: updatedComment });
+    } catch (error) {
+      res.status(500).json({ success: false, message: '대댓글 추가 중 오류가 발생했습니다.' });
+    }
+  };
 
 // 특정 postId에 달린 댓글 목록 조회 컨트롤러
 export const getCommentsByPostController = async (req: Request, res: Response) => {
