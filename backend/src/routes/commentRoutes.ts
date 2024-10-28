@@ -1,16 +1,48 @@
-import express from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware';
-import { addReplyController, createCommentController, getCommentsByPostController } from '../controllers/commentController';
+import { Router } from "express";
+import {
+  createComment,
+  getCommentById,
+  deleteComment,
+  likeComment,
+  updateComment,
+  createReplies,
+  getCommentByRepliesId,
+  deleteReplies,
+  likeReplies,
+  updateRepliesId,
+} from "../controllers/commentController";
+import { authMiddleware } from "./../middlewares/authMiddleware";
 
-const router = express.Router();
+const router = Router();
 
-// 특정 postId와 postType에 대한 댓글 생성
-router.post('/api/comments/:postType/:postId', authMiddleware, createCommentController);
+//댓글
+router.post("/comments/create", authMiddleware, createComment);
+router.get("/comments/:commentId", getCommentById);
+router.delete("/comments/delete", authMiddleware, deleteComment);
+router.post("/comments/:commentId/like", authMiddleware, likeComment);
+router.put("/comments/:commentId", authMiddleware, updateComment);
 
-// 댓글 또는 대댓글에 대댓글 추가 라우트
-router.post('/api/comments/:commentId/reply', authMiddleware, addReplyController);
-
-// 특정 postId와 postType에 대한 댓글 목록 조회
-router.get('/api/comments/:postType/:postId', getCommentsByPostController);
+//대댓글
+router.post(
+  "/comments/:commentId/replies/create",
+  authMiddleware,
+  createReplies
+);
+router.get("/comments/:commentId/replies/:replyId", getCommentByRepliesId);
+router.delete(
+  "/comments/:commentId/replies/:replyId",
+  authMiddleware,
+  deleteReplies
+);
+router.post(
+  "/comments/:commentId/replies/:replyId/like",
+  authMiddleware,
+  likeReplies
+);
+router.put(
+  "/comments/:commentId/replies/:replyId",
+  authMiddleware,
+  updateRepliesId
+);
 
 export default router;
