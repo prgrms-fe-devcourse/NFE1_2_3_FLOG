@@ -3,25 +3,29 @@ import { Post } from "../models/postModel";
 import { SearchLog } from "../models/searchlogModel";
 
 export const searchPosts = async (req: Request, res: Response) => {
-  const { query, gender, age, style } = req.query;
+  const { query, gender, age, style, postType } = req.query;
 
   // 검색어는 쿼리 옵션은 대소문자 구문없이 (맞나...?)
   const searchConditions: any = {
     title: { $regex: query, $options: "i" }
-  }
+  };
 
   // 키워드 걸기
   if (gender && gender !== '전체') {
-    searchConditions.genderFilter = gender
-  }
+    searchConditions.genderFilter = gender;
+  };
 
   if (age && age !== '전체') {
-    searchConditions.ageFilter = age
-  }
+    searchConditions.ageFilter = age;
+  };
 
   if (style && style !== '전체') {
-    searchConditions.styleFilter = style
-  }
+    searchConditions.styleFilter = style;
+  };
+
+  if (postType) {
+    searchConditions.postType = postType;
+  };
 
   try {
     // 쿼리값으로 대조하여 검색어 기록남기기
