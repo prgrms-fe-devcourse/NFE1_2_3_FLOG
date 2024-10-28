@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getPostById } from "../services/postService";
-import { Types } from "mongoose"; // Types를 임포트
+import { Types } from "mongoose";
 import User from "../models/userModel";
 
 //특정 포스트 조회
@@ -32,8 +32,6 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
   //좋아요 담는 배열이 objectId 타입이라서 바꿔줌
   const userObjectId = new Types.ObjectId(userId);
 
-  console.log("User ID:", userId); // User ID를 콘솔에 출력
-
   if (!userId) {
     res
       .status(401)
@@ -50,26 +48,23 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 사용자가 이미 좋아요를 눌렀는지 확인
     const likeIndex = post.likes.indexOf(userObjectId);
 
     if (likeIndex === -1) {
-      // 좋아요 추가
       post.likes.push(userObjectId);
-      await post.save(); // 변경 사항 저장
+      await post.save();
       res
         .status(200)
         .json({ success: true, message: "좋아요가 추가되었습니다." });
     } else {
-      // 좋아요 취소
-      post.likes.splice(likeIndex, 1); // 배열에서 사용자 ID 제거
-      await post.save(); // 변경 사항 저장
+      post.likes.splice(likeIndex, 1);
+      await post.save();
       res
         .status(200)
         .json({ success: true, message: "좋아요가 취소되었습니다." });
     }
   } catch (error) {
-    console.error(error); // 오류 로그 출력
+    console.error(error);
     res
       .status(500)
       .json({ success: false, message: "좋아요 토글 중 오류가 발생했습니다." });
@@ -79,10 +74,9 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
 // 포스트 북마크 추가/삭제 API
 export const Bookmark = async (req: Request, res: Response) => {
   const postId = req.params.postId;
-  const userId = req.user?._id; // JWT에서 추출한 사용자 ID
+  const userId = req.user?._id;
   const postObjectId = new Types.ObjectId(postId);
   try {
-    // 유저와 포스트 찾기
     const user = await User.findById(userId);
     const post = await getPostById(postId);
 
