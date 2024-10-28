@@ -1,6 +1,10 @@
 import styled from "styled-components";
 
-import SelectIcon from '../asset/Select.png'
+import SelectIcon from '../asset/Select.png';
+
+interface SortPropTypes {
+  onSortingPost: (value: string) => void
+}
 
 const SortSelect = styled.select`
   appearance: none;
@@ -22,11 +26,12 @@ const SortSelect = styled.select`
   }
 `;
 
-const Sort = () => {
+const Sort: React.FC<SortPropTypes> = ({ onSortingPost }) => {
   return (
-    <SortSelect>
-      <option value="최신순">최신순</option>
-      <option value="좋아요순">좋아요순</option>
+    <SortSelect onChange={(e) => onSortingPost(e.target.value)}>
+      <option value="new">최신순</option>
+      <option value="like">좋아요순</option>
+      <option value="comment">댓글순</option>
     </SortSelect>
   );
 };

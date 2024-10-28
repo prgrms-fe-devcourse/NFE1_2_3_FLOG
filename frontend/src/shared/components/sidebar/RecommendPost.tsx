@@ -1,7 +1,29 @@
 import styled from "styled-components";
 
-import Like from '../asset/Like.svg'
-import Comment from '../asset/Comment.svg'
+import Like from "../asset/Like.svg";
+import Comment from "../asset/Comment.svg";
+
+import { postData } from "../postItem/mockData";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+interface PostDataTypes {
+  _id: string;
+  title: string;
+  authorId: string;
+  thumbnail: string;
+  content: string[];
+  tags: string[];
+  likes: string[];
+  comments: string[];
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  postType: string;
+  genderFilter: string[];
+  ageFilter: string[];
+  styleFilter: string[];
+}
 
 const RecommendPostTitle = styled.h2`
   font-size: 20px;
@@ -66,122 +88,101 @@ const RecommendPostButton = styled.button`
 `;
 
 const RecommendPost = () => {
+  const [postList, setPostList] = useState<PostDataTypes[] | null>(null);
+
+  // 시간 계산 함수
+  const timeForToday = (value: PostDataTypes) => {
+    const today = new Date();
+    const timeValue = new Date(value.createdAt);
+    const betweenTime = Math.floor(
+      (today.getTime() - timeValue.getTime()) / 1000 / 60
+    );
+
+    if (betweenTime < 1) {
+      return "방금 전";
+    }
+    if (betweenTime < 60) {
+      return `${betweenTime}분 전`;
+    }
+
+    const betweenTimeHour = Math.floor(betweenTime / 60);
+    if (betweenTimeHour < 24) {
+      return `${betweenTimeHour}시간 전`;
+    }
+
+    const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+    if (betweenTimeDay < 7) {
+      return `${betweenTimeDay}일 전`;
+    }
+
+    const betweenTimeWeek = Math.floor(betweenTimeDay / 7);
+    if (betweenTimeWeek < 4) {
+      return `${betweenTimeWeek}주 전`;
+    }
+
+    const betweenTimeMonth = Math.floor(betweenTimeDay / 30);
+    if (betweenTimeMonth < 12) {
+      return `${betweenTimeMonth}달 전`;
+    }
+
+    return `${Math.floor(betweenTimeDay / 365)}년 전`;
+  };
+
+  // 포스트 데이터에서 3개만 쓰기
+  useEffect(() => {
+    const copyPostList = [...postData];
+    const slicedPostList = copyPostList.slice(0, 3);
+
+    return () => {
+      setPostList(slicedPostList);
+    };
+  }, []);
+
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: "100%" }}>
       {/* 추천 포스트 상단 */}
-        <RecommendPostTitle>추천 포스트</RecommendPostTitle>
+      <RecommendPostTitle>추천 포스트</RecommendPostTitle>
 
-      {/* 인기 검색어 리스트 */}
-      <RecommendPostWrap>
+      {postList &&
+        postList.map((post) => {
+          return (
+            <Link to={'/'}>
+              <RecommendPostWrap>
+                {/* 추천 포스트 제목 */}
+                <RecommendPostHeader>{post.title}</RecommendPostHeader>
 
-        {/* 추천 포스트 제목 */}
-        <RecommendPostHeader>
-          이거 읽ㅇ어보지않을래재밌을걸
-        </RecommendPostHeader>
+                {/* 추천 포스트 내용 */}
+                <RecommendPostDescription>
+                  {post.content}
+                </RecommendPostDescription>
 
-        {/* 추천 포스트 내용 */}
-        <RecommendPostDescription>
-          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
-        </RecommendPostDescription>
+                {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
+                <RecommendPostInfo style={{ gap: "10px" }}>
+                  {/* 좋아요 */}
+                  <RecommendPostInfo className="like">
+                    <RecommendPostButton>
+                      <img src={Like} alt="좋아요 아이콘" />
+                    </RecommendPostButton>
+                    <RecommendPostText>{post.likes.length}</RecommendPostText>
+                  </RecommendPostInfo>
 
-        {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
-        <RecommendPostInfo style={{ gap: '10px' }}>
+                  {/* 댓글 */}
+                  <RecommendPostInfo className="comment">
+                    <RecommendPostButton>
+                      <img src={Comment} alt="댓글 아이콘" />
+                    </RecommendPostButton>
+                    <RecommendPostText>
+                      {post.comments.length}
+                    </RecommendPostText>
+                  </RecommendPostInfo>
 
-          {/* 좋아요 */}
-          <RecommendPostInfo className="like">
-            <RecommendPostButton>
-              <img src={Like} alt="좋아요 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 댓글 */}
-          <RecommendPostInfo className="comment">
-            <RecommendPostButton>
-              <img src={Comment} alt="댓글 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 작성시간 */}
-          <RecommendPostText>1일전</RecommendPostText>
-        </RecommendPostInfo>
-      </RecommendPostWrap>
-
-      {/* 인기 검색어 리스트 */}
-      <RecommendPostWrap>
-
-        {/* 추천 포스트 제목 */}
-        <RecommendPostHeader>
-          이거 읽ㅇ어보지않을래재밌을걸
-        </RecommendPostHeader>
-
-        {/* 추천 포스트 내용 */}
-        <RecommendPostDescription>
-          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
-        </RecommendPostDescription>
-
-        {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
-        <RecommendPostInfo style={{ gap: '10px' }}>
-
-          {/* 좋아요 */}
-          <RecommendPostInfo className="like">
-            <RecommendPostButton>
-              <img src={Like} alt="좋아요 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 댓글 */}
-          <RecommendPostInfo className="comment">
-            <RecommendPostButton>
-              <img src={Comment} alt="댓글 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 작성시간 */}
-          <RecommendPostText>1일전</RecommendPostText>
-        </RecommendPostInfo>
-      </RecommendPostWrap>
-
-      {/* 인기 검색어 리스트 */}
-      <RecommendPostWrap>
-
-        {/* 추천 포스트 제목 */}
-        <RecommendPostHeader>
-          이거 읽ㅇ어보지않을래재밌을걸
-        </RecommendPostHeader>
-
-        {/* 추천 포스트 내용 */}
-        <RecommendPostDescription>
-          내요냉내열내ㅓㄹ너래누채ㅑ다ㅜ채ㅑ느 ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑ ㅈ루츠ㅏㄷ차재루츠ㅐ쟈이내요냉내열내ㅓㄹ너래 누채ㅑ다ㅜ채ㅑ느ㅜㅊ냐ㅐ추ㅑ눝트챈추츠니ㅐㅓㅑ챠너ㅑ대ㅜ래ㅑㅈ루츠ㅏㄷ차재루츠ㅐ쟈이
-        </RecommendPostDescription>
-
-        {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
-        <RecommendPostInfo style={{ gap: '10px' }}>
-
-          {/* 좋아요 */}
-          <RecommendPostInfo className="like">
-            <RecommendPostButton>
-              <img src={Like} alt="좋아요 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 댓글 */}
-          <RecommendPostInfo className="comment">
-            <RecommendPostButton>
-              <img src={Comment} alt="댓글 아이콘" />
-            </RecommendPostButton>
-            <RecommendPostText>33</RecommendPostText>
-          </RecommendPostInfo>
-
-          {/* 작성시간 */}
-          <RecommendPostText>1일전</RecommendPostText>
-        </RecommendPostInfo>
-      </RecommendPostWrap>
-      
+                  {/* 작성시간 */}
+                  <RecommendPostText>{timeForToday(post)}</RecommendPostText>
+                </RecommendPostInfo>
+              </RecommendPostWrap>
+            </Link>
+          );
+        })}
     </div>
   );
 };
