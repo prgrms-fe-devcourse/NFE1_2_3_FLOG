@@ -9,6 +9,7 @@ import { IReply } from "./../models/commentModel";
 //댓글
 // 댓글 생성 함수
 export const createComment = async (req: Request, res: Response) => {
+  console.log("createComment call");
   const { postId, postType } = req.params;
   const { content } = req.body;
   const authorId = req.user?._id;
@@ -157,6 +158,7 @@ export const likeComment = async (req: Request, res: Response) => {
 //대댓글
 // 대댓글 생성
 export const createReplies = async (req: Request, res: Response) => {
+  console.log("createReplies call");
   try {
     const { commentId } = req.params;
     const { authorId, content } = req.body;
