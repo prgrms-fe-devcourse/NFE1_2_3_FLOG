@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { searchData } from "./mockData";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 interface RankColor {
   isTopRank: number;
@@ -72,18 +73,25 @@ const TopSearched = () => {
 
   // 인기 검색어 리스트 state에 return
   useEffect(() => {
-    const copySearchData = [...searchData];
-    const sortingData = copySearchData.sort((a, b) => {
-      return b.searchCount - a.searchCount;
-    });
-    const slicedData = sortingData.slice(0, 5);
+    const loadTopSearched = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/search/trending');
+        console.log(response)
+        const copySearchData = [...response.data.trendingSearches];
+        const sortingData = copySearchData.sort((a, b) => {
+          return b.searchCount - a.searchCount;
+        });
+        const slicedData = sortingData.slice(0, 5);
+        setSearchList(slicedData)
+      } catch (err) {
+        console.error("API 통신 오류", err)
+      }
+    }
 
     return () => {
-      if (searchList === null) {
-        setSearchList(slicedData);
-      }
-    };
-  }, [searchData]);
+      loadTopSearched();
+    }
+  }, []);
 
   return (
     <div style={{ width: "100%" }}>
@@ -103,7 +111,7 @@ const TopSearched = () => {
                   <TopSearchedRank isTopRank={index + 1}>
                     {index + 1}
                   </TopSearchedRank>
-                  <Link to={`/search/${search.query}`}>
+                  <Link to={`/search/?query=${search.query}`}>
                     <span>{search.query}</span>
                   </Link>
                 </TopSearchedKeywordWrap>
