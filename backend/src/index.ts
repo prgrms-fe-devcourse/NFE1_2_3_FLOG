@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoutes"; // 인증 라우트 임포트
 import entryRoutes from "./routes/entryRoutes"; // 출품작 관련 라우트 임포트
 import postRoutes from "./routes/postRoutes"; //포스트 상세 관련 라우트
 import commentRoutes from "./routes/commentRoutes"; //댓글 관련 라우트
-
+import userRoutes from "./routes/userRoutes"; //마이페이지 관련 라우트
 // 환경변수 로드
 dotenv.config();
 
@@ -38,6 +38,8 @@ app.use("/", postRoutes);
 
 //댓글 관련 라우트 추가
 app.use("/", commentRoutes);
+
+app.use("/", userRoutes);
 
 mongoose
   .connect(MONGO_URI)
