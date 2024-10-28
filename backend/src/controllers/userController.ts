@@ -53,3 +53,88 @@ export const updatePassword = async (
       .json({ message: "비밀번호 변경 중 오류가 발생했습니다.", error });
   }
 };
+
+export const updateProfile = async (req: Request, res: Response) => {
+  const userId = req.user?._id;
+  const { nickname, profileImage, bio, blogName, lifetimeItem } = req.body;
+
+  try {
+    // 사용자 찾기
+    const user = await User.findById(userId);
+    if (!user) {
+      res
+        .status(404)
+        .json({ success: false, message: "사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // 필드 업데이트
+    if (nickname) user.nickname = nickname;
+    if (profileImage) user.profileImage = profileImage;
+    if (bio) user.bio = bio;
+    if (blogName) user.blogName = blogName;
+    if (lifetimeItem)
+      user.lifetimeItem = { ...user.lifetimeItem, ...lifetimeItem };
+
+    // 저장
+    await user.save();
+
+    // 성공 응답
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      updatedProfile: {
+        nickname: user.nickname,
+        profileImage: user.profileImage,
+        bio: user.bio,
+        blogName: user.blogName,
+        lifetimeItem: user.lifetimeItem,
+      },
+    });
+    return;
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "서버 오류가 발생했습니다." });
+    return;
+  }
+};
+
+// 프로필 조회
+export const getProfile = async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await User.findById(userId).populate(
+      "followers following posts bookmarkedPosts"
+    );
+    if (!user) {
+      res
+        .status(404)
+        .json({ success: false, message: "사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    res.status(200).json({
+      userId: user._id,
+      nickname: user.nickname,
+      profileImage: user.profileImage,
+      bio: user.bio,
+      followers: user.followers,
+      following: user.following,
+      posts: user.posts,
+      bookmarkedPosts: user.bookmarkedPosts,
+      tier: user.tier,
+      points: user.points,
+      lifetimeItem: user.lifetimeItem,
+    });
+    return;
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "서버 오류가 발생했습니다." });
+    return;
+  }
+};
