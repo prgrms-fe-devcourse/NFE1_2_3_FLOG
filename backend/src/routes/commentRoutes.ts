@@ -16,7 +16,7 @@ import { authMiddleware } from "./../middlewares/authMiddleware";
 const router = Router();
 
 //댓글
-router.post("/comments/create", authMiddleware, createComment);
+router.post("/comments/:postType/:postId/create", authMiddleware, createComment);
 router.get("/comments/:commentId", getCommentById);
 router.delete("/comments/delete", authMiddleware, deleteComment);
 router.post("/comments/:commentId/like", authMiddleware, likeComment);
