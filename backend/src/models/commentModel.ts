@@ -11,6 +11,7 @@ export interface IReply extends Document {
 
 export interface IComment extends Document {
   postId: mongoose.Types.ObjectId;
+  postType: "Curation" | "Post"; // Curation 또는 Post 여부
   authorId: IUser;
   content: string;
   likes: mongoose.Types.ObjectId[];
@@ -31,7 +32,8 @@ const replySchema: Schema<IReply> = new Schema({
 });
 
 const commentSchema: Schema<IComment> = new Schema({
-  postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
+  postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true, refPath: "postType" },
+  postType: { type: String, required: true, enum: ["Curation", "Post"] },
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
