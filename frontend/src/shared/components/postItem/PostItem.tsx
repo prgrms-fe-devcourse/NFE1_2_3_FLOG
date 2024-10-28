@@ -140,8 +140,6 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
     return `${Math.floor(betweenTimeDay / 365)}년 전`;
   };
 
-  console.log(post)
-
   return (
     // 링크로 대체 예정
     <div style={baseCss}>

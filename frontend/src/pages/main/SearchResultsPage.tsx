@@ -2,11 +2,16 @@ import styled from "styled-components";
 import PostItem from "../../shared/components/postItem/PostItem";
 import SearchIcon from "./asset/BlackSearch.svg";
 import CategoryModal from "../../shared/components/categoryModal/CategoryModal";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { postData } from "../../shared/components/postItem/mockData";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+interface KeywordTypes {
+  gender: string
+  age: string
+  style: string
+}
 interface PostDataTypes {
   _id: string;
   title: string;
@@ -93,12 +98,25 @@ const useQuery = () => {
 
 const SearchResultsPage = () => {
 
+  const location = useLocation();
   const query = useQuery();
+  const navigate = useNavigate();
 
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
 
+  // 렌더링할 포스트 리스트 저장
   const [postList, setPostList] = useState<PostDataTypes[]>([]);
+
+  // 검색 키워드 카테고리에서 따로 설정한거 저장 (초기값은 쿼리에서)
+  const [keyword, setKeyword] = useState<KeywordTypes>({
+    gender: query.get('query') || '',
+    age: query.get('age') || '',
+    style: query.get('style') || ''
+  })
+
+  // 검색창 인풋 onchange하면 받는 값
+  const [searchValue, setSearchValue] = useState('')
 
   // 카테고리 모달 핸들 함수
   const handleModal = () => {
@@ -110,6 +128,14 @@ const SearchResultsPage = () => {
     setModalStatus(false);
   };
 
+  // 키워드 지정
+  const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
+    setKeyword((prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  }
+
   // 검색한 쿼리 기반 데이터 로드
   useEffect(() => {
     const loadData = async () => {
@@ -119,7 +145,8 @@ const SearchResultsPage = () => {
             query: query.get('query'),
             gender: query.get('gender'),
             age: query.get('age'),
-            style: query.get('style')
+            style: query.get('style'),
+            postType: query.get('postType')
           }
         });
         setPostList(response.data.posts)
@@ -128,12 +155,11 @@ const SearchResultsPage = () => {
       }
     }
 
-    loadData();
-
     return () => {
-      console.log(postList)
+      loadData();
+      console.log('im on')
     }
-  }, [])
+  }, [location.search]);
 
   return (
     <SearchResultsPageWrap>
@@ -144,6 +170,7 @@ const SearchResultsPage = () => {
           <SearchResultsPageInput
             type="text"
             placeholder="검색어를 입력해주세요"
+            onChange={(e) => setSearchValue(e.target.value)}
           />
 
           {/* 상단 검색창 검색 버튼 */}
@@ -156,11 +183,15 @@ const SearchResultsPage = () => {
         <SearchResultSetCategoryText onClick={handleModal}>
           카테고리 설정
         </SearchResultSetCategoryText>
-        { modalStatus ? <CategoryModal onModal={onModal} /> : null }
+        {
+          modalStatus
+          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword} />
+          : null
+        }
       </form>
       <SearchResultListWrap>
         {
-          postList ? postList.map((post) => {
+          postList && postList.length !== 0 ? postList.map((post) => {
             return <PostItem post={post} key={post._id} />;
           })
           : <div>검색결과가 없습니다.</div>

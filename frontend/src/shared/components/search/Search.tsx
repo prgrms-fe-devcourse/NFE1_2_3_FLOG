@@ -5,6 +5,9 @@ import CategoryModal from "../categoryModal/CategoryModal";
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface SearchPropTypes {
+  postType: "post"  | "promotion" | "event" 
+}
 interface KeywordTypes {
   gender: string
   age: string
@@ -62,7 +65,7 @@ const SearchCategory = styled.p`
 `;
 
 
-const Search = () => {
+const Search: React.FC<SearchPropTypes> = ({ postType }) => {
 
   const navigate = useNavigate();
 
@@ -93,6 +96,7 @@ const Search = () => {
     if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
     if(keyword.age !== '') { searchString += `&age=${keyword.age}` };
     if(keyword.style !== '') { searchString += `&style=${keyword.style}` };
+    if(postType) { searchString += `&postType=${postType}` }
     navigate(searchString);
   }
 
@@ -100,12 +104,8 @@ const Search = () => {
     setKeyword((prev) => ({
       ...prev,
       [key]: value
-    }))
+    }));
   }
-
-  useEffect(() => {
-    console.log(keyword)
-  }, [keyword])
 
   return (
     <form onSubmit={(e) => handleForm(e)}>
