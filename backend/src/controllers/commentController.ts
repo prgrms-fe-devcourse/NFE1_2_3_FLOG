@@ -1,4 +1,5 @@
 import { Comment, Reply } from "./../models/commentModel";
+import { Curation } from "./../models/curationModel";
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import { Post } from "../models/postModel";
@@ -8,11 +9,24 @@ import { IReply } from "./../models/commentModel";
 //댓글
 // 댓글 생성 함수
 export const createComment = async (req: Request, res: Response) => {
-  try {
-    const { postId, authorId, content } = req.body;
+  const { postId, postType } = req.params;
+  const { content } = req.body;
+  const authorId = req.user?._id;
 
+  if (!authorId) {
+    res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
+    return;
+  }
+
+  if (!["Curation", "Post"].includes(postType)) {
+    res.status(400).json({ success: false, message: "유효하지 않은 postType입니다." });
+    return;
+  }
+
+  try {
     const newComment = new Comment({
       postId,
+      postType,
       authorId,
       content,
       likes: [],
@@ -20,16 +34,14 @@ export const createComment = async (req: Request, res: Response) => {
     });
 
     const savedComment = await newComment.save();
-    // 해당 게시물의 comments 배열에 새 댓글 추가
-    await Post.findByIdAndUpdate(postId, {
-      $push: { comments: savedComment._id },
-    });
+    
+    // `postType`에 따라 Curation 또는 Post의 comments 배열에 새 댓글 추가
+    const updateModel: any = postType === "Curation" ? Curation : Post;
+    await updateModel.findByIdAndUpdate(postId, { $push: { comments: savedComment._id } });
 
     res.status(201).json(savedComment);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "댓글 생성 중 오류가 발생했습니다.", error });
+    res.status(500).json({ message: "댓글 생성 중 오류가 발생했습니다.", error });
   }
 };
 
