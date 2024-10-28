@@ -8,6 +8,16 @@ export const createEntry = async (entryData: Partial<IEntry>): Promise<IEntry> =
       throw new Error('Curation ID is required to create an entry');
   }
 
+   // 동일한 큐레이션과 사용자로 이미 출품한 기록이 있는지 확인
+   const existingEntry = await Entry.findOne({
+    curationId: entryData.curationId,
+    authorId: entryData.authorId,
+});
+
+if (existingEntry) {
+    throw new Error('이미 이 큐레이션에 출품한 사용자입니다.');
+}
+
   // 출품작 생성
   const newEntry = new Entry(entryData);
   await newEntry.save(); // 트랜잭션 없이 저장
