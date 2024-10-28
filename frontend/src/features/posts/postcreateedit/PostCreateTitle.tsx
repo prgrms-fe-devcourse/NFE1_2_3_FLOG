@@ -14,6 +14,7 @@ const InputTitle = styled.input`
   margin-top: 20px;
   border: 1px solid ${gray};
   border-width: 0 0 1px;
+  outline: none;
 `;
 
 const PostCreateTitle = () => {
@@ -23,9 +24,7 @@ const PostCreateTitle = () => {
     setData({ title: e.target.value });
   };
 
-  return (
-    <InputTitle placeholder="제목을 입력해주세요" value={data.title} onChange={handleChange} />
-  );
+  return <InputTitle placeholder="제목을 입력해주세요" value={data.title} onChange={handleChange} />;
 };
 
 export default PostCreateTitle;
