@@ -5,8 +5,16 @@ import { useEffect, useState } from "react";
 
 import Exit from "../asset/Exit.svg";
 import { categoryData } from "./mockData";
+
+interface KeywordTypes {
+  gender: string
+  age: string
+  style: string
+}
+
 interface CategoryProps {
   onModal: () => void;
+  onEditKeyword: (key: keyof KeywordTypes, value: string) => void
 }
 
 interface CategoryData {
@@ -103,7 +111,7 @@ const CategoryComplete = styled.p`
   cursor: pointer;
 `;
 
-const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
+const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
   // 페이드 애니메이션
   const [fade, setFade] = useState("");
 
@@ -122,7 +130,7 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
       clearTimeout(fadeTimer);
       setFade("");
     };
-  }, [onModal]);
+  }, []);
 
   return (
     <CategoryModalWrap className={`start ${fade}`}>
@@ -146,7 +154,10 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
               return (
                 <CategoryModalTagButton
                   key={index}
-                  onClick={() => setGenderKeyword(gender)}
+                  onClick={() => {
+                    setGenderKeyword(gender)
+                    onEditKeyword('gender', gender)
+                  }}
                   isClicked={genderKeyword === gender ? true : false}
                 >
                   {gender}
@@ -167,7 +178,10 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
               return (
                 <CategoryModalTagButton
                   key={index}
-                  onClick={() => setAgeKeyword(age)}
+                  onClick={() => {
+                    setAgeKeyword(age)
+                    onEditKeyword('age', age)
+                  }}
                   isClicked={ageKeyword === age ? true : false}
                 >
                   {age}
@@ -188,7 +202,10 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal }) => {
               return (
                 <CategoryModalTagButton
                   key={index}
-                  onClick={() => setStyleKeyword(style)}
+                  onClick={() => {
+                    setStyleKeyword(style)
+                    onEditKeyword('style', style)
+                  }}
                   isClicked={styleKeyword === style ? true : false}
                 >
                   {style}

@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
 import mongoose from "mongoose"; 
 import { createEntry, getEntriesByCurationId, getEntryById, voteForEntry } from '../services/entryService';
+import { Entry } from '../models/entryModel'; 
 
 // 출품작 생성 컨트롤러
 export const createEntryController = async (req: Request, res: Response): Promise<void> => {
   const { title, photos, description } = req.body;
   const { curationId } = req.params; // URL에서 curationId 가져옴
   const authorId = req.user?._id; // 인증된 사용자 ID
+
+  // photos 필드가 배열로 전달되는지 확인하는 로그
+  console.log("Request body photos field: ", req.body.photos); // 여기에서 req.body.photos의 값 확인
 
   if (!authorId) {
     res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
@@ -17,10 +21,16 @@ export const createEntryController = async (req: Request, res: Response): Promis
     res.status(400).json({ success: false, message: "유효하지 않은 큐레이션 ID입니다." });
     return;
   }
+
+   // photos 필드가 배열인지 확인
+   if (!Array.isArray(photos)) {
+    res.status(400).json({ success: false, message: "photos 필드는 배열이어야 합니다." });
+    return;
+  }
   
   try {
     const newEntry = await createEntry({
-        curationId: new mongoose.Types.ObjectId(curationId), // URL에서 가져온 curationId를 ObjectId로 변환
+      curationId: new mongoose.Types.ObjectId(curationId), // URL에서 가져온 curationId를 ObjectId로 변환
         title,
         authorId: new mongoose.Types.ObjectId(authorId), // ObjectId로 변환
         photos,
@@ -28,7 +38,11 @@ export const createEntryController = async (req: Request, res: Response): Promis
       });
     res.status(201).json({ success: true, entry: newEntry });
   } catch (error) {
-    res.status(500).json({ success: false, message: '출품작 생성 중 오류가 발생했습니다.' });
+    if (error instanceof Error) {
+      res.status(500).json({ success: false, message: error.message });
+    } else {
+      res.status(500).json({ success: false, message: '출품작 생성 중 알 수 없는 오류가 발생했습니다.' });
+    }
   }
 };
 
@@ -64,13 +78,33 @@ export const getEntryController = async (req: Request, res: Response): Promise<v
 export const voteForEntryController = async (req: Request, res: Response): Promise<void> => {
   const { entryId } = req.params;
   const userId = req.user?._id;
+
   if (!userId) {
     res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
     return;
   }
 
   try {
-    const updatedEntry = await voteForEntry(entryId, userId);
+    // 투표하려는 출품작을 먼저 찾습니다.
+    const entry = await Entry.findById(entryId).populate('curationId');
+    if (!entry) {
+      res.status(404).json({ success: false, message: '출품작을 찾을 수 없습니다.' });
+      return;
+    }
+
+    // 본인이 해당 큐레이션에 출품했는지 확인합니다.
+    const userEntry = await Entry.findOne({
+      curationId: entry.curationId, // 현재 출품작의 큐레이션 ID
+      authorId: userId              // 본인 ID
+    });
+
+    if (userEntry) {
+      res.status(403).json({ success: false, message: "해당 큐레이션에 출품한 사용자는 투표할 수 없습니다." });
+      return;
+    }
+
+    // 본인이 출품하지 않았다면 투표 처리
+    const updatedEntry = await voteForEntry(entryId, userId.toString());
     if (!updatedEntry) {
       res.status(404).json({ success: false, message: '출품작을 찾을 수 없습니다.' });
       return;

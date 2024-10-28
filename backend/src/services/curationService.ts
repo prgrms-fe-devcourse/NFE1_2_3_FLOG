@@ -1,4 +1,5 @@
 import { Curation, ICuration } from '../models/curationModel';
+import mongoose from 'mongoose';
 
 // 큐레이션 리스트 조회 (필터링 및 검색)
 export const getCurations = async (
@@ -49,4 +50,21 @@ export const getCurationById = async (curationId: string): Promise<ICuration | n
 export const createCuration = async (curationData: Partial<ICuration>): Promise<ICuration> => {
     const newCuration = new Curation(curationData);
     return await newCuration.save(); // DB에 저장
+  };
+
+  export const toggleCurationLike = async (curationId: string, userId: mongoose.Types.ObjectId) => {
+    const curation = await Curation.findById(curationId);
+    if (!curation) throw new Error('큐레이션을 찾을 수 없습니다.');
+  
+    const isLiked = curation.likes.some((id) => id.equals(userId));
+    if (isLiked) {
+      // 좋아요 취소
+      curation.likes = curation.likes.filter((id) => !id.equals(userId));
+    } else {
+      // 좋아요 추가
+      curation.likes.push(userId);
+    }
+  
+    await curation.save();
+    return curation;
   };

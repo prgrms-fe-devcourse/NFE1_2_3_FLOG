@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { getCurations, getCurationById, createCuration } from '../services/curationService';
+import { getCurations, getCurationById, createCuration, toggleCurationLike } from '../services/curationService';
+import mongoose from 'mongoose';
 
 // 큐레이션 리스트 조회 (어드민과 일반 사용자 구분)
 export const getCurationList = async (req: Request, res: Response) => {
@@ -71,16 +72,48 @@ export const getCuration = async (req: Request, res: Response): Promise<void> =>
   // 큐레이션 생성 (어드민만 가능)
   export const createCurationController = async (req: Request, res: Response): Promise<void> => {
     const isAdmin = (req as any).user?.isAdmin || false; // 어드민 여부 확인
-  
+    const adminId = (req as any).user?._id; // 토큰에서 추출한 admin의 userId
+
     if (!isAdmin) {
       res.status(403).json({ success: false, message: '큐레이션을 생성할 권한이 없습니다.' });
       return;
     }
+
+    if (!mongoose.Types.ObjectId.isValid(adminId)) {
+      res.status(400).json({ success: false, message: '유효하지 않은 관리자 ID입니다.' });
+      return;
+    }
   
     try {
-      const newCuration = await createCuration(req.body);
+      const newCuration = await createCuration({ ...req.body, adminId });
       res.status(201).json({ success: true, curation: newCuration });
     } catch (error) {
-      res.status(500).json({ success: false, message: '큐레이션 생성 중 오류가 발생했습니다.' });
+      if (error instanceof Error) {
+        res.status(500).json({ success: false, message: error.message });
+      } else {
+        res.status(500).json({ success: false, message: '큐레이션 생성 중 알 수 없는 오류가 발생했습니다.' });
+      }
     }
   };  
+
+  export const likeCurationController = async (req: Request, res: Response) => {
+    const { curationId } = req.params;
+    const userId = req.user?._id;
+  
+    if (!userId) {
+      res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
+      return;
+    }
+  
+    try {
+      const curation = await toggleCurationLike(curationId, userId);
+      res.status(200).json({ success: true, likes: curation.likes.length });
+    } catch (error) {
+      // Error 타입인지 확인한 후, message에 접근
+      if (error instanceof Error) {
+        res.status(500).json({ success: false, message: error.message });
+      } else {
+        res.status(500).json({ success: false, message: "좋아요 처리 중 알 수 없는 오류가 발생했습니다." });
+      }
+    }
+  };

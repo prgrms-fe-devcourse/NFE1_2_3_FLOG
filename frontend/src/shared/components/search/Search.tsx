@@ -2,7 +2,14 @@ import styled from "styled-components";
 
 import SearchIcon from '../asset/Search.svg'
 import CategoryModal from "../categoryModal/CategoryModal";
-import { useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface KeywordTypes {
+  gender: string
+  age: string
+  style: string
+}
 
 const SearchInputWrap = styled.div`
   display: flex;
@@ -57,8 +64,16 @@ const SearchCategory = styled.p`
 
 const Search = () => {
 
+  const navigate = useNavigate();
+
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
+  const [keyword, setKeyword] = useState<KeywordTypes>({
+    gender: '',
+    age: '',
+    style: ''
+  })
+  const [searchValue, setSearchValue] = useState('');
 
   // 카테고리 모달 핸들 함수
   const handleModal = () => {
@@ -70,11 +85,32 @@ const Search = () => {
     setModalStatus(false)
   }
 
+  // 폼 이벤트 (검색) 함수
+  const handleForm = (e: FormEvent) => {
+    e.preventDefault();
+    navigate(`/search/?${searchValue}`)
+  }
+
+  const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
+    setKeyword((prev) => ({
+      ...prev,
+      [key]: value
+    }))
+  }
+
+  useEffect(() => {
+    console.log(keyword)
+  }, [keyword])
+
   return (
-    <form>
+    <form onSubmit={(e) => handleForm(e)}>
       <SearchInputWrap>
         <SearchInputInner>
-          <SearchInput type="text" placeholder="검색어를 입력해주세요" />
+          <SearchInput
+            type="text"
+            placeholder="검색어를 입력해주세요"
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
           <SearchButton type="submit">
             <img src={SearchIcon} alt="검색 아이콘" />
           </SearchButton>
@@ -82,7 +118,7 @@ const Search = () => {
         <SearchCategory onClick={handleModal}>카테고리 설정</SearchCategory>
         {
           modalStatus
-          ? <CategoryModal onModal={onModal} />
+          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword}/>
           : null
         }
       </SearchInputWrap>
