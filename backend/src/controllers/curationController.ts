@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getCurations, getCurationById, createCuration, toggleCurationLike } from '../services/curationService';
+import { getCurations, getCurationById, createCuration, updateCuration, deleteCuration, toggleCurationLike } from '../services/curationService';
 import mongoose from 'mongoose';
 
 // 큐레이션 리스트 조회 (어드민과 일반 사용자 구분)
@@ -95,6 +95,51 @@ export const getCuration = async (req: Request, res: Response): Promise<void> =>
       }
     }
   };  
+
+  // 특정 큐레이션 수정 (관리자만)
+export const updateCurationController = async (req: Request, res: Response) => {
+  const { curationId } = req.params;
+  const isAdmin = (req as any).user?.isAdmin || false;
+  const updates = req.body;
+
+  if (!isAdmin) {
+    res.status(403).json({ success: false, message: '큐레이션을 수정할 권한이 없습니다.' });
+    return;
+  }
+
+  try {
+    const updatedCuration = await updateCuration(curationId, updates);
+    if (!updatedCuration) {
+      res.status(404).json({ success: false, message: '큐레이션을 찾을 수 없습니다.' });
+      return;
+    }
+    res.status(200).json({ success: true, curation: updatedCuration });
+  } catch (error) {
+    res.status(500).json({ success: false, message: '큐레이션 수정 중 오류가 발생했습니다.' });
+  }
+};
+
+// 특정 큐레이션 삭제 (관리자만)
+export const deleteCurationController = async (req: Request, res: Response) => {
+  const { curationId } = req.params;
+  const isAdmin = (req as any).user?.isAdmin || false;
+
+  if (!isAdmin) {
+    res.status(403).json({ success: false, message: '큐레이션을 삭제할 권한이 없습니다.' });
+    return;
+  }
+
+  try {
+    const deleted = await deleteCuration(curationId);
+    if (!deleted) {
+      res.status(404).json({ success: false, message: '큐레이션을 찾을 수 없습니다.' });
+      return;
+    }
+    res.status(200).json({ success: true, message: '큐레이션이 성공적으로 삭제되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: '큐레이션 삭제 중 오류가 발생했습니다.' });
+  }
+};
 
   export const likeCurationController = async (req: Request, res: Response) => {
     const { curationId } = req.params;
