@@ -31,7 +31,7 @@ const usePostCreateStore = create<IPostCreateStore>((set: any) => ({
     genderFilter: [],
     ageFilter: [],
     styleFilter: [],
-    postType: "",
+    postType: "post",
     status: "",
   },
   // 데이터를 변경할 때 사용하는 setData 메소드
