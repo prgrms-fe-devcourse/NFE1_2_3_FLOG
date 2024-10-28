@@ -140,6 +140,8 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
     return `${Math.floor(betweenTimeDay / 365)}년 전`;
   };
 
+  console.log(post)
+
   return (
     // 링크로 대체 예정
     <div style={baseCss}>
@@ -174,8 +176,8 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
 
           {/* 포스트 내용 */}
           <PostDescription>
-            {post.content.map((postConent) => {
-              return <>{postConent}</>;
+            {post.content.map((postContent) => {
+              return <>{postContent}</>;
             })}
           </PostDescription>
 
@@ -190,7 +192,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="좋아요 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{post.likes.length}</PostInfoText>
+              <PostInfoText>{ post.likes ? post.likes.length : 0}</PostInfoText>
             </PostFlexStartWrap>
 
             {/* 댓글 */}
@@ -202,7 +204,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="댓글 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{post.comments.length}</PostInfoText>
+              <PostInfoText>{ post.comments ? post.comments.length : 0}</PostInfoText>
             </PostFlexStartWrap>
 
             {/* 작성시간 */}

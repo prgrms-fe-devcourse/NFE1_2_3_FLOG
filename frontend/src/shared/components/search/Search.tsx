@@ -69,8 +69,8 @@ const Search = () => {
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
   const [keyword, setKeyword] = useState<KeywordTypes>({
-    gender: '',
     age: '',
+    gender: '',
     style: ''
   })
   const [searchValue, setSearchValue] = useState('');
@@ -88,7 +88,12 @@ const Search = () => {
   // 폼 이벤트 (검색) 함수
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
-    navigate(`/search/?${searchValue}`)
+    let searchString = `/search/?query=${searchValue}`
+    console.log(keyword)
+    if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
+    if(keyword.age !== '') { searchString += `&age=${keyword.age}` };
+    if(keyword.style !== '') { searchString += `&style=${keyword.style}` };
+    navigate(searchString);
   }
 
   const onEditKeyword = (key: keyof KeywordTypes, value: string) => {

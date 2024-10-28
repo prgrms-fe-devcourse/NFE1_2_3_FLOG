@@ -1,5 +1,5 @@
 export const categoryData = {
-  genderFilter: ['전체', '남자', '여자'],
-  ageFilter: ['~9세', '10~14세', '15~19세', '20~24세', '25~29세', '30~34세'],
-  styleFilter: ['전체', '캐주얼', '스트릿', '페미닌', '펑크', '스포티', '비지니스', '댄디', '포멀', '미니멀', '청순', '섹시']
+  genderFilter: ["남자", "여자", "전체"],
+  ageFilter: ['10대 미만', '10대', '20대', '30대', '40대', '50대 이상', '전체'],
+  styleFilter: ['casual','street','feminine','punk','sporty','business', '전체']
 }

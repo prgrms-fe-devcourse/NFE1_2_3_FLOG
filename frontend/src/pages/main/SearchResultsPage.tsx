@@ -2,8 +2,10 @@ import styled from "styled-components";
 import PostItem from "../../shared/components/postItem/PostItem";
 import SearchIcon from "./asset/BlackSearch.svg";
 import CategoryModal from "../../shared/components/categoryModal/CategoryModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { postData } from "../../shared/components/postItem/mockData";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 interface PostDataTypes {
   _id: string;
@@ -85,11 +87,18 @@ const SearchResultListWrap = styled.div`
   margin-top: 20px;
 `;
 
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search)
+}
+
 const SearchResultsPage = () => {
+
+  const query = useQuery();
+
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
 
-  const [postList, setPostList] = useState<PostDataTypes[]>(postData);
+  const [postList, setPostList] = useState<PostDataTypes[]>([]);
 
   // 카테고리 모달 핸들 함수
   const handleModal = () => {
@@ -100,6 +109,30 @@ const SearchResultsPage = () => {
   const onModal = () => {
     setModalStatus(false);
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await axios.get<{ posts: PostDataTypes[] }>('http://localhost:5000/search/posts', {
+          params: {
+            query: query.get('query'),
+            gender: query.get('gender'),
+            age: query.get('age'),
+            style: query.get('style')
+          }
+        });
+        setPostList(response.data.posts)
+      } catch (err) {
+        console.error("API 호출 에러", err)
+      }
+    }
+
+    loadData();
+
+    return () => {
+      console.log(postList)
+    }
+  }, [])
 
   return (
     <SearchResultsPageWrap>
@@ -126,9 +159,10 @@ const SearchResultsPage = () => {
       </form>
       <SearchResultListWrap>
         {
-          postList.map((post) => {
+          postList ? postList.map((post) => {
             return <PostItem post={post} key={post._id} />;
           })
+          : <div>검색결과가 없습니다.</div>
         }
       </SearchResultListWrap>
     </SearchResultsPageWrap>
