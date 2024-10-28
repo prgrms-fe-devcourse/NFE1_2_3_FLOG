@@ -7,7 +7,7 @@ import {
   updateComment,
   getCurationComments,
   createReplies,
-  getCommentByRepliesId,
+  getRepliesByCommentId,
   deleteReplies,
   likeReplies,
   updateRepliesId,
@@ -30,7 +30,7 @@ router.put("/api/comments/:commentId", authMiddleware, updateComment);
 // 특정 큐레이션의 댓글 목록 조회
 router.get("/api/curations/:curationId/comments", getCurationComments);
 
-router.get("/api/comments/:commentId/replies/:replyId", getCommentByRepliesId);
+router.get("/api/comments/:commentId/replies/:replyId", getRepliesByCommentId);
 router.delete(
   "/api/comments/:commentId/replies/:replyId",
   authMiddleware,
