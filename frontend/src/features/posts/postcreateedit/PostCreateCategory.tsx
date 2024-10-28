@@ -13,6 +13,7 @@ const CategoryButton = styled.button`
   background-color: #fff;
   border: 1px solid ${gray};
   border-radius: 5px;
+  cursor: pointer;
 `;
 
 const PostCreateCategory = () => {
