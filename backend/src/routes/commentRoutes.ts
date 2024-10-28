@@ -23,7 +23,7 @@ router.post(
 
 router.post("/api/comments/:postType/:postId/create", authMiddleware, createComment);
 router.get("/api/comments/:commentId", getCommentById);
-router.delete("/api/comments/delete", authMiddleware, deleteComment);
+router.delete('/api/comments/:postType/:postId/:commentId', authMiddleware, deleteComment); // 경로에 postType, postId 추가
 router.post("/api/comments/:commentId/like", authMiddleware, likeComment);
 router.put("/api/comments/:commentId", authMiddleware, updateComment);
 

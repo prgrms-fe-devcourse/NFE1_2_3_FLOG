@@ -9,7 +9,6 @@ import { IReply } from "./../models/commentModel";
 //댓글
 // 댓글 생성 함수
 export const createComment = async (req: Request, res: Response) => {
-  console.log("createComment call");
   const { postId, postType } = req.params;
   const { content } = req.body;
   const authorId = req.user?._id;
@@ -84,22 +83,35 @@ export const getCommentById = async (req: Request, res: Response) => {
 // 댓글 삭제
 export const deleteComment = async (req: Request, res: Response) => {
   try {
-    const { commentId } = req.body;
+    const { commentId, postType, postId } = req.params; // postType, postId를 params로 받아옴
+    const userId = req.user?._id; // 인증된 사용자 ID 가져오기
+
+  if (!userId) {
+    res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
+    return;
+  }
 
     const deletedComment = await Comment.findByIdAndDelete(commentId);
     if (!deletedComment) {
       res.status(404).json({ message: "댓글을 찾을 수 없습니다." });
       return;
     }
-    await Post.findByIdAndUpdate(deletedComment.postId, {
+
+    // 삭제하려는 유저가 댓글 작성자가 맞는지 확인
+if (deletedComment.authorId.toString() !== userId.toString()) {
+  res.status(403).json({ success: false, message: "삭제 권한이 없습니다." });
+  return;
+}
+
+    // postType에 따라 Curation 또는 Post 모델 업데이트
+    const updateModel: any = postType === "Curation" ? Curation : Post;
+    await updateModel.findByIdAndUpdate(deletedComment.postId, {
       $pull: { comments: commentId },
     });
 
     res.status(200).json({ message: "댓글이 성공적으로 삭제되었습니다." });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "댓글 삭제 중 오류가 발생했습니다.", error });
+    res.status(500).json({ message: "댓글 삭제 중 오류가 발생했습니다.", error });
   }
 };
 
@@ -158,7 +170,6 @@ export const likeComment = async (req: Request, res: Response) => {
 //대댓글
 // 대댓글 생성
 export const createReplies = async (req: Request, res: Response) => {
-  console.log("createReplies call");
   try {
     const { commentId } = req.params;
     const { content } = req.body;
