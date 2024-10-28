@@ -35,7 +35,7 @@ export const searchPosts = async (req: Request, res: Response) => {
         existingLog.searchCount += 1;
         await existingLog.save();
       } else {
-        const newLog = new SearchLog({ query, searchCount: 1, createdAt: Date.now})
+        const newLog = new SearchLog({ query, searchCount: 1, createdAt: new Date()})
         await newLog.save();
       }
     }

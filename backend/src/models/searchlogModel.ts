@@ -8,8 +8,7 @@ export interface ISearchLog extends Document {
 }
 
 const searchLogSchema: Schema<ISearchLog> = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
-  query: { type: String },
+  query: { type: String, required: true },
   searchCount: { type: Number },
   createdAt: { type: Date, default: Date.now }
 })
