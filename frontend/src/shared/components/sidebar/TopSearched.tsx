@@ -68,7 +68,7 @@ const TopSearched = () => {
     const hour = date.getHours();
     const minute = date.getMinutes();
 
-    return `${("00" + month.toString()).slice(-2)}.${("00" + day.toString()).slice(-2)}.${hour}:${minute} 기준`;
+    return `${("00" + month.toString()).slice(-2)}.${("00" + day.toString()).slice(-2)}.${("00" + hour.toString()).slice(-2)}:${("00" + minute.toString()).slice(-2)} 기준`;
   }
 
   // 인기 검색어 리스트 state에 return
