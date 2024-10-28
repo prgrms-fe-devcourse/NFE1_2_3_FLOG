@@ -1,5 +1,29 @@
 import styled from "styled-components";
 
+import { curationData } from "./mockData";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+interface CurationTypes {
+  _id: string
+  title: string
+  adminId: string
+  thumbnail: string
+  startDate: string
+  endDate: string
+  content: string[]
+  tags: string[]
+  likes: string[]
+  comments: string[]
+  entries: string[]
+  createdAt: string
+  updatedAt: string
+  status: string
+  genderFilter: string[]
+  ageFilter: string[]
+  styleFilter: string[]
+}
+
 const RecommendCurationTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
@@ -21,7 +45,7 @@ const RecommendCurationHeader = styled.p`
   font-size: 14px;
   color: #212529;
   margin: 0;
-  
+
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -32,29 +56,36 @@ const RecommendCurationHeader = styled.p`
 `;
 
 const RecommendCuration = () => {
+
+  const [curationList, setCurationList] = useState<CurationTypes[] | null>(null)
+
+  useEffect(() => {
+    const copyCurationList = [...curationData];
+    const slicedCurationList = copyCurationList.slice(0, 3)
+
+    return () => {
+      setCurationList([...slicedCurationList])
+    }
+  }, [])
+
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: "100%" }}>
       {/* 추천 큐레스트 타이틀 */}
-      <RecommendCurationTitle>
-        추천 큐레스트
-      </RecommendCurationTitle>
+      <RecommendCurationTitle>추천 큐레스트</RecommendCurationTitle>
 
       {/* 추천 큐레스트 래퍼 */}
       <RecommendCurationWrap>
-        {/* 추천 큐레스트 목록 */}
-        <RecommendCurationHeader>
-          코디랑 관련한 큐레스트임 이응
-        </RecommendCurationHeader>
-
-        {/* 추천 큐레스트 목록 */}
-        <RecommendCurationHeader>
-          이 큐레스트 참여해도 좋고 투표해도 좋고 ㄱㄱrrrrrrrrrrrrrrrrrrrrrrrrrr
-        </RecommendCurationHeader>
-
-        {/* 추천 큐레스트 목록 */}
-        <RecommendCurationHeader>
-          큐레스트 큐레스트 큐레스트 아파트 아파트
-        </RecommendCurationHeader>
+        {
+          curationList && curationList.map((curation) => {
+            return (
+              <Link to={`/curation/${curation._id}`} key={curation._id}>
+                <RecommendCurationHeader>
+                  { curation.title }
+                </RecommendCurationHeader>
+              </Link>
+            )
+          })
+        }
       </RecommendCurationWrap>
     </div>
   );

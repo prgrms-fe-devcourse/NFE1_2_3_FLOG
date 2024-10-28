@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Logo from "./asset/Logo.svg";
 import { useEffect, useState } from "react";
 import AlarmModal from "./AlarmModal";
+import { Link } from "react-router-dom";
 
 interface HeaderScrollbar {
   scrollbarWidth?: string;
@@ -12,8 +13,9 @@ interface HeaderFlexWrapProps {
 }
 
 const HeaderWrap = styled.header<HeaderScrollbar>`
+  box-sizing: border-box;
   width: 100%;
-  max-width: 1780px;
+  padding: 0 70px;
   height: 92px;
   display: flex;
   justify-content: space-between;
@@ -23,7 +25,7 @@ const HeaderWrap = styled.header<HeaderScrollbar>`
   &::after {
     content: "";
     display: block;
-    width: ${({ scrollbarWidth = "0px" }) => `calc(100vw - ${scrollbarWidth})`};
+    width: 100%;
     height: 1px;
     background-color: #393939;
     position: absolute;
@@ -51,14 +53,13 @@ const HeaderCate = styled.div`
 
 const HeaderLogo = styled.div`
   width: 100px;
-  & > img {
+  & > a > img {
     width: 100%;
     display: block;
   }
 `
 
 const Header = () => {
-  const [scrollbarWidth, setScrollbarWidth] = useState("0px");
   const [isLogin, setIsLogin] = useState(true);
   // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
@@ -76,45 +77,39 @@ const Header = () => {
     setAlarmStatus(false)
   };
 
-  useEffect(() => {
-    const scrollbarWidthValue = `${window.innerWidth - document.documentElement.clientWidth}px`;
-    setScrollbarWidth(scrollbarWidthValue);
-  }, []);
-
   return (
-    <HeaderWrap id="header" scrollbarWidth={scrollbarWidth}>
+    <HeaderWrap id="header">
       {/* 헤더 좌측 로고, 카테고리 */}
       <HeaderFlexWrap isEnd={false}>
         <HeaderLogo id="logoImg">
-          <img src={Logo} alt="Flog" />
+          <Link to={'/'} >
+            <img src={Logo} alt="Flog" />
+          </Link>
         </HeaderLogo>
         <HeaderCate>
-          <span>일정</span>
+          <Link to={'/event'}>일정</Link>
           <span>큐레이션</span>
-          <span>가게홍보</span>
+          <Link to={'/promotion'}>가게홍보</Link>
         </HeaderCate>
       </HeaderFlexWrap>
       {/* 헤더 우측 기능관련 */}
       <HeaderFlexWrap isEnd={true}>
         {isLogin ? (
           <HeaderCate>
-            <span>글쓰기</span>
-            <span>로그아웃</span>
-            <span
+            <p>글쓰기</p>
+            <p>로그아웃</p>
+            <p
               onClick={handleAlarmModal}
-              style={{
-                position: 'relative',
-                cursor: 'pointer'
-              }}
+              style={{ position: 'relative' }}
             >
-              알림
+              <span style={{ cursor: 'pointer' }}>알림</span>
               {
                 alarmStatus
                 ? <AlarmModal onAlarm={onAlarmModal} />
                 : null
               }
-            </span>
-            <span>마이페이지</span>
+            </p>
+            <p>마이페이지</p>
           </HeaderCate>
         ) : (
           <HeaderCate>로그인</HeaderCate>

@@ -13,6 +13,7 @@ const SideBarWrap = styled.section`
 `;
 
 const SideBar = () => {
+
   return (
     <SideBarWrap>
       <TopSearched />

@@ -1,6 +1,11 @@
 import React from "react";
 import SignupPage from "../pages/auth/SignupPage";
 import { Route, Routes } from "react-router-dom";
+import MainPage from "../pages/main/MainPage";
+import SearchResultsPage from "../pages/main/SearchResultsPage";
+import Header from "../shared/components/header/Header";
+import StorePromotionPage from "../pages/promotion/StorePromotionPage";
+import EventSchedulePage from "../pages/event/EventSchedulePage";
 import SigninPage from "../pages/auth/SigninPage";
 import PostDetailPage from "../pages/post/PostDetailPage";
 import MyPage from "../pages/user/MyPage";
@@ -11,9 +16,13 @@ import MyPagePost from "../pages/user/MyPagePost";
 function App() {
   return (
     <div>
+      <Header />
       <Routes>
-        <Route path="/" element={<div>메인페이지</div>} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/detail" element={<PostDetailPage />} />
+        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/event" element={<EventSchedulePage />} />
+        <Route path="/promotion" element={<StorePromotionPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/mypage" element={<MyPage />}></Route>
