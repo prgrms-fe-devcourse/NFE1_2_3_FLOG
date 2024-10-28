@@ -110,6 +110,7 @@ const SearchResultsPage = () => {
     setModalStatus(false);
   };
 
+  // 검색한 쿼리 기반 데이터 로드
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -155,7 +156,7 @@ const SearchResultsPage = () => {
         <SearchResultSetCategoryText onClick={handleModal}>
           카테고리 설정
         </SearchResultSetCategoryText>
-        {modalStatus ? <CategoryModal onModal={onModal} /> : null}
+        { modalStatus ? <CategoryModal onModal={onModal} /> : null }
       </form>
       <SearchResultListWrap>
         {
