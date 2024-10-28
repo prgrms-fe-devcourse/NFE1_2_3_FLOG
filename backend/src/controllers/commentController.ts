@@ -161,7 +161,13 @@ export const createReplies = async (req: Request, res: Response) => {
   console.log("createReplies call");
   try {
     const { commentId } = req.params;
-    const { authorId, content } = req.body;
+    const { content } = req.body;
+    const authorId = req.user?._id; // 인증된 사용자 ID를 req.user에서 가져옴
+
+  if (!authorId) {
+    res.status(401).json({ success: false, message: "인증된 사용자가 아닙니다." });
+    return;
+  }
 
     const newReply = new Reply({
       authorId,
