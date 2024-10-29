@@ -3,7 +3,6 @@ import PostItem from "../../shared/components/postItem/PostItem";
 import SearchIcon from "./asset/BlackSearch.svg";
 import CategoryModal from "../../shared/components/categoryModal/CategoryModal";
 import { FormEvent, useEffect, useState } from "react";
-import { postData } from "../../shared/components/postItem/mockData";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -157,11 +156,13 @@ const SearchResultsPage = () => {
     }
   }
 
+  // 재 검색 기능 함수 (FormEvent)
   const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPostList([]);
     loadData(searchValue, keyword.gender, keyword.age, keyword.style)
 
+    // URL 재설정
     let searchUrl = '/search/'
     searchUrl += `?query=${searchValue}`;
     if (keyword.gender && keyword.gender !== '') { searchUrl += `&gender=${keyword.gender}` }
@@ -169,8 +170,6 @@ const SearchResultsPage = () => {
     if (keyword.style) { searchUrl += `&style=${keyword.style}` }
     searchUrl += `?postType=${postType}`
     navigate(searchUrl)
-
-    console.log(postType)
   }
 
   // 검색한 쿼리 기반 데이터 로드

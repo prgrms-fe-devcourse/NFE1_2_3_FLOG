@@ -92,7 +92,8 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
     let searchString = `/search/?query=${searchValue}`
-    console.log(keyword)
+
+    // URL 설정
     if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
     if(keyword.age !== '') { searchString += `&age=${keyword.age}` };
     if(keyword.style !== '') { searchString += `&style=${keyword.style}` };
@@ -100,6 +101,7 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
     navigate(searchString);
   }
 
+  // 키워드 설정 함수
   const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
     setKeyword((prev) => ({
       ...prev,

@@ -58,8 +58,10 @@ const TopSearchedRank = styled.div<RankColor>`
 
 const TopSearched = () => {
 
+  // 인기 검색어 리스트
   const [searchList, setSearchList] = useState<TopSearchTypes[] | null>(null);
 
+  // 기준 시간 구하기
   const getTime = () => {
     const date = new Date();
 
@@ -76,8 +78,8 @@ const TopSearched = () => {
     const loadTopSearched = async () => {
       try {
         const response = await axios.get('http://localhost:5000/search/trending');
-        console.log(response)
         const copySearchData = [...response.data.trendingSearches];
+        // searchCount 순으로 정렬후 5개만 가져오기
         const sortingData = copySearchData.sort((a, b) => {
           return b.searchCount - a.searchCount;
         });
