@@ -63,7 +63,30 @@ interface ICuration {
 const CurationDetailPage = (): JSX.Element => {
   const { curationId } = useParams<{ curationId: string }>();
   const [curation, setCuration] = useState<ICuration | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // 로그인 상태 확인 함수
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token); // 토큰이 있으면 true, 없으면 false
+    };
+
+    // 컴포넌트가 처음 마운트될 때 로그인 상태 확인
+    checkLoginStatus();
+
+    // storage 이벤트로 로컬 스토리지 변경 감지
+    const handleStorageChange = () => {
+      checkLoginStatus();
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // 클린업 함수로 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchCuration = async () => {
@@ -81,8 +104,13 @@ const CurationDetailPage = (): JSX.Element => {
   }, [curationId]);
 
   const handleSubmitClick = () => {
-    // 큐레이션 제출 페이지로 이동
-    navigate(`/curation/submit`);
+    if (isLoggedIn) {
+      // 로그인된 경우 큐레이션 제출 페이지로 이동
+      navigate(`/curation/submit`);
+    } else {
+      // 로그인되지 않은 경우 로그인 페이지로 이동
+      navigate(`/signin`, { state: { from: `/curation/${curationId}` } });
+    }
   };
   
   if (!curation) {
