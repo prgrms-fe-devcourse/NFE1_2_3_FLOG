@@ -1,4 +1,4 @@
-import { updatePasswordService } from "./../services/authService";
+// import { updatePasswordService } from "./../services/authService";
 import { Request, Response } from "express";
 import User from "../models/userModel";
 

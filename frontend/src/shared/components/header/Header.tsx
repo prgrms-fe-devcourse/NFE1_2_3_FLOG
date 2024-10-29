@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Logo from "./asset/Logo.svg";
 import { useEffect, useState } from "react";
 import AlarmModal from "./AlarmModal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderScrollbar {
   scrollbarWidth?: string;
@@ -63,6 +63,8 @@ const Header = () => {
   const [isLogin, setIsLogin] = useState(false);
   // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
+  const navigate = useNavigate();
+
 
   // 헤더 알림 모달 핸들 함수
   const handleAlarmModal = (e: React.MouseEvent<HTMLSpanElement>) => {
@@ -70,6 +72,19 @@ const Header = () => {
     if (e.target instanceof HTMLSpanElement) {
       setAlarmStatus(true)
     }
+  };
+
+   // 로그인 상태 체크 함수
+   useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLogin(!!token); // 토큰이 있으면 true, 없으면 false로 설정
+  }, []);
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
+    setIsLogin(false); // 로그인 상태를 false로 설정
+    navigate("/"); // 로그아웃 후 홈으로 리디렉션
   };
 
   // 헤더 알림 모달 props 함수
@@ -97,7 +112,7 @@ const Header = () => {
         {isLogin ? (
           <HeaderCate>
             <p>글쓰기</p>
-            <p>로그아웃</p>
+            <p onClick={handleLogout} style={{ cursor: 'pointer' }}>로그아웃</p>
             <p
               onClick={handleAlarmModal}
               style={{ position: 'relative' }}
