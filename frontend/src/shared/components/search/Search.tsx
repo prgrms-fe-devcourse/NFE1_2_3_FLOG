@@ -5,6 +5,9 @@ import CategoryModal from "../categoryModal/CategoryModal";
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface SearchPropTypes {
+  postType: "post"  | "promotion" | "event" 
+}
 interface KeywordTypes {
   gender: string
   age: string
@@ -62,15 +65,15 @@ const SearchCategory = styled.p`
 `;
 
 
-const Search = () => {
+const Search: React.FC<SearchPropTypes> = ({ postType }) => {
 
   const navigate = useNavigate();
 
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
   const [keyword, setKeyword] = useState<KeywordTypes>({
-    gender: '',
     age: '',
+    gender: '',
     style: ''
   })
   const [searchValue, setSearchValue] = useState('');
@@ -88,19 +91,23 @@ const Search = () => {
   // 폼 이벤트 (검색) 함수
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
-    navigate(`/search/?${searchValue}`)
+    let searchString = `/search/?query=${searchValue}`
+
+    // URL 설정
+    if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
+    if(keyword.age !== '') { searchString += `&age=${keyword.age}` };
+    if(keyword.style !== '') { searchString += `&style=${keyword.style}` };
+    if(postType) { searchString += `&postType=${postType}` }
+    navigate(searchString);
   }
 
+  // 키워드 설정 함수
   const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
     setKeyword((prev) => ({
       ...prev,
       [key]: value
-    }))
+    }));
   }
-
-  useEffect(() => {
-    console.log(keyword)
-  }, [keyword])
 
   return (
     <form onSubmit={(e) => handleForm(e)}>

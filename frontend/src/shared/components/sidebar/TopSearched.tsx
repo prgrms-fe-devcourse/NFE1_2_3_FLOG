@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { searchData } from "./mockData";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 interface RankColor {
   isTopRank: number;
@@ -57,8 +58,10 @@ const TopSearchedRank = styled.div<RankColor>`
 
 const TopSearched = () => {
 
+  // 인기 검색어 리스트
   const [searchList, setSearchList] = useState<TopSearchTypes[] | null>(null);
 
+  // 기준 시간 구하기
   const getTime = () => {
     const date = new Date();
 
@@ -67,23 +70,30 @@ const TopSearched = () => {
     const hour = date.getHours();
     const minute = date.getMinutes();
 
-    return `${("00" + month.toString()).slice(-2)}.${("00" + day.toString()).slice(-2)}.${hour}:${minute} 기준`;
+    return `${("00" + month.toString()).slice(-2)}.${("00" + day.toString()).slice(-2)}.${("00" + hour.toString()).slice(-2)}:${("00" + minute.toString()).slice(-2)} 기준`;
   }
 
   // 인기 검색어 리스트 state에 return
   useEffect(() => {
-    const copySearchData = [...searchData];
-    const sortingData = copySearchData.sort((a, b) => {
-      return b.searchCount - a.searchCount;
-    });
-    const slicedData = sortingData.slice(0, 5);
+    const loadTopSearched = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/search/trending');
+        const copySearchData = [...response.data.trendingSearches];
+        // searchCount 순으로 정렬후 5개만 가져오기
+        const sortingData = copySearchData.sort((a, b) => {
+          return b.searchCount - a.searchCount;
+        });
+        const slicedData = sortingData.slice(0, 5);
+        setSearchList(slicedData)
+      } catch (err) {
+        console.error("API 통신 오류", err)
+      }
+    }
 
     return () => {
-      if (searchList === null) {
-        setSearchList(slicedData);
-      }
-    };
-  }, [searchData]);
+      loadTopSearched();
+    }
+  }, []);
 
   return (
     <div style={{ width: "100%" }}>
@@ -103,7 +113,7 @@ const TopSearched = () => {
                   <TopSearchedRank isTopRank={index + 1}>
                     {index + 1}
                   </TopSearchedRank>
-                  <Link to={`/search/${search.query}`}>
+                  <Link to={`/search/?query=${search.query}`}>
                     <span>{search.query}</span>
                   </Link>
                 </TopSearchedKeywordWrap>
