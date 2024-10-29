@@ -108,10 +108,13 @@ const SearchResultsPage = () => {
   // 렌더링할 포스트 리스트 저장
   const [postList, setPostList] = useState<PostDataTypes[]>([]);
 
+  // 재 검색을 위한 포스트 타입 저장
+  const [postType, setPostType] = useState(query.get('postType'));
+
   // 검색 키워드 카테고리에서 따로 설정한거 저장 (초기값은 쿼리에서)
   const [keyword, setKeyword] = useState<KeywordTypes>({
-    gender: query.get('query') || '',
     age: query.get('age') || '',
+    gender: query.get('gender') || '',
     style: query.get('style') || ''
   })
 
@@ -134,37 +137,55 @@ const SearchResultsPage = () => {
       ...prev,
       [key]: value
     }));
+  };
+
+  // 검색 기능 함수
+  const loadData = async (queryString: string, genderString: string, ageString: string, styleString: string) => {
+    try {
+      const response = await axios.get<{ posts: PostDataTypes[] }>('http://localhost:5000/search/posts', {
+        params: {
+          query: queryString,
+          gender: genderString,
+          age: ageString,
+          style: styleString,
+          postType: postType
+        }
+      });
+      setPostList(response.data.posts)
+    } catch (err) {
+      console.error("API 호출 에러", err)
+    }
+  }
+
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPostList([]);
+    loadData(searchValue, keyword.gender, keyword.age, keyword.style)
+
+    let searchUrl = '/search/'
+    searchUrl += `?query=${searchValue}`;
+    if (keyword.gender && keyword.gender !== '') { searchUrl += `&gender=${keyword.gender}` }
+    if (keyword.age) { searchUrl += `&age=${keyword.age}` }
+    if (keyword.style) { searchUrl += `&style=${keyword.style}` }
+    searchUrl += `?postType=${postType}`
+    navigate(searchUrl)
+
+    console.log(postType)
   }
 
   // 검색한 쿼리 기반 데이터 로드
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await axios.get<{ posts: PostDataTypes[] }>('http://localhost:5000/search/posts', {
-          params: {
-            query: query.get('query'),
-            gender: query.get('gender'),
-            age: query.get('age'),
-            style: query.get('style'),
-            postType: query.get('postType')
-          }
-        });
-        setPostList(response.data.posts)
-      } catch (err) {
-        console.error("API 호출 에러", err)
+    return () => {
+      if (query.get('query')) {
+        loadData(query.get('query')!, query.get('gender')!, query.get('age')!, query.get('style')!)
       }
     }
-
-    return () => {
-      loadData();
-      console.log('im on')
-    }
-  }, [location.search]);
+  }, []);
 
   return (
     <SearchResultsPageWrap>
       {/* 상단 검색창 폼 */}
-      <form>
+      <form onSubmit={(e) => handleSearchSubmit(e)}>
         <SearchResultSearchWrap>
           {/* 상단 검색창 인풋 */}
           <SearchResultsPageInput
