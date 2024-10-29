@@ -1,13 +1,13 @@
 import styled from "styled-components";
-import starIcon from "../../../../public/star.svg";
-import starFilledIcon from "../../../../public/starFilled.svg";
+import starIcon from "/star.svg";
+import starFilledIcon from "/starFilled.svg";
 import { useState, useEffect } from "react";
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";
 import { formatDate } from "../../../shared/utils/formatDate";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import NoTokenModal from "../../../shared/utils/noTokenModal";
 const CategoryBox = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -57,23 +57,30 @@ const ModalBox = styled.div`
 `;
 
 interface PostHeaderProps {
+  authorId: string;
   isUser: boolean;
   title: string;
   author: string;
   date: string;
   categories: string[];
+  followers: string[];
+  following: string[];
 }
+export const USER_ID = localStorage.getItem("userId");
 
 const PostHeader = ({
+  authorId,
   isUser,
   title,
   author,
   date,
   categories,
+  followers,
+  following,
 }: PostHeaderProps) => {
-  const { postId } = useParams();
   const { isModalOpen, openModal, closeModal } = useStore();
   const formatedDate = formatDate(date);
+  const { postId } = useParams();
 
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const openNoTokenModal = () => {
@@ -88,24 +95,82 @@ const PostHeader = ({
   //이거 댓글도 수정 삭제 있어서 로직 뺄 수 있으면 공통으로 빼기
   const isAuthor = isUser;
 
-  const [isFollow, setIsFollow] = useState(false);
-  const clickFollow = () => {
-    setIsFollow((prev) => !prev);
-  };
-  //북마크도 마찬가지
+  const [isFollow, setIsFollow] = useState<boolean | null>(null);
   const [isBookMark, setIsBookMark] = useState(false);
-  const clickBookMark = () => {
-    setIsBookMark((prev) => !prev);
+
+  //내 아이디로북마크한글가져오기
+  const fetchBookmarkedPosts = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`
+      );
+      const bookmarkedPosts = response.data.items; // 성공적인 응답에서 글 목록 가져오기
+      const isBookmarked = bookmarkedPosts.some(
+        (post) => post.postId === postId
+      );
+      setIsBookMark(isBookmarked); // 초기값 설정
+      console.log("북마크한 글 목록:", bookmarkedPosts);
+    } catch (error) {
+      console.error("북마크 글 목록 가져오기 오류:", error);
+    }
+  };
+  useEffect(() => {
+    fetchBookmarkedPosts();
+  }, []);
+  // 북마크 추가 및 삭제 함수
+  const clickBookMark = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      openNoTokenModal();
+      return;
+    }
+
+    try {
+      if (isBookMark) {
+        await axios.delete(
+          `http://localhost:5000/api/posts/${postId}/bookmark`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        await axios.post(
+          `http://localhost:5000/api/posts/${postId}/bookmark`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+      setIsBookMark((prev) => !prev); // 북마크 상태 토글
+    } catch (error) {
+      console.error("북마크 토글 오류:", error);
+    }
   };
 
-  const clickFollowing = async () => {
+  // 팔로우 상태 확인
+  useEffect(() => {
+    if (followers && authorId) {
+      setIsFollow(followers.includes(USER_ID)); // 팔로우 목록에 authorId가 포함되어 있으면 true
+    } else {
+      setIsFollow(false); // following이 없으면 false로 설정
+    }
+  }, [followers, authorId]); // following 또는 authorId가 변경될 때마다 실행
+  console.log(`isFollow:${isFollow}`);
+  console.log(`authorId:${authorId}`);
+  console.log(following);
+  const clickFollow = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         openNoTokenModal();
       }
       const response = await axios.post(
-        `http://localhost:5000/api/posts/${postId}/bookmark`,
+        `http://localhost:5000/api/follow/${authorId}`,
         {},
         {
           headers: {
@@ -182,6 +247,7 @@ const PostHeader = ({
           </ModalBox>
         </Modal>
       )}
+      {isTokenModalOpen && <NoTokenModal onClose={closeNoTokenModal} />}
     </div>
   );
 };

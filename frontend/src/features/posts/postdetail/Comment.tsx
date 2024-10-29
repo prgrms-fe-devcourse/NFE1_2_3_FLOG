@@ -2,6 +2,9 @@ import styled from "styled-components";
 import { useState } from "react";
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";
+import testImg from "/testImg.png";
+import heartIcon from "/heart.svg";
+import heartFilledIcon from "/heartFilled.svg";
 
 const Box = styled.div`
   display: flex;
@@ -118,10 +121,6 @@ const AddCommentText = styled.textarea`
 
 const Comment = () => {
   const { isModalOpen, openModal, closeModal } = useStore();
-
-  const testImg = "/testImg.png";
-  const heartIcon = "/heart.svg";
-  const heartFilledIcon = "/heartFilled.svg";
 
   // 좋아요
   const [isLike, setIsLike] = useState(false);
