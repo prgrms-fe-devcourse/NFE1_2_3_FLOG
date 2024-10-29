@@ -36,4 +36,4 @@ const notificationSchema: Schema<INotification> = new Schema({
   createdAt: { type: Date, default: Date.now }
 })
 
-export const notification = mongoose.model<INotification>("Notification", notificationSchema)
+export const Notification = mongoose.model<INotification>("Notification", notificationSchema)
