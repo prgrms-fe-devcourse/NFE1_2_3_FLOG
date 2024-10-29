@@ -52,6 +52,18 @@ export const createCuration = async (curationData: Partial<ICuration>): Promise<
     return await newCuration.save(); // DB에 저장
   };
 
+  // 특정 큐레이션 수정 (관리자만 가능)
+export const updateCuration = async (curationId: string, updates: Partial<ICuration>): Promise<ICuration | null> => {
+  const updatedCuration = await Curation.findByIdAndUpdate(curationId, updates, { new: true });
+  return updatedCuration;
+};
+
+// 특정 큐레이션 삭제 (관리자만 가능)
+export const deleteCuration = async (curationId: string): Promise<boolean> => {
+  const deleted = await Curation.findByIdAndDelete(curationId);
+  return !!deleted;
+};
+
   export const toggleCurationLike = async (curationId: string, userId: mongoose.Types.ObjectId) => {
     const curation = await Curation.findById(curationId);
     if (!curation) throw new Error('큐레이션을 찾을 수 없습니다.');
