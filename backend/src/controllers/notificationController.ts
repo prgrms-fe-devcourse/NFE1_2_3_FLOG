@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Notification } from "../models/notificationModel";
 import { IUser } from "../models/userModel";
-import { WebSocketServer } from "ws";
+import { wss } from "..";
 
 export const getNotifications = async (req: Request, res: Response) => {
   try {
@@ -15,7 +15,7 @@ export const getNotifications = async (req: Request, res: Response) => {
   }
 }
 
-export const createNotification = async (data: any, wss: WebSocketServer) => {
+export const createNotification = async (data: any) => {
   try {
     const newNotification = new Notification(data);
     await newNotification.save();
