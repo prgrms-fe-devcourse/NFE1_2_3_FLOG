@@ -4,9 +4,9 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 
-router.get("/posts/:postId", getPost);
-router.post("/posts/:postId/like", authMiddleware, Like);
-router.post("/posts/:postId/bookmark", authMiddleware, Bookmark);
-router.delete("/posts/:postId/bookmark", authMiddleware, Bookmark);
+router.get("/api/posts/:postId", getPost);
+router.post("/api/posts/:postId/like", authMiddleware, Like);
+router.post("/api/posts/:postId/bookmark", authMiddleware, Bookmark);
+router.delete("/api/posts/:postId/bookmark", authMiddleware, Bookmark);
 
 export default router;
