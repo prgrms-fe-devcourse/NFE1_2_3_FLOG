@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 
@@ -63,6 +63,7 @@ interface ICuration {
 const CurationDetailPage = (): JSX.Element => {
   const { curationId } = useParams<{ curationId: string }>();
   const [curation, setCuration] = useState<ICuration | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCuration = async () => {
@@ -78,6 +79,11 @@ const CurationDetailPage = (): JSX.Element => {
   
     fetchCuration();
   }, [curationId]);
+
+  const handleSubmitClick = () => {
+    // 큐레이션 제출 페이지로 이동
+    navigate(`/curation/submit`);
+  };
   
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
@@ -108,7 +114,7 @@ const CurationDetailPage = (): JSX.Element => {
       </Content>
 
       {/* 큐레이션 제출 버튼 */}
-      <SubmitButton>큐레이션 제출</SubmitButton>
+      <SubmitButton onClick={handleSubmitClick}>큐레이션 제출</SubmitButton>
     </Container>
   );
 };

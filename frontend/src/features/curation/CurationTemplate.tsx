@@ -130,7 +130,7 @@ const CurationTemplate = () => {
     <div>
       <CurationTemplateRightWrap>
         <SearchSortWrap>
-          <Search />
+          {/* <Search /> */}
           <Sort onSortingPost={onSortingCuration} />
         </SearchSortWrap>
         <CurationTemplateWrapper>
