@@ -104,3 +104,48 @@ export const authMiddleware = async (
     res.status(403).json({ success: false, message: "유효하지 않은 토큰입니다." });
   }
 };
+
+// 로그인 선택 미들웨어
+export const authOptionalMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    req.user = undefined; // 비로그인 상태로 통과
+    next();
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "defaultSecret"
+    ) as DecodedToken;
+
+    // user 타입을 IUser | null로 설정하여 타입 추론 명확히
+const user: IUser | null = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      res
+        .status(401)
+        .json({ success: false, message: "유효하지 않은 사용자입니다." });
+      return;
+    }
+
+    req.user = {
+      ...user.toObject(),
+      _id: user._id, // ObjectId를 명확하게 포함
+    } as IUser & { _id: mongoose.Types.ObjectId };
+
+    next();
+  } catch (error) {
+    res
+      .status(403)
+      .json({ success: false, message: "유효하지 않은 토큰입니다." });
+  }
+};
