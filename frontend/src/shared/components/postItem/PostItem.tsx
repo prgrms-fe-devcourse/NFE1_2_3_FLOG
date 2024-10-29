@@ -145,7 +145,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
     <div style={baseCss}>
       <PostWrap>
         {/* 포스트 작성자 프로필 */}
-        <Link to={'/'}>
+        <Link to={`/`}>
           <PostFlexStartWrap>
             <div
               style={{
@@ -168,14 +168,14 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           </PostFlexStartWrap>
         </Link>
 
-        <Link to={"/"}>
+        <Link to={`/posts/${post._id}`}>
           {/* 포스트 제목 */}
           <PostTitle>{post.title}</PostTitle>
 
           {/* 포스트 내용 */}
           <PostDescription>
-            {post.content.map((postConent) => {
-              return <>{postConent}</>;
+            {post.content.map((postContent) => {
+              return <>{postContent}</>;
             })}
           </PostDescription>
 
@@ -190,7 +190,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="좋아요 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{post.likes.length}</PostInfoText>
+              <PostInfoText>{ post.likes ? post.likes.length : 0 }</PostInfoText>
             </PostFlexStartWrap>
 
             {/* 댓글 */}
@@ -202,7 +202,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="댓글 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{post.comments.length}</PostInfoText>
+              <PostInfoText>{ post.comments ? post.comments.length : 0 }</PostInfoText>
             </PostFlexStartWrap>
 
             {/* 작성시간 */}
@@ -212,7 +212,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
       </PostWrap>
 
       {/* 포스트 사진 미리보기 */}
-      <Link to={"/"}>
+      <Link to={`/posts/${post._id}`}>
         <PostPreview>
           <img src={post.thumbnail} alt={post.title} />
         </PostPreview>
