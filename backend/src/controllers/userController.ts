@@ -16,6 +16,7 @@ export const updatePassword = async (
       .json({ success: false, message: "인증된 사용자가 아닙니다." });
     return;
   }
+
   console.log(userId);
 
   try {
@@ -152,7 +153,9 @@ const formatPosts = async (posts: any) => {
         content: post.content,
         author: {
           userId: author ? author._id : null,
+
           nickname: author ? author.nickname : "Unknown", // 작성자가 없을 경우 기본값
+
         },
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
