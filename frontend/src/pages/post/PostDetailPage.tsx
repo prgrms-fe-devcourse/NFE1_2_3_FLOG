@@ -21,7 +21,7 @@ const Box = styled.div`
 export const USER_ID = localStorage.getItem("userId");
 
 const PostDetailPage = () => {
-  const { postId } = useParams(); // URL에서 postId를 가져옵니다.
+  const { postId } = useParams();
 
   const [postData, setPostData] = useState<{
     title: string;
@@ -68,9 +68,9 @@ const PostDetailPage = () => {
           author={postData?.authorId.nickname || "작성자 없음"} // 기본값 설정
           date={postData?.createdAt || "날짜 없음"} // 기본값 설정
           categories={[
-            ...(postData?.genderFilter || []), // genderFilter가 undefined일 경우 빈 배열로 대체
-            ...(postData?.ageFilter || []), // ageFilter가 undefined일 경우 빈 배열로 대체
-            ...(postData?.styleFilter || []), // styleFilter가 undefined일 경우 빈 배열로 대체
+            ...(postData?.genderFilter || []),
+            ...(postData?.ageFilter || []),
+            ...(postData?.styleFilter || []),
           ]}
         ></PostHeader>
         <PostDetailText
