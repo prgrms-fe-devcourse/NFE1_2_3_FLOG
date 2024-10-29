@@ -54,15 +54,25 @@ const CurationTemplate = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const pageSize = 4;
+  const [filters, setFilters] = useState({
+    style: '전체',
+    gender: '전체',
+    age: '전체',
+    searchQuery: ''
+  });
 
   // 무한 스크롤을 위한 Ref
   const elementRef = useRef(null);
 
-  // API에서 큐레이션 데이터를 가져오는 함수
-  const fetchCurations = async (page: number, sortType: string) => {
+   // API에서 큐레이션 데이터를 가져오는 함수
+   const fetchCurations = async (page: number, sortType: string) => {
     try {
-      const response = await axios.get(`/api/curations`, {
-        params: { page, sortType }
+      const response = await axios.get(`http://localhost:5000/api/curations`, {
+        params: {
+          page,
+          sortType,
+          ...filters, // 필터 파라미터 포함
+        },
       });
       const data = response.data.curations;
 
@@ -111,6 +121,11 @@ const CurationTemplate = () => {
     };
   }, [onIntersection]);
 
+  useEffect(() => {
+    // 필터나 정렬이 변경될 때마다 초기화하고 새로 로드
+    fetchCurations(1, sortType);
+  }, [filters, sortType]);
+
   return (
     <div>
       <CurationTemplateRightWrap>
@@ -122,6 +137,7 @@ const CurationTemplate = () => {
           {curationList.map((curation) => (
             <CurationItem
               key={curation._id}
+              curationId={curation._id} 
               title={curation.title}
               startDate={curation.startDate}
               endDate={curation.endDate}

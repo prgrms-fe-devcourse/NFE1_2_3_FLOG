@@ -65,19 +65,20 @@ const CurationDetailPage = (): JSX.Element => {
   const [curation, setCuration] = useState<ICuration | null>(null);
 
   useEffect(() => {
-    // 큐레이션 상세 정보 API 호출
     const fetchCuration = async () => {
+      if (!curationId) return;  // curationId가 없으면 API 호출 중단
+  
       try {
-        const response = await axios.get(`/api/curations/${curationId}`);
+        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}`);
         setCuration(response.data.curation);
       } catch (error) {
         console.error('큐레이션 데이터를 불러오지 못했습니다.', error);
       }
     };
-
+  
     fetchCuration();
   }, [curationId]);
-
+  
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
   }

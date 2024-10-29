@@ -60,7 +60,7 @@ const HeaderLogo = styled.div`
 `
 
 const Header = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
 
@@ -88,7 +88,7 @@ const Header = () => {
         </HeaderLogo>
         <HeaderCate>
           <Link to={'/event'}>일정</Link>
-          <span>큐레이션</span>
+          <Link to="/curations">큐레이션</Link>
           <Link to={'/promotion'}>가게홍보</Link>
         </HeaderCate>
       </HeaderFlexWrap>
