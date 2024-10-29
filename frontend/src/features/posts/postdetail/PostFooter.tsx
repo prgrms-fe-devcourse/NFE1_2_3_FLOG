@@ -7,7 +7,6 @@ import commentIcon from "../../../../public/comment.svg";
 import heartIcon from "../../../../public/heart.svg";
 import heartFilledIcon from "../../../../public/heartFilled.svg";
 import NoTokenModal from "../../../shared/utils/noTokenModal";
-import useStore from "../../../app/store";
 
 const Box = styled.div`
   display: flex;

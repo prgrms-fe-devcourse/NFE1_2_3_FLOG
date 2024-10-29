@@ -1,8 +1,12 @@
 import styled from "styled-components";
-import { useState } from "react";
+import starIcon from "../../../../public/star.svg";
+import starFilledIcon from "../../../../public/starFilled.svg";
+import { useState, useEffect } from "react";
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";
 import { formatDate } from "../../../shared/utils/formatDate";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const CategoryBox = styled.div`
   display: flex;
@@ -67,17 +71,23 @@ const PostHeader = ({
   date,
   categories,
 }: PostHeaderProps) => {
+  const { postId } = useParams();
   const { isModalOpen, openModal, closeModal } = useStore();
-
-  const starIcon = "/star.svg";
-  const starFilledIcon = "/starFilled.svg";
   const formatedDate = formatDate(date);
+
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const openNoTokenModal = () => {
+    setIsTokenModalOpen(true);
+  };
+
+  const closeNoTokenModal = () => {
+    setIsTokenModalOpen(false);
+  };
 
   //게시물이 본인인지 아닌지 확인
   //이거 댓글도 수정 삭제 있어서 로직 뺄 수 있으면 공통으로 빼기
   const isAuthor = isUser;
 
-  //지금은 팔로우 하지 않은 걸 초기로 넣었지만 나중에 팔로워 했는지 안 했는지 가져와서 넣어야함
   const [isFollow, setIsFollow] = useState(false);
   const clickFollow = () => {
     setIsFollow((prev) => !prev);
@@ -86,6 +96,29 @@ const PostHeader = ({
   const [isBookMark, setIsBookMark] = useState(false);
   const clickBookMark = () => {
     setIsBookMark((prev) => !prev);
+  };
+
+  const clickFollowing = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        openNoTokenModal();
+      }
+      const response = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/bookmark`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setIsFollow((prev) => !prev);
+      }
+    } catch (error) {
+      console.error("팔로우 토글 오류:", error);
+    }
   };
 
   return (
