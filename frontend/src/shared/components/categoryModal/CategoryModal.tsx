@@ -235,7 +235,7 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
-        <CategoryComplete>
+        <CategoryComplete onClick={onModal}>
           완료
         </CategoryComplete>
       </CategoryModalInner>
