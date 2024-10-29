@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import starIcon from "../../../../public/star.svg";
-import starFilledIcon from "../../../../public/starFilled.svg";
+import starIcon from "/star.svg";
+import starFilledIcon from "/starFilled.svg";
 import { useState, useEffect } from "react";
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";

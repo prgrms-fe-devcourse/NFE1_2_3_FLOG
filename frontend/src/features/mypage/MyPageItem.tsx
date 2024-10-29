@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import testImg from "../../../public/testImg.png";
+import testImg from "/testImg.png";
 
 const MyPageItem = () => {
   const Hr = styled.hr`

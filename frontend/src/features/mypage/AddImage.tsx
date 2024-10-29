@@ -1,5 +1,7 @@
 import { useRef } from "react";
 import styled from "styled-components";
+import editIcon from "/edit.svg";
+import testImg from "/testImg.png";
 
 const Button = styled.button`
   position: absolute;
@@ -37,9 +39,6 @@ interface AddImageProps {
 }
 
 const AddImage = (props: AddImageProps) => {
-  const editIcon = "/edit.svg";
-  const testImg = "/testImg.png";
-
   const {
     isUpload,
     onChangeUpload,

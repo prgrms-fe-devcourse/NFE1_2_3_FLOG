@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import commentIcon from "../../../../public/comment.svg";
-import heartIcon from "../../../../public/heart.svg";
-import heartFilledIcon from "../../../../public/heartFilled.svg";
+import commentIcon from "/comment.svg";
+import heartIcon from "/heart.svg";
+import heartFilledIcon from "/heartFilled.svg";
 import NoTokenModal from "../../../shared/utils/noTokenModal";
 
 const Box = styled.div`
