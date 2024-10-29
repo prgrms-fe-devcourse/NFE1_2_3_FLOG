@@ -17,14 +17,35 @@ export const updatePassword = async (
     return;
   }
 
-  // 새 비밀번호와 비밀번호 확인이 일치하는지 검증
-  if (newPassword !== confirmNewPassword) {
-    res.status(400).json({ message: "새 비밀번호가 서로 일치하지 않습니다." });
-    return;
-  }
+  console.log(userId);
 
   try {
-    await updatePasswordService(userId, currentPassword, newPassword);
+    // 사용자 조회
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+      return;
+    }
+
+    // 현재 비밀번호가 일치하는지 확인
+    const isPasswordMatch = await user.comparePassword(currentPassword);
+    if (!isPasswordMatch) {
+      res.status(400).json({ message: "현재 비밀번호가 일치하지 않습니다." });
+      return;
+    }
+
+    // 새 비밀번호와 비밀번호 확인이 일치하는지 검증
+    if (newPassword !== confirmNewPassword) {
+      res
+        .status(400)
+        .json({ message: "새 비밀번호가 서로 일치하지 않습니다." });
+      return;
+    }
+
+    // 비밀번호 업데이트
+    user.password = newPassword;
+    await user.save();
+
     res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다." });
   } catch (error) {
     console.error("비밀번호 변경 중 오류:", error);
@@ -132,7 +153,9 @@ const formatPosts = async (posts: any) => {
         content: post.content,
         author: {
           userId: author ? author._id : null,
-          nickname: author ? author.nickname : "Unknown", // 작성자가 없을 경우 기본값, author부분 좀 손봐야됨
+
+          nickname: author ? author.nickname : "Unknown", // 작성자가 없을 경우 기본값
+
         },
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
