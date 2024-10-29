@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
-import { Notification } from "../models/notificationModel";
-import { IUser } from "../models/userModel";
-import { wss } from "..";
+import { getNotificationListService, createNotificationService } from "../services/notificationService";
+import mongoose from "mongoose";
 
-export const getNotifications = async (req: Request, res: Response) => {
+// 알림 리스트 받아오기
+export const getNotificationList = async (req: Request, res: Response) => {
   try {
-    const userId = (req.user as IUser)._id;
+    // 유저 고유 아이디
+    const userId = req.user?._id;
 
-    const notifications = await Notification.find({ userId })
+    // 서비스에서 return 한 값
+    const notifications = await getNotificationListService(userId)
     res.status(200).json({ notifications })
   } catch(err) {
     console.log("알림 조회 오류" + err)
@@ -15,20 +17,25 @@ export const getNotifications = async (req: Request, res: Response) => {
   }
 }
 
-export const createNotification = async (data: any) => {
+// 알림 생성하기
+export const createNotification = async (
+  userId: mongoose.Types.ObjectId,
+  fromUserId: mongoose.Types.ObjectId,
+  type: "like" | "comment" | "newPost",
+  postId: mongoose.Types.ObjectId,
+  message: string
+) => {
   try {
-    const newNotification = new Notification(data);
-    await newNotification.save();
-
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(newNotification))
-      }
-    });
-
+    const newNotification = await createNotificationService(
+      userId,
+      fromUserId,
+      type,
+      postId,
+      message
+    );
     return newNotification
   } catch (err) {
     console.error("알림 생성 오류", err);
-    throw err;
+    throw Error (`$알림 생성 오류 : {err}`)
   }
 }
