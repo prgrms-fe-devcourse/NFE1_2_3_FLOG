@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Box = styled.div`
   display: flex;
@@ -46,11 +47,22 @@ const ReactionItem = styled.div`
   color: #7d7d7d;
   font-size: 14px;
 `;
+interface PostFooterProps {
+  tags: string[];
+  likes: string[];
+  comments: string[];
+}
 
-const PostFooter = () => {
+const PostFooter = ({ tags, likes, comments }: PostFooterProps) => {
   const commentIcon = "/comment.svg";
   const heartIcon = "/heart.svg";
   const heartFilledIcon = "/heartFilled.svg";
+
+  //태그 검색
+  const navigate = useNavigate();
+  const handleTagClick = (tag: string) => {
+    navigate(`/search/posts?query=${tag}`);
+  };
 
   const [isLike, setIsLike] = useState(false);
   const clickLike = () => {
@@ -60,24 +72,11 @@ const PostFooter = () => {
   return (
     <Box>
       <TagBox>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
-        <Tag>태그임</Tag>
+        {tags.map((tag, index) => (
+          <Tag key={index} onClick={() => handleTagClick(tag)}>
+            {tag}
+          </Tag>
+        ))}
       </TagBox>
       <ReactionBox>
         <ReactionItem>
@@ -88,11 +87,11 @@ const PostFooter = () => {
               <img src={heartIcon} alt="heartIcon"></img>
             )}
           </Button>
-          <p>33개</p>
+          <p>{likes.length}개</p>
         </ReactionItem>
         <ReactionItem>
           <img src={commentIcon} alt="commentIcon"></img>
-          <p>12개</p>
+          <p>{comments.length}개</p>
         </ReactionItem>
       </ReactionBox>
     </Box>
