@@ -9,6 +9,7 @@ import postRoutes from "./routes/postRoutes"; //포스트 상세 관련 라우�
 import commentRoutes from "./routes/commentRoutes"; //댓글 관련 라우트
 import userRoutes from "./routes/userRoutes"; //마이페이지 관련 라우트
 import followRoutes from "./routes/followRoutes";
+import searchRoutes from "./routes/searchRoutes"; //검색 관련 라우트
 
 // 환경변수 로드
 dotenv.config();
@@ -45,6 +46,8 @@ app.use("/", userRoutes);
 
 //팔로우 관련 라우트
 app.use("/", followRoutes);
+//검색 관련 라우트 추가
+app.use('/', searchRoutes)
 
 mongoose
   .connect(MONGO_URI)
