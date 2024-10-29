@@ -14,7 +14,7 @@ import MyPageEdit from "../pages/user/MyPageEdit";
 import MyPageFollow from "../pages/user/MyPageFollow";
 import MyPageBook from "../pages/user/MyPageBook";
 import MyPagePost from "../pages/user/MyPagePost";
-import CurationDetailPage from "../pages/curation/CurationDetailPage";
+import CurationPage from "../pages/curation/CurationPage";
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
         <Route path="/mypage/follow" element={<MyPageFollow />}></Route>
         <Route path="/mypage/book" element={<MyPageBook />}></Route>
         <Route path="/mypage/post" element={<MyPagePost />}></Route>
-        <Route path="/curation/:curationId" element={<CurationDetailPage />} />
+        <Route path="/curations" element={<CurationPage />} />
       </Routes>
     </div>
   );
