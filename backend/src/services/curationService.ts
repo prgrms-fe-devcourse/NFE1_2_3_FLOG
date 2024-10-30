@@ -1,6 +1,18 @@
 import { Curation, ICuration } from '../models/curationModel';
 import mongoose from 'mongoose';
 
+// 추천 큐레이션 리스트 조회
+export const getRecommendCurationListService = async () => {
+  const dateWeekAgo = new Date();
+  dateWeekAgo.setDate(dateWeekAgo.getDate() - 7)
+
+  const filter: any = {
+    createdAt: { $gte: dateWeekAgo }
+  }
+
+  return await Curation.find(filter)
+}
+
 // 큐레이션 리스트 조회 (필터링 및 검색)
 export const getCurations = async (
   page: number, 
