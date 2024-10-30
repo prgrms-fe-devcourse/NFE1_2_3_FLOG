@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 
@@ -63,21 +63,56 @@ interface ICuration {
 const CurationDetailPage = (): JSX.Element => {
   const { curationId } = useParams<{ curationId: string }>();
   const [curation, setCuration] = useState<ICuration | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // 큐레이션 상세 정보 API 호출
+    // 로그인 상태 확인 함수
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token); // 토큰이 있으면 true, 없으면 false
+    };
+
+    // 컴포넌트가 처음 마운트될 때 로그인 상태 확인
+    checkLoginStatus();
+
+    // storage 이벤트로 로컬 스토리지 변경 감지
+    const handleStorageChange = () => {
+      checkLoginStatus();
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // 클린업 함수로 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchCuration = async () => {
+      if (!curationId) return;  // curationId가 없으면 API 호출 중단
+  
       try {
-        const response = await axios.get(`/api/curations/${curationId}`);
+        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}`);
         setCuration(response.data.curation);
       } catch (error) {
         console.error('큐레이션 데이터를 불러오지 못했습니다.', error);
       }
     };
-
+  
     fetchCuration();
   }, [curationId]);
 
+  const handleSubmitClick = () => {
+    if (isLoggedIn) {
+      // 로그인된 경우 큐레이션 제출 페이지로 이동
+      navigate(`/curation/submit`);
+    } else {
+      // 로그인되지 않은 경우 로그인 페이지로 이동
+      navigate(`/signin`, { state: { from: `/curation/${curationId}` } });
+    }
+  };
+  
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
   }
@@ -107,7 +142,7 @@ const CurationDetailPage = (): JSX.Element => {
       </Content>
 
       {/* 큐레이션 제출 버튼 */}
-      <SubmitButton>큐레이션 제출</SubmitButton>
+      <SubmitButton onClick={handleSubmitClick}>큐레이션 제출</SubmitButton>
     </Container>
   );
 };
