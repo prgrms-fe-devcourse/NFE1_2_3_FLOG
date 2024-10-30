@@ -21,17 +21,17 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/detail/:postId" element={<PostDetailPage />} />
-        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/search/posts" element={<SearchResultsPage />} />
         <Route path="/event" element={<EventSchedulePage />} />
         <Route path="/promotion" element={<StorePromotionPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/post/create" element={<PostCreateEditPage />} />
-        <Route path="/mypage" element={<MyPage />}></Route>
-        <Route path="/mypage/edit" element={<MyPageEdit />}></Route>
-        <Route path="/mypage/follow" element={<MyPageFollow />}></Route>
-        <Route path="/mypage/book" element={<MyPageBook />}></Route>
-        <Route path="/mypage/post" element={<MyPagePost />}></Route>
+        <Route path="/user/:userId" element={<MyPage />}></Route>
+        <Route path="/:userId/edit" element={<MyPageEdit />}></Route>
+        <Route path="/:userId/follow" element={<MyPageFollow />}></Route>
+        <Route path="/:userId/book" element={<MyPageBook />}></Route>
+        <Route path="/:userId/post" element={<MyPagePost />}></Route>
       </Routes>
     </div>
   );

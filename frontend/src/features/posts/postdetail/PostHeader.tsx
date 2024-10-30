@@ -8,6 +8,8 @@ import { formatDate } from "../../../shared/utils/formatDate";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import NoTokenModal from "../../../shared/utils/noTokenModal";
+import { useNavigate } from "react-router-dom";
+
 const CategoryBox = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -58,6 +60,7 @@ const ModalBox = styled.div`
 
 interface PostHeaderProps {
   authorId: string;
+  Id: string;
   isUser: boolean;
   title: string;
   author: string;
@@ -70,6 +73,7 @@ export const USER_ID = localStorage.getItem("userId");
 
 const PostHeader = ({
   authorId,
+  Id,
   isUser,
   title,
   author,
@@ -81,6 +85,7 @@ const PostHeader = ({
   const { isModalOpen, openModal, closeModal } = useStore();
   const formatedDate = formatDate(date);
   const { postId } = useParams();
+  const navigate = useNavigate();
 
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const openNoTokenModal = () => {
@@ -198,7 +203,22 @@ const PostHeader = ({
       </div>
       <PostInfoBox>
         <div>
-          <PostInfo>{author}</PostInfo>
+          <button
+            style={{
+              border: "none",
+              backgroundColor: "#ffffff",
+              cursor: "pointer",
+            }}
+          >
+            <PostInfo
+              onClick={() => {
+                navigate(`/user/${Id}`);
+              }}
+              style={{ color: "#000000" }}
+            >
+              {author}
+            </PostInfo>
+          </button>
           <PostInfo>{formatedDate}</PostInfo>
         </div>
         {isAuthor ? (
