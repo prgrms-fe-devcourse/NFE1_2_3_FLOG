@@ -6,7 +6,8 @@ export const searchPosts = async (req: Request, res: Response) => {
   const { query, gender, age, style, postType } = req.query;
 
   const searchConditions: any = {
-    title: { $regex: query, $options: "i" }
+    title: { $regex: query, $options: "i" },
+    status: 'published'
   };
 
   if (gender && gender !== '전체') {

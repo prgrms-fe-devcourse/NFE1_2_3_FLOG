@@ -4,16 +4,11 @@ import User from "../models/userModel"; // User 모델 import
 import { IUser } from "../models/userModel";
 
 // 회원가입 입력 검증 미들웨어
-export const validateSignup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const validateSignup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { userId, password, passwordCheck, nickname } = req.body;
     const idRegex = /^[a-zA-Z0-9]{8,16}$/;
-    const passwordRegex =
-      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`])[a-zA-Z\d!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`]{8,16}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`])[a-zA-Z\d!@#$%^&*()_+\-={}\[\]:;"'<>,.?/~`]{8,16}$/;
     const nicknameRegex = /^[가-힣a-zA-Z0-9]{1,16}$/;
 
     if (!idRegex.test(userId) || typeof userId !== "string") {
@@ -56,9 +51,6 @@ export const validateSignup = async (
 // 로그인 미들웨어 - 민주님
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-interface DecodedToken {
-  userId: string;
-}
 
 // Request 인터페이스 확장
 declare module "express-serve-static-core" {
@@ -67,11 +59,11 @@ declare module "express-serve-static-core" {
   }
 }
 
-export const authMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+interface DecodedToken {
+  userId: string;
+}
+
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -97,10 +89,55 @@ export const authMiddleware = async (
       ...user.toObject(),
       _id: user._id, // ObjectId를 명확하게 포함
     } as IUser & { _id: mongoose.Types.ObjectId };
-    
+
     next(); // 다음 미들웨어 또는 라우트로 이동
   } catch (error) {
     console.error("Authentication error:", error); // 에러 로깅
     res.status(403).json({ success: false, message: "유효하지 않은 토큰입니다." });
+  }
+};
+
+// 로그인 선택 미들웨어
+export const authOptionalMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    req.user = undefined; // 비로그인 상태로 통과
+    next();
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "defaultSecret"
+    ) as DecodedToken;
+
+    // user 타입을 IUser | null로 설정하여 타입 추론 명확히
+const user: IUser | null = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      res
+        .status(401)
+        .json({ success: false, message: "유효하지 않은 사용자입니다." });
+      return;
+    }
+
+    req.user = {
+      ...user.toObject(),
+      _id: user._id, // ObjectId를 명확하게 포함
+    } as IUser & { _id: mongoose.Types.ObjectId };
+
+    next();
+  } catch (error) {
+    res
+      .status(403)
+      .json({ success: false, message: "유효하지 않은 토큰입니다." });
   }
 };

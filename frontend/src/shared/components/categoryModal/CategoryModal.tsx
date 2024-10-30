@@ -7,14 +7,14 @@ import Exit from "../asset/Exit.svg";
 import { categoryData } from "./mockData";
 
 interface KeywordTypes {
-  gender: string
-  age: string
-  style: string
+  gender: string;
+  age: string;
+  style: string;
 }
 
 interface CategoryProps {
   onModal: () => void;
-  onEditKeyword: (key: keyof KeywordTypes, value: string) => void
+  onEditKeyword?: (key: keyof KeywordTypes, value: string) => void; // 옵셔널로 변경
 }
 
 interface CategoryData {
@@ -24,7 +24,7 @@ interface CategoryData {
 }
 
 interface CategoryButtonTypes {
-  isClicked?: boolean
+  isClicked?: boolean;
 }
 
 const CategoryModalWrap = styled.div`
@@ -32,12 +32,9 @@ const CategoryModalWrap = styled.div`
   top: 0;
   left: 0;
   z-index: 999;
-
   width: 100%;
   height: 100%;
-
   backdrop-filter: blur(10px);
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,11 +92,9 @@ const CategoryModalTagButton = styled.div<CategoryButtonTypes>`
   height: 31px;
   background-color: ${({ isClicked }) => (isClicked ? "slateblue" : "#edeaea")};
   border-radius: 10px;
-
   font-size: 14px;
   color: ${({ isClicked }) => (isClicked ? "#fff" : "#212529")};
   text-align: center;
-
   cursor: pointer;
 `;
 
@@ -117,29 +112,29 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
 
   const [category, setCategory] = useState<CategoryData>(categoryData);
 
-  const [genderKeyword, setGenderKeyword] = useState('');
-  const [ageKeyword, setAgeKeyword] = useState('');
-  const [styleKeyword, setStyleKeyword] = useState('');
+  const [genderKeyword, setGenderKeyword] = useState("");
+  const [ageKeyword, setAgeKeyword] = useState("");
+  const [styleKeyword, setStyleKeyword] = useState("");
 
   // style은 영어로 되어있어서 한글로 번역함
   const translateStyle = (style: string) => {
     switch (style) {
-      case 'casual':
-        return '캐쥬얼';
-      case 'street':
-        return '스트릿';
-      case 'feminine':
-        return '페미닌';
-      case 'punk':
-        return '펑크';
-      case 'sporty':
-        return '스포티';
-      case 'business':
-        return '비즈니스';
-      case '전체':
-        return '전체';
+      case "casual":
+        return "캐쥬얼";
+      case "street":
+        return "스트릿";
+      case "feminine":
+        return "페미닌";
+      case "punk":
+        return "펑크";
+      case "sporty":
+        return "스포티";
+      case "business":
+        return "비즈니스";
+      case "전체":
+        return "전체";
     }
-  }
+  };
 
   // 페이드 애니메이션
   useEffect(() => {
@@ -170,20 +165,20 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
 
           {/* 카테고리 버튼 래퍼 */}
           <CategoryModalTagInner>
-            {category.genderFilter.map((gender, index) => {
-              return (
-                <CategoryModalTagButton
-                  key={index}
-                  onClick={() => {
-                    setGenderKeyword(gender)
-                    onEditKeyword('gender', gender)
-                  }}
-                  isClicked={genderKeyword === gender ? true : false}
-                >
-                  {gender}
-                </CategoryModalTagButton>
-              );
-            })}
+            {category.genderFilter.map((gender, index) => (
+              <CategoryModalTagButton
+                key={index}
+                onClick={() => {
+                  setGenderKeyword(gender);
+                  if (onEditKeyword) {
+                    onEditKeyword("gender", gender);
+                  }
+                }}
+                isClicked={genderKeyword === gender}
+              >
+                {gender}
+              </CategoryModalTagButton>
+            ))}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
@@ -194,20 +189,20 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
 
           {/* 카테고리 버튼 래퍼 */}
           <CategoryModalTagInner>
-            {category.ageFilter.map((age, index) => {
-              return (
-                <CategoryModalTagButton
-                  key={index}
-                  onClick={() => {
-                    setAgeKeyword(age)
-                    onEditKeyword('age', age)
-                  }}
-                  isClicked={ageKeyword === age ? true : false}
-                >
-                  {age}
-                </CategoryModalTagButton>
-              );
-            })}
+            {category.ageFilter.map((age, index) => (
+              <CategoryModalTagButton
+                key={index}
+                onClick={() => {
+                  setAgeKeyword(age);
+                  if (onEditKeyword) {
+                    onEditKeyword("age", age);
+                  }
+                }}
+                isClicked={ageKeyword === age}
+              >
+                {age}
+              </CategoryModalTagButton>
+            ))}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
@@ -223,21 +218,21 @@ const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
                 <CategoryModalTagButton
                   key={index}
                   onClick={() => {
-                    setStyleKeyword(style)
-                    onEditKeyword('style', style)
+                    setStyleKeyword(style);
+                    if (onEditKeyword) {
+                      onEditKeyword("style", style);
+                    }
                   }}
                   isClicked={styleKeyword === style ? true : false}
                 >
-                  { translateStyle(style) }
+                  {translateStyle(style)}
                 </CategoryModalTagButton>
               );
             })}
           </CategoryModalTagInner>
         </CategoryModalTagWrap>
 
-        <CategoryComplete onClick={onModal}>
-          완료
-        </CategoryComplete>
+        <CategoryComplete onClick={onModal}>완료</CategoryComplete>
       </CategoryModalInner>
     </CategoryModalWrap>
   );
