@@ -175,7 +175,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           {/* 포스트 내용 */}
           <PostDescription>
             {post.content.map((postContent) => {
-              return <>{postContent}</>;
+              return <>{postContent.replace(/<[^>]*>?/gm, ' ')}</>;
             })}
           </PostDescription>
 
@@ -214,7 +214,11 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
       {/* 포스트 사진 미리보기 */}
       <Link to={`/posts/${post._id}`}>
         <PostPreview>
-          <img src={post.thumbnail} alt={post.title} />
+          <img
+            src={post.thumbnail}
+            alt={`${post.title}의 썸네일`}
+            style={{ imageRendering: 'pixelated' }}
+          />
         </PostPreview>
       </Link>
     </div>

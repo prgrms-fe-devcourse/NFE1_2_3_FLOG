@@ -1,12 +1,21 @@
 import styled from "styled-components";
 import testImg from "/testImg.png";
+type LifetimeItemType = {
+  brandName: string;
+  productName: string;
+  description: string;
+  photoUrl: string;
+};
 
-const MyPageItem = () => {
+const MyPageItem = ({ lifetimeItem }: { lifetimeItem?: LifetimeItemType }) => {
+  if (!lifetimeItem) {
+    return null;
+  }
   const Hr = styled.hr`
     border: none;
     height: 0.1px;
     background: #cccccc;
-    margin-top: 50px;
+    margin-top: 90px;
   `;
   const ItemBox = styled.div`
     display: flex;
@@ -24,29 +33,43 @@ const MyPageItem = () => {
     padding-top: 20px;
     padding-bottom: 20px;
   `;
+  console.log(lifetimeItem);
   return (
     <div>
       <div>
         <h2>인생템</h2>
       </div>
-      <ItemBox>
-        <div>
-          <img
-            src={testImg}
-            alt="testImg"
-            style={{ width: "150px", height: "auto", objectFit: "cover" }}
-          ></img>
+      {lifetimeItem.productName === undefined ? (
+        <div
+          style={{
+            display: "flex",
+            marginTop: "50px",
+            justifyContent: "center",
+          }}
+        >
+          <h3 style={{ margin: "0px" }}>아직 인생템이 없어요!</h3>
         </div>
-        <ItemDetailBox>
-          <Text>
-            브랜드네임 <NomalText>의 </NomalText>
-            <Text>아이템이름</Text>
-          </Text>
-          <p>
-            이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇ이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇ이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇ이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇ이랓니츠ㅐ댜ㅡ채ㅑㅈ드챠ㅐㄷ줓ㄹㄷㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
-          </p>
-        </ItemDetailBox>
-      </ItemBox>
+      ) : (
+        <ItemBox>
+          <div>
+            <img
+              src={testImg}
+              alt="testImg"
+              style={{ width: "150px", height: "auto", objectFit: "cover" }}
+            ></img>
+          </div>
+          <ItemDetailBox>
+            <Text>
+              {lifetimeItem.brandName}{" "}
+              {lifetimeItem.brandName !== undefined && (
+                <NomalText>의 </NomalText>
+              )}
+              <Text>{lifetimeItem.productName}</Text>
+            </Text>
+            <p>{lifetimeItem.description}</p>
+          </ItemDetailBox>
+        </ItemBox>
+      )}
       <Hr />
     </div>
   );

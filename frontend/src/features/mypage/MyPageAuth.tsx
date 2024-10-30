@@ -50,7 +50,7 @@ const Input = styled.input`
   margin-left: -3px;
 `;
 
-const MyPageAuth = () => {
+const MyPageAuth = ({ Id }: any) => {
   const { isModalOpen, openModal, closeModal } = useStore();
 
   // 비밀번호 변경 상태 관리
@@ -78,7 +78,7 @@ const MyPageAuth = () => {
       <AuthBox>
         <IdBox>
           <IdText>아이디</IdText>
-          <IdText>idididid1234</IdText>
+          <IdText>{Id}</IdText>
         </IdBox>
         <div>
           <Button onClick={openModal}>비밀번호 변경</Button>
