@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import usePostCreateStore from "./PostCreateStore";
+import usePostCreateStore, { IPostCreate } from "./PostCreateStore";
 
 const pink = "#F9F4F4";
 const black = "#212529";
@@ -38,6 +38,17 @@ const PostCreateButtons = () => {
 
   // 서버로 POST 요청하는 함수
   const postData = async () => {
+    const text = data.content;
+    const imgRegex = /<img\s+src="([^"]+)"\s*\/?>/g;
+    const matches = [];
+    let match;
+
+    while ((match = imgRegex.exec(text)) !== null) {
+      matches.push(match[1]); // match[1]에는 URL이 포함됨
+    }
+
+    if (matches.length) setData({ ...data, thumbnail: matches[0] });
+
     try {
       const res = await axios.post("api/posts/create", data, {
         headers: {
@@ -55,6 +66,8 @@ const PostCreateButtons = () => {
     setData({ ...data, status: "published" });
     console.log(data);
     postData();
+    // postData()가 성공했다면 : 메인페이지로 이동
+    // postData()가 실패했다면 : 그대로
   };
 
   // "임시저장" 버튼 클릭 시 status:"draft" 상태로 전달
@@ -83,7 +96,6 @@ const PostCreateButtons = () => {
         <Button
           onClick={() => {
             postCreateButton();
-            navigate("/"); // 추후에 마이페이지 or 상세페이지로 이동
           }}
         >
           출간하기
