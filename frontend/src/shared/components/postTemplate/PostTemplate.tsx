@@ -7,8 +7,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { postData } from "../postItem/mockData";
 
-interface PageTypes {
-  pageType: "post"  | "promotion" | "event" 
+interface PostTemplatePropTypes {
+  postType: "post"  | "promotion" | "event" 
 }
 interface PostDataTypes {
   _id: string
@@ -58,7 +58,7 @@ const SearchSortWrap = styled.div`
   margin-bottom: 30px;
 `;
 
-const PostTemplate = () => {
+const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
 
   const [postList, setPostList] = useState<PostDataTypes[]>(postData.slice(0, 4));
   const [sortType, setSortType] = useState('new');
@@ -116,7 +116,7 @@ const PostTemplate = () => {
     <div>
       <PostTemplateRightWrap>
         <SearchSortWrap>
-          <Search />
+          <Search postType={postType} />
           <Sort
             onSortingPost={onSortingPost}
           />

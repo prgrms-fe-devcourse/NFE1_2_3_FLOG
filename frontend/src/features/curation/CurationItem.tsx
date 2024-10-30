@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 // Styled Components
@@ -51,17 +52,19 @@ const Thumbnail = styled.img`
   border-radius: 5px;
 `;
 interface CurationItemProps {
+  curationId: string;
   title: string;
   startDate: string;
   endDate: string;
   contentPreview: string;
   participantsCount: number;  // 출품 인원 수
-  likes: number;
+  likes: string[];
   commentsCount: number;
   thumbnail: string;
 }
 
 const CurationItem = ({
+    curationId,
     title,
     startDate,
     endDate,
@@ -71,8 +74,14 @@ const CurationItem = ({
     commentsCount,
     thumbnail,
   }: CurationItemProps) => {
+    const navigate = useNavigate();
+
+  const handleItemClick = () => {
+    navigate(`/curation/${curationId}`); // curationId 기반으로 상세 페이지 이동
+  };
+
     return (
-      <ItemContainer>
+      <ItemContainer onClick={handleItemClick}>
         <TextContent>
           {/* 시작일 및 종료일 */}
           <DateText>{startDate} - {endDate}</DateText>
@@ -86,7 +95,7 @@ const CurationItem = ({
           {/* 출품 인원, 좋아요, 댓글 수 */}
           <MetaInfo>
             <MetaItem>👥 {participantsCount} 명</MetaItem>
-            <MetaItem>❤️ {likes}</MetaItem>
+            <MetaItem>❤️ {likes.length}</MetaItem>
             <MetaItem>💬 {commentsCount}</MetaItem>
           </MetaInfo>
         </TextContent>

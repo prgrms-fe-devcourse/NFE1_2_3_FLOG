@@ -5,8 +5,9 @@ import {
   deleteComment,
   likeComment,
   updateComment,
+  getCurationComments,
   createReplies,
-  getCommentByRepliesId,
+  getRepliesByCommentId,
   deleteReplies,
   likeReplies,
   updateRepliesId,
@@ -23,12 +24,13 @@ router.post(
 
 router.post("/api/comments/:postType/:postId/create", authMiddleware, createComment);
 router.get("/api/comments/:commentId", getCommentById);
-router.delete("/api/comments/delete", authMiddleware, deleteComment);
+router.delete('/api/comments/:postType/:postId/:commentId', authMiddleware, deleteComment); // 경로에 postType, postId 추가
 router.post("/api/comments/:commentId/like", authMiddleware, likeComment);
 router.put("/api/comments/:commentId", authMiddleware, updateComment);
+// 특정 큐레이션의 댓글 목록 조회
+router.get("/api/curations/:curationId/comments", getCurationComments);
 
-
-router.get("/api/comments/:commentId/replies/:replyId", getCommentByRepliesId);
+router.get("/api/comments/:commentId/replies/:replyId", getRepliesByCommentId);
 router.delete(
   "/api/comments/:commentId/replies/:replyId",
   authMiddleware,

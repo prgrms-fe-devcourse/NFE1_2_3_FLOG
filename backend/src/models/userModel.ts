@@ -1,6 +1,7 @@
 // src/models/userModel.ts
 
 import mongoose, { Document, Model } from "mongoose";
+import bcrypt from "bcrypt";
 
 // 회원가입 유저 인터페이스 정의
 export interface IUser extends Document {
@@ -42,6 +43,7 @@ export interface IUser extends Document {
   };
   createdAt?: Date;
   updatedAt?: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>; // comparePassword 추가
 }
 
 // 회원가입 유저 스키마 정의
@@ -87,6 +89,13 @@ const userSchema = new mongoose.Schema<IUser>({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+// 비밀번호 비교 메서드 추가
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 // 모델 생성
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);

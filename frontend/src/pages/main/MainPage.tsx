@@ -14,7 +14,7 @@ const MainWrapper = styled.main`
 const MainPage = () => {
   return (
     <MainWrapper>
-      <PostTemplate />
+      <PostTemplate postType="post" />
       <SideBar />
     </MainWrapper>
   );

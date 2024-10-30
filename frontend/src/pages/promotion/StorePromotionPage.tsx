@@ -14,7 +14,7 @@ const StorePromotionPageWrapper = styled.main`
 const StorePromotionPage = () => {
   return (
     <StorePromotionPageWrapper>
-      <PostTemplate />
+      <PostTemplate postType='promotion' />
       <SideBar />
     </StorePromotionPageWrapper>
   );

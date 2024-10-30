@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import sendIcon from "../../../../public/send.svg";
+import sendIcon from "/send.svg";
 import Comment from "./Comment";
 
 const InputBox = styled.div`

@@ -14,7 +14,7 @@ const EventScheduleWrapper = styled.main`
 const EventSchedulePage = () => {
   return (
     <EventScheduleWrapper>
-      <PostTemplate/>
+      <PostTemplate postType="event"/>
       <SideBar />
     </EventScheduleWrapper>
   );
