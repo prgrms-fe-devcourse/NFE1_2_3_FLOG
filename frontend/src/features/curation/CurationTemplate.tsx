@@ -43,7 +43,7 @@ interface CurationDataTypes {
   endDate: string;
   content: string;
   participantsCount: number;
-  likes: number;
+  likes: string[];
   commentsCount: number;
   thumbnail: string;
 }
