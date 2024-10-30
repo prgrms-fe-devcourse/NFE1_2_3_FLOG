@@ -59,7 +59,7 @@ const SearchSortWrap = styled.div`
 
 const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
 
-  const [postData, setPostData] = useState<PostDataTypes[]>([])
+  const [postData, setPostData] = useState<PostDataTypes[]>([]);
   const [postList, setPostList] = useState<PostDataTypes[]>([]);
   const [sortType, setSortType] = useState('new');
   const [hasMore, setHasMore] = useState(true);
@@ -116,8 +116,6 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
     const observer = new IntersectionObserver(onIntersection, {
       threshold: 1,
     });
-    console.log(observer)
-    console.log(elementRef)
 
     if (elementRef.current) {
       observer.observe(elementRef.current)
