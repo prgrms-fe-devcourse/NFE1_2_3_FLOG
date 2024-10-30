@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
+import PostComments from "../../features/posts/postdetail/PostComments"; 
 
 // Styled Components
 const Container = styled.div`
@@ -117,6 +118,7 @@ interface ICuration {
   genderFilter: string[];
   ageFilter: string[];
   styleFilter: string[];
+  comments: string[]; 
 }
 interface IEntry {
   _id: string;
@@ -265,6 +267,12 @@ const CurationDetailPage = (): JSX.Element => {
           </EntryItem>
         ))}
       </EntryListContainer>
+      {/* PostComments 컴포넌트 추가 */}
+      {curation && (
+  <PostComments
+    curationId={curationId!}
+  />
+)}
     </Container>
   );
 };

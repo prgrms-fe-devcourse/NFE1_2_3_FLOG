@@ -1,10 +1,14 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from 'axios';
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";
 import testImg from "/testImg.png";
 import heartIcon from "/heart.svg";
 import heartFilledIcon from "/heartFilled.svg";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale/ko"; // 한국어 로케일 가져오기
+
 
 const Box = styled.div`
   display: flex;
@@ -91,7 +95,11 @@ const ModalBox = styled.div`
   gap: 30px;
 `;
 
-const EditableCommentText = styled.textarea`
+interface EditableCommentTextProps {
+  isEditing: boolean;
+}
+
+const EditableCommentText = styled.textarea<EditableCommentTextProps>`
   width: 100%;
   border: 2px solid #7d7d7d;
   border-radius: 4px;
@@ -102,7 +110,6 @@ const EditableCommentText = styled.textarea`
   margin: 0;
   resize: none;
   overflow: hidden;
-
   display: ${({ isEditing }) => (isEditing ? "block" : "none")};
 `;
 
@@ -119,38 +126,81 @@ const AddCommentText = styled.textarea`
   overflow: hidden;
 `;
 
-const Comment = () => {
+interface CommentProps {
+  commentId: string;
+}
+
+interface CommentData {
+  _id: string;
+  authorId: { nickname?: string; profileImage?: string };
+  createdAt: string;
+  content: string;
+  likes: string[];
+  postId: string;
+}
+
+
+const Comment = ({ commentId }: CommentProps) => {
   const { isModalOpen, openModal, closeModal } = useStore();
-
-  // 좋아요
-  const [isLike, setIsLike] = useState(false);
-  const clickLike = () => {
-    setIsLike((prev) => !prev);
-  };
-
-  // 내가 쓴 댓글인지 확인하는 로직 필요
-  const isAuthor = true;
-
-  // BEST를 위해 좋아요 개수가 30개가 넘는지 검사
-  const popularComment = true;
-
-  // 댓글 내용과 수정 상태 관리
-  const [commentText, setCommentText] = useState(
-    "댓글 내용입니다 댓글내용입니다 댓글내용입니다"
-  );
+  const [commentData, setCommentData] = useState<CommentData | null>(null);
+  const [relativeTime, setRelativeTime] = useState("");
+  const [commentText, setCommentText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [originalComment, setOriginalComment] = useState(commentText); // 원래 댓글 내용 저장
+  const [originalComment, setOriginalComment] =useState("");
   const [isAddComment, setIsAddComment] = useState(false);
   const [replyText, setReplyText] = useState(""); // 답글 내용
+  const isAuthor = true; // 작성자 확인 로직
+  const popularComment = commentData && commentData.likes?.length >= 30; // BEST를 위해 좋아요 개수 검사
+
+  // 댓글 데이터를 API로부터 가져오기
+  const fetchComment = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/comments/${commentId}`);
+      setCommentData(response.data);
+      setCommentText(response.data.content);
+      setOriginalComment(response.data.content);
+    } catch (error) {
+      console.error("댓글 데이터를 가져오는 중 오류:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchComment();
+  }, [commentId]);
+
+  useEffect(() => {
+    if (commentData?.createdAt) {
+      const timeAgo = formatDistanceToNow(new Date(commentData.createdAt), { addSuffix: true, locale: ko });
+      setRelativeTime(timeAgo);
+    }
+  }, [commentData?.createdAt]);
+
+
+  const handleLike = async () => {
+    try {
+      await axios.post(`/api/comments/${commentData?._id}/like`);
+      // 서버 요청 후 좋아요 상태를 반영하기 위해 수동으로 데이터 업데이트
+      setCommentData((prevData) => 
+        prevData ? { ...prevData, likes: [...prevData.likes, "newUserId"] } : prevData
+      );
+    } catch (error) {
+      console.error("좋아요 처리 중 오류:", error);
+    }
+  };
 
   const handleEdit = () => {
     setOriginalComment(commentText); // 수정 시작 시 원래 댓글 내용 저장
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // 여기에서 수정 로직 추가 (예: API 호출)
+  const handleSave = async () => {
+    try {
+      await axios.put(`/api/comments/${commentData?._id}`, { content: commentText });
+      setCommentData((prevData) => prevData ? { ...prevData, content: commentText } : prevData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("댓글 수정 중 오류:", error);
+    }
   };
 
   const handleCancel = () => {
@@ -158,16 +208,13 @@ const Comment = () => {
     setIsEditing(false);
   };
 
-  // 답글 달기
-  const addComment = () => {
-    setIsAddComment((prev) => !prev);
-  };
-
-  const handleReplySubmit = () => {
-    // 여기에서 답글 제출 로직 추가 (예: API 호출)
-    console.log("답글 내용:", replyText);
-    setReplyText(""); // 제출 후 입력 필드 비우기
-    setIsAddComment(false); // 답글 입력란 닫기
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/api/comments/curation/${commentData?.postId}/${commentData?._id}`);
+      closeModal();
+    } catch (error) {
+      console.error("댓글 삭제 중 오류:", error);
+    }
   };
 
   return (
@@ -175,18 +222,16 @@ const Comment = () => {
       <CommentInfoBox>
         <CommentInfo>
           <Button>
-            <ImageBox src={testImg} alt={testImg}></ImageBox>
+            <ImageBox src={commentData?.authorId?.profileImage || testImg} alt="프로필 이미지" />
           </Button>
           <p>랭킹</p>
-          <p style={{ fontWeight: "bold" }}>닉넴머하지</p>
+          <p style={{ fontWeight: "bold" }}>{commentData?.authorId?.nickname || "Unknown User"}</p>
           {popularComment && (
             <BestBox>
-              <p style={{ margin: "0px", fontSize: "12px", color: "#ffffff" }}>
-                BEST
-              </p>
+              <p style={{ margin: "0px", fontSize: "12px", color: "#ffffff" }}>BEST</p>
             </BestBox>
           )}
-          <p style={{ color: "#7d7d7d" }}>1시간 전</p>
+          <p style={{ color: "#7d7d7d" }}>{relativeTime}</p>
         </CommentInfo>
         {isAuthor && !isEditing ? (
           <EditDeleteBox>
@@ -220,16 +265,16 @@ const Comment = () => {
       {!isEditing && <CommentText>{commentText}</CommentText>}
 
       <ReactionBox>
-        <Button onClick={addComment}>답글 달기</Button>
+        <Button onClick={() => setIsAddComment((prev) => !prev)}>답글 달기</Button>
         <ReactionItem>
-          <Button onClick={clickLike} style={{ width: "20px", height: "20px" }}>
-            {isLike ? (
-              <img src={heartFilledIcon} alt="heartFilledIcon"></img>
-            ) : (
-              <img src={heartIcon} alt="heartIcon"></img>
-            )}
+          <Button onClick={handleLike} style={{ width: "20px", height: "20px" }}>
+            <img src={
+        commentData?.likes && commentData.likes.includes("userId")
+          ? heartFilledIcon
+          : heartIcon
+      } alt="좋아요 아이콘" />
           </Button>
-          <p style={{ margin: "0px" }}>33개</p>
+          <p style={{ margin: "0px" }}>{commentData?.likes ? commentData.likes.length : 0}개</p>
         </ReactionItem>
       </ReactionBox>
 
@@ -241,7 +286,7 @@ const Comment = () => {
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="답글을 입력하세요..."
           />
-          <Button onClick={handleReplySubmit}>답글 달기</Button>
+          <Button onClick={() => setReplyText("")}>답글 달기</Button>
         </div>
       )}
 
@@ -253,14 +298,7 @@ const Comment = () => {
           </ModalBox>
           <ModalBox>
             <Button onClick={closeModal}>취소</Button>
-            <Button
-              onClick={() => {
-                // 여기에서 삭제 로직 추가
-                closeModal();
-              }}
-            >
-              삭제
-            </Button>
+            <Button onClick={handleDelete}>삭제</Button>
           </ModalBox>
         </Modal>
       )}
