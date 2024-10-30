@@ -49,6 +49,43 @@ const SubmitButton = styled.button`
   font-size: 16px;
 `;
 
+const EntryListContainer = styled.div`
+  margin-top: 40px;
+`;
+
+const EntryItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+`;
+
+const EntryTitle = styled.h3`
+  font-size: 18px;
+  margin-bottom: 10px;
+`;
+
+const EntryDescription = styled.p`
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+`;
+
+const EntryVotes = styled.p`
+  font-size: 14px;
+  color: #999;
+`;
+
+const VoteButton = styled.button`
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+`;
+
 interface ICuration {
   title: string;
   startDate: string;
@@ -58,11 +95,18 @@ interface ICuration {
   ageFilter: string[];
   styleFilter: string[];
 }
+interface IEntry {
+  _id: string;
+  title: string;
+  description: string;
+  votes: string[]; // User ID 배열로 투표자 정보가 들어있음
+}
 
 // CurationDetailPage Component
 const CurationDetailPage = (): JSX.Element => {
   const { curationId } = useParams<{ curationId: string }>();
   const [curation, setCuration] = useState<ICuration | null>(null);
+  const [entries, setEntries] = useState<IEntry[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
@@ -102,6 +146,42 @@ const CurationDetailPage = (): JSX.Element => {
   
     fetchCuration();
   }, [curationId]);
+
+  // 출품작 리스트 가져오기 (투표 수로 정렬)
+  useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}/entries`);
+        const sortedEntries = response.data.entries.sort((a: IEntry, b: IEntry) => b.votes.length - a.votes.length);
+        setEntries(sortedEntries);
+      } catch (error) {
+        console.error('출품작을 불러오는 중 오류가 발생했습니다.', error);
+      }
+    };
+
+    fetchEntries();
+  }, [curationId]);
+
+   // 투표 핸들러
+   const handleVote = async (entryId: string) => {
+    if (!isLoggedIn) {
+      navigate('/signin');
+      return;
+    }
+
+    try {
+      await axios.post(`http://localhost:5000/api/entries/${entryId}/vote`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      alert('투표가 완료되었습니다.');
+      // 투표 후 다시 데이터 불러오기
+      const updatedEntries = await axios.get(`http://localhost:5000/api/curations/${curationId}/entries`);
+      setEntries(updatedEntries.data.entries.sort((a: IEntry, b: IEntry) => b.votes.length - a.votes.length));
+    } catch (error) {
+      console.error('투표 중 오류가 발생했습니다.', error);
+      alert('투표 중 오류가 발생했습니다.');
+    }
+  };
 
   const handleSubmitClick = () => {
     if (isLoggedIn) {
@@ -143,6 +223,19 @@ const CurationDetailPage = (): JSX.Element => {
 
       {/* 큐레이션 제출 버튼 */}
       <SubmitButton onClick={handleSubmitClick}>큐레이션 제출</SubmitButton>
+
+      {/* 출품작 리스트 */}
+      <EntryListContainer>
+        <h2>출품작 리스트</h2>
+        {entries.map((entry) => (
+          <EntryItem key={entry._id}>
+            <EntryTitle>{entry.title}</EntryTitle>
+            <EntryDescription>{entry.description}</EntryDescription>
+            <EntryVotes>투표 수: {entry.votes.length}</EntryVotes>
+            <VoteButton onClick={() => handleVote(entry._id)}>투표하기</VoteButton>
+          </EntryItem>
+        ))}
+      </EntryListContainer>
     </Container>
   );
 };
