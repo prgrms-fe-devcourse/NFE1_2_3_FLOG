@@ -17,8 +17,8 @@ export const getPostListService = async (postType: string | undefined) => {
 
 // 추천 포스트 리스트 조회
 export const getRecommendPostListService = async () => {
-  const dateWeekAgo = new Date()
-  dateWeekAgo.setDate(dateWeekAgo.getDate() - 7)
+  const dateWeekAgo = new Date();
+  dateWeekAgo.setDate(dateWeekAgo.getDate() - 7);
 
   const filter: any = {
     status: 'published',
