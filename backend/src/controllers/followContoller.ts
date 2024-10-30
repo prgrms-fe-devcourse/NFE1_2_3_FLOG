@@ -10,6 +10,7 @@ export const toggleFollow = async (
   const { userId } = req.params;
   const myId = req.user?._id;
   const userObjectId = new Types.ObjectId(userId);
+  const myObjectId = new Types.ObjectId(myId);
 
   if (!myId) {
     res.status(401).json({ success: false, message: "로그인이 필요합니다." });
@@ -37,13 +38,16 @@ export const toggleFollow = async (
 
     // 팔로우 상태 확인
     const isFollowing = currentUser.following?.includes(userObjectId) ?? false;
-
     if (isFollowing) {
       // 팔로우 취소
       currentUser.following = currentUser.following?.filter(
         (id) => id.toString() !== userId
       );
-      targetUser.followers = targetUser.followers?.filter((id) => id !== myId);
+      targetUser.followers = targetUser.followers?.filter(
+        (id) => !id.equals(myObjectId)
+      ); // Use .equals for ObjectId comparison
+
+      console.log(myObjectId);
       await currentUser.save();
       await targetUser.save();
       res

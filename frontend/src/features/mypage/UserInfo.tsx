@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import testImg from "../../../public/testImg.png";
-import settingIcon from "../../../public/setting.svg";
+import testImg from "/testImg.png";
+import settingIcon from "/setting.svg";
 import { useNavigate } from "react-router-dom";
 
 const Button = styled.button`

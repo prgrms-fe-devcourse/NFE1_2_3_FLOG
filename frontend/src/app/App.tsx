@@ -24,7 +24,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/detail" element={<PostDetailPage />} />
+        <Route path="/detail/:postId" element={<PostDetailPage />} />
         <Route path="/search" element={<SearchResultsPage />} />
         <Route path="/event" element={<EventSchedulePage />} />
         <Route path="/promotion" element={<StorePromotionPage />} />

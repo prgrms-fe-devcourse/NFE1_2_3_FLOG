@@ -60,7 +60,7 @@ const HeaderLogo = styled.div`
 `
 
 const Header = () => {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(!!localStorage.getItem("token"));
   // 헤더 알림 모달 상태 관리
   const [alarmStatus, setAlarmStatus] = useState(false);
   const navigate = useNavigate();
@@ -76,8 +76,10 @@ const Header = () => {
 
    // 로그인 상태 체크 함수
    useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLogin(!!token); // 토큰이 있으면 true, 없으면 false로 설정
+    const checkLoginStatus = () => setIsLogin(!!localStorage.getItem("token"));
+    window.addEventListener("storage", checkLoginStatus);
+
+    return () => window.removeEventListener("storage", checkLoginStatus);
   }, []);
 
   // 로그아웃 핸들러
@@ -85,6 +87,11 @@ const Header = () => {
     localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
     setIsLogin(false); // 로그인 상태를 false로 설정
     navigate("/"); // 로그아웃 후 홈으로 리디렉션
+  };
+
+   // 로그인 클릭 핸들러
+   const onLoginClick = () => {
+    navigate("/signin"); // 로그인 페이지로 이동
   };
 
   // 헤더 알림 모달 props 함수
@@ -127,7 +134,11 @@ const Header = () => {
             <p>마이페이지</p>
           </HeaderCate>
         ) : (
-          <HeaderCate>로그인</HeaderCate>
+          <HeaderCate>
+            <p onClick={onLoginClick} style={{ cursor: "pointer" }}>
+              로그인
+            </p>
+          </HeaderCate>
         )}
       </HeaderFlexWrap>
     </HeaderWrap>
