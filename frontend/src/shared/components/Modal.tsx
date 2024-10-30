@@ -1,4 +1,4 @@
-import React from "react";
+import { ReactNode } from "react";
 import styled from "styled-components";
 
 const Overlay = styled.div`
@@ -25,7 +25,12 @@ const ModalContainer = styled.div`
   width: 300px; /* 필요에 따라 조정 */
 `;
 
-const Modal = ({ onClose, children }) => {
+interface ModalProps {
+  onClose: () => void;
+  children: ReactNode;
+}
+
+const Modal = ({ onClose, children }: ModalProps) => {
   return (
     <Overlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
