@@ -161,11 +161,16 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
           }
         </PostTemplatePostWrapper>
       </PostTemplateRightWrap>
-      { hasMore && (
-        <div ref={elementRef} style={{ textAlign: 'center' }}>
-          새로운 포스트를 불러오는 중...
-        </div>
-      ) }
+      { hasMore
+        ? (
+          <div ref={elementRef} style={{ textAlign: 'center' }}>
+            새로운 포스트를 불러오는 중...
+          </div>
+        )
+        : (
+          <div style={{ textAlign: 'center' }}>더 이상 포스트가 없습니다.</div>
+        ) 
+      }
     </div>
   );
 };

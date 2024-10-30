@@ -175,7 +175,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           {/* 포스트 내용 */}
           <PostDescription>
             {post.content.map((postContent) => {
-              return <>{postContent}</>;
+              return <>{postContent.replace(/<[^>]*>?/gm, ' ')}</>;
             })}
           </PostDescription>
 
