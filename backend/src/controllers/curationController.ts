@@ -1,6 +1,36 @@
 import { Request, Response } from 'express';
-import { getCurations, getCurationById, createCuration, updateCuration, deleteCuration, toggleCurationLike } from '../services/curationService';
+import {
+  getCurations,
+  getCurationById,
+  createCuration, 
+  updateCuration,
+  deleteCuration,
+  toggleCurationLike,
+  getRecommendCurationListService
+} from '../services/curationService';
 import mongoose from 'mongoose';
+
+// 추천 큐레이션 리스트 조회
+export const getRecommedCurationList = async (req: Request, res: Response) => {
+  try {
+    // 일주일 이내의 큐레이션 리스트
+    const originalList = await getRecommendCurationListService();
+    // 를 좋아요 순으로 솔트한 큐레이션 리스트
+    const sortedList = originalList.sort((a, b) => {
+      return b.likes.length - a.likes.length
+    })
+    // 를 3개만 잘라서 보내욧!
+    const slicedList = sortedList.slice(0, 3)
+
+    res.status(200).json({ success: true, curationList: slicedList })
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: '추천 큐레이션 리스트를 불러오는 중 오류가 발생하였습니다.',
+      err
+    })
+  }
+}
 
 // 큐레이션 리스트 조회 (어드민과 일반 사용자 구분)
 export const getCurationList = async (req: Request, res: Response) => {
