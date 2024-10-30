@@ -137,7 +137,11 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
 
   // 받아온 리스트를 렌더링할 데이터로 정제
   useEffect(() => {
-    setPostList(postData.slice(0, 4))
+    const copyPostData = [...postData]
+    copyPostData.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+    setPostList(copyPostData.slice(0, 4))
     setPage(2)
   }, [postData])
 
