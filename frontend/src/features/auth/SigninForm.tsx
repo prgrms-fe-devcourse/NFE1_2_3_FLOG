@@ -106,6 +106,8 @@ const SigninForm = () => {
       const data = await res.data;
       localStorage.setItem("userId", data.user._id);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("Id", data.user.userId);
+
       console.log(`유저data${JSON.stringify(data)}`);
       alert("로그인 성공");
       navigate("/");

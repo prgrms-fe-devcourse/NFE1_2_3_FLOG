@@ -2,6 +2,7 @@ import styled from "styled-components";
 import testImg from "/testImg.png";
 import settingIcon from "/setting.svg";
 import { useNavigate } from "react-router-dom";
+import userIcon from "/userIcon.svg";
 
 const Button = styled.button`
   display: flex;
@@ -21,7 +22,7 @@ const UserInfoBox = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #cccccc;
+  background-color: #ece7e7;
   border-radius: 10px;
   height: 150px;
   padding-left: 30px;
@@ -29,42 +30,50 @@ const UserInfoBox = styled.div`
   gap: 30px;
 `;
 
-const UserInfo = ({ isFollow = false }) => {
+type UserInfoProps = {
+  isFollow: boolean;
+  nickname: string;
+  bio: string;
+  profileImage: string;
+};
+const UserInfo = ({
+  isFollow = false,
+  nickname,
+  bio,
+  profileImage,
+}: UserInfoProps) => {
   const navigate = useNavigate();
 
-  //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
-  const mypage = true;
   return (
     <div>
       <UserInfoBox>
         <div>
-          <ImageBox src={testImg} alt={testImg}></ImageBox>
+          <ImageBox
+            src={profileImage === "기본" ? userIcon : profileImage}
+            alt={"Profile"}
+          ></ImageBox>
         </div>
         <div
-          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+          style={{ display: "flex", flexDirection: "column", height: "90%" }}
         >
           <div
             style={{
               display: "flex",
+              width: "674px",
               alignContent: "center",
               justifyContent: "space-between",
             }}
           >
-            <h2>닉넴머하지</h2>
-            {!isFollow && mypage && (
+            <h2>{nickname}</h2>
+            {isFollow && (
               <Button onClick={() => navigate("/mypage/edit")}>
                 <img src={settingIcon} alt="settingIcon"></img>
               </Button>
             )}
-            {isFollow && <Button>팔로우</Button>}
+            {!isFollow && <Button>팔로우</Button>}
           </div>
           <div>
-            <p style={{ margin: "0px" }}>
-              소개소개소개소개 소개소개 소개소개 소개 소개소개소개 소개소개
-              소개소개소개소개 소개소개 소개소개 소개 소개소개소개 소개소개
-              소개소개소개소개 소개소개소개소개 소개소개 소개소개
-              소개소개소개소개소개
-            </p>
+            <p style={{ margin: "0px" }}>{bio}</p>
           </div>
         </div>
       </UserInfoBox>

@@ -105,7 +105,7 @@ export const getProfile = async (req: Request, res: Response) => {
   const userId = req.params.userId;
 
   try {
-    const user = await User.findById(userId).populate(
+    const user = await User.findOne({ userId }).populate(
       "followers following posts bookmarkedPosts"
     );
     if (!user) {
@@ -117,6 +117,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
     res.status(200).json({
       userId: user._id,
+      Id: user.userId,
       nickname: user.nickname,
       profileImage: user.profileImage,
       bio: user.bio,
@@ -127,6 +128,7 @@ export const getProfile = async (req: Request, res: Response) => {
       tier: user.tier,
       points: user.points,
       lifetimeItem: user.lifetimeItem,
+      blogName: user.blogName,
     });
     return;
   } catch (error) {

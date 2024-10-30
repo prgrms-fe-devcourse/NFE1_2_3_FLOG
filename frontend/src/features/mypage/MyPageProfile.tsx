@@ -32,7 +32,7 @@ const MoveButton = styled.button`
   color: #212529;
   font-size: 14px;
   border: none;
-  background-color: #cccccc;
+  background-color: #ece7e7;
   cursor: pointer;
   width: 410px;
   height: 70px;
@@ -43,23 +43,44 @@ const MoveText = styled.p`
   font-weight: bold;
 `;
 
-const MyPageProfile = () => {
-  const navigate = useNavigate();
+type ProfileProps = {
+  followers: string[];
+  following: string[];
+  nickname: string;
+  bio: string;
+  profileImage: string;
+  isFollow: boolean;
+};
 
+const MyPageProfile = ({
+  isFollow,
+  followers,
+  following,
+  nickname,
+  bio,
+  profileImage,
+}: ProfileProps) => {
+  const navigate = useNavigate();
   return (
     <div>
-      <UserInfo />
+      <UserInfo
+        isFollow={isFollow}
+        nickname={nickname}
+        bio={bio}
+        profileImage={profileImage}
+      />
       <FollowBox>
+        {" "}
         <Button onClick={() => navigate("follow")}>
-          <p>0</p>팔로워
+          <p>{followers.length}</p>팔로워
         </Button>
         <Button onClick={() => navigate("follow")}>
-          <p>0</p>팔로우
+          <p>{following.length}</p>팔로우
         </Button>
       </FollowBox>
       <MoveBox>
         <MoveButton onClick={() => navigate("post")}>
-          <MoveText>작성한 글</MoveText>
+          <MoveText>포스트</MoveText>
         </MoveButton>
         <MoveButton onClick={() => navigate("book")}>
           <MoveText>북마크</MoveText>
