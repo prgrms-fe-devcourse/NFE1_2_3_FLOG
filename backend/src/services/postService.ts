@@ -6,7 +6,7 @@ export const getPostById = async (postId: string): Promise<IPost | null> => {
 };
 
 // postType에 따라 포스트 리스트 조회
-export const getPostList = async (postType: string | undefined) => {
+export const getPostListService = async (postType: string | undefined) => {
   const filter: any = {}
   if (postType){
     filter.postType = postType;
