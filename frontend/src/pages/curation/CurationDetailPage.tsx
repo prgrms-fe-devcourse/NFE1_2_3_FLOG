@@ -121,6 +121,7 @@ interface ICuration {
 interface IEntry {
   _id: string;
   title: string;
+  authorId: { _id: string; nickname: string };
   photos: string[];
   description: string;
   votes: string[]; // User ID 배열로 투표자 정보가 들어있음
@@ -257,6 +258,8 @@ const CurationDetailPage = (): JSX.Element => {
              {/* 사진 슬라이더 */}
              <PhotoSlider photos={entry.photos} />
             <EntryDescription>{entry.description}</EntryDescription>
+            {/* 작성자 표시 */}
+            <p>작성자: {entry.authorId.nickname}</p>
             <EntryVotes>투표 수: {entry.votes.length}</EntryVotes>
             <VoteButton onClick={() => handleVote(entry._id)}>투표하기</VoteButton>
           </EntryItem>

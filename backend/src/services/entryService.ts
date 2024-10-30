@@ -32,7 +32,7 @@ if (existingEntry) {
 
 // 출품작 조회 서비스 (큐레이션 ID로 조회)
 export const getEntriesByCurationId = async (curationId: string): Promise<IEntry[]> => {
-  return await Entry.find({ curationId });
+  return await Entry.find({ curationId }).populate('authorId', 'nickname');
 };
 
 // 특정 출품작 조회 서비스
