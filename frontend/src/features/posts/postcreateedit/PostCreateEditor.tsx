@@ -1,9 +1,8 @@
-//src/features/posts/postcreateedit/PostCreateEditor.tsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
-import usePostCreateStore from "./PostCreateStore";
+import usePostCreateStore, { IPostCreate } from "./PostCreateStore";
 
 const Editor = styled.div`
   width: 1000px;
@@ -22,16 +21,25 @@ const PostCreateEditor = () => {
 
   const quillRef = useRef<ReactQuill>(null);
   const formats = ["size", "align", "color", "background", "bold", "italic", "underline", "strike", "blockquote", "list", "bullet", "indent", "link", "image"];
-  const modules = {
-    toolbar: [
-      [{ size: ["huge", "large", false, "small"] }], // custom dropdown
-      [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-      [{ align: [] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
-      ["link", "image"],
-    ],
-  };
+
+  const modules = useMemo(
+    () => ({
+      toolbar: [
+        [{ size: ["huge", "large", false, "small"] }],
+        [{ color: [] }, { background: [] }],
+        [{ align: [] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+        ["link", "image"],
+      ],
+    }),
+    []
+  );
+
+  useEffect(() => {
+    setData({ ...data, content: value });
+    console.log(data.content);
+  }, [value]);
 
   return (
     <Editor>
@@ -42,10 +50,7 @@ const PostCreateEditor = () => {
         value={value}
         modules={modules}
         formats={formats}
-        onChange={(content) => {
-          setValue(content);
-          setData({ ...data, content: `${content}` });
-        }}
+        onChange={setValue}
         placeholder="내용을 입력하세요."
       />
     </Editor>
