@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import CategoryModal from "../../../shared/components/categoryModal/CategoryModal";
 
 const black = "#212529";
 const gray = "#7D7D7D";
@@ -17,7 +18,15 @@ const CategoryButton = styled.button`
 `;
 
 const PostCreateCategory = () => {
-  return <CategoryButton>카테고리</CategoryButton>;
+  const [onMadal, setOnModal] = useState(false);
+
+  const onEditKeyword = () => {};
+  return (
+    <div>
+      <CategoryButton>카테고리</CategoryButton>
+      <CategoryModal onMadal={onMadal}></CategoryModal>
+    </div>
+  );
 };
 
 export default PostCreateCategory;
