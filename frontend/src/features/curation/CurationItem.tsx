@@ -57,9 +57,9 @@ interface CurationItemProps {
   startDate: string;
   endDate: string;
   contentPreview: string;
-  participantsCount: number;  // 출품 인원 수
+  entries: string[];  // 출품 인원 수
   likes: string[];
-  commentsCount: number;
+  comments: string[];
   thumbnail: string;
 }
 
@@ -69,9 +69,9 @@ const CurationItem = ({
     startDate,
     endDate,
     contentPreview,
-    participantsCount,
+    entries,
     likes,
-    commentsCount,
+    comments,
     thumbnail,
   }: CurationItemProps) => {
     const navigate = useNavigate();
@@ -94,9 +94,9 @@ const CurationItem = ({
   
           {/* 출품 인원, 좋아요, 댓글 수 */}
           <MetaInfo>
-            <MetaItem>👥 {participantsCount} 명</MetaItem>
+            <MetaItem>👥 {entries.length} 명</MetaItem>
             <MetaItem>❤️ {likes.length}</MetaItem>
-            <MetaItem>💬 {commentsCount}</MetaItem>
+            <MetaItem>💬 {comments.length}</MetaItem>
           </MetaInfo>
         </TextContent>
   
