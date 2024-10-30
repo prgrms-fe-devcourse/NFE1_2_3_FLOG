@@ -9,13 +9,13 @@ export const getRecommendPostList = async (req: Request, res: Response) => {
     // 일주일 이내의 게시물 리스트
     const originalPostList = await getRecommendPostListService();
     // 를 좋아요 순으로 솔트한 게시물 리스트
-    // const sortedPostList = originalPostList.sort((a, b) => {
-    //   return b.likes.length - a.likes.length
-    // })
+    const sortedPostList = originalPostList.sort((a, b) => {
+      return b.likes.length - a.likes.length
+    })
     // 를 3개만 잘라서 보냅니다.
-    // const slicedPostList = sortedPostList.slice(0, 3)
+    const slicedPostList = sortedPostList.slice(0, 3)
 
-    res.status(200).json({ success: true, postList: originalPostList })
+    res.status(200).json({ success: true, postList: slicedPostList })
   } catch (err) {
     res.status(500).json({
       success: false,
