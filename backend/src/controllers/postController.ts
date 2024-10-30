@@ -1,7 +1,23 @@
 import { Request, Response } from "express";
-import { getPostById } from "../services/postService";
+import { getPostById, getPostListService } from "../services/postService";
 import { Types } from "mongoose";
 import User from "../models/userModel";
+
+// 포스트 리스트 조회
+export const getPostList = async (req: Request, res: Response): Promise<void> => {
+  const postType = req.query.postType as string | undefined;
+
+  try {
+    const postList = await getPostListService(postType);
+    res.status(200).json({ success: true, postList })
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "포스트 리스트를 불러오는 중 오류가 발생하였습니다.",
+      err
+    })
+  }
+}
 
 //특정 포스트 조회
 export const getPost = async (req: Request, res: Response): Promise<void> => {
