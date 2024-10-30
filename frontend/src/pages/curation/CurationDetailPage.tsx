@@ -66,6 +66,15 @@ const EntryTitle = styled.h3`
   margin-bottom: 10px;
 `;
 
+const EntryImage = styled.img`
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
 const EntryDescription = styled.p`
   font-size: 14px;
   color: #333;
@@ -86,6 +95,20 @@ const VoteButton = styled.button`
   cursor: pointer;
 `;
 
+// Photo slider styles
+const SliderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+`;
+
+const SliderButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+`;
 interface ICuration {
   title: string;
   startDate: string;
@@ -98,6 +121,7 @@ interface ICuration {
 interface IEntry {
   _id: string;
   title: string;
+  photos: string[];
   description: string;
   votes: string[]; // User ID 배열로 투표자 정보가 들어있음
 }
@@ -230,6 +254,8 @@ const CurationDetailPage = (): JSX.Element => {
         {entries.map((entry) => (
           <EntryItem key={entry._id}>
             <EntryTitle>{entry.title}</EntryTitle>
+             {/* 사진 슬라이더 */}
+             <PhotoSlider photos={entry.photos} />
             <EntryDescription>{entry.description}</EntryDescription>
             <EntryVotes>투표 수: {entry.votes.length}</EntryVotes>
             <VoteButton onClick={() => handleVote(entry._id)}>투표하기</VoteButton>
@@ -237,6 +263,31 @@ const CurationDetailPage = (): JSX.Element => {
         ))}
       </EntryListContainer>
     </Container>
+  );
+};
+
+// PhotoSlider Component
+interface PhotoSliderProps {
+  photos: string[];
+}
+
+const PhotoSlider = ({ photos }: PhotoSliderProps) => {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  const handlePrev = () => {
+    setCurrentPhotoIndex((prevIndex) => (prevIndex === 0 ? photos.length - 1 : prevIndex - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPhotoIndex((prevIndex) => (prevIndex === photos.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  return (
+    <SliderContainer>
+      {photos.length > 1 && <SliderButton onClick={handlePrev}>{"<"}</SliderButton>}
+      <EntryImage src={photos[currentPhotoIndex]} alt="출품작 사진" />
+      {photos.length > 1 && <SliderButton onClick={handleNext}>{">"}</SliderButton>}
+    </SliderContainer>
   );
 };
 
