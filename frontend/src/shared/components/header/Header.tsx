@@ -74,14 +74,19 @@ const Header = () => {
     }
   };
 
-   // 로그인 상태 체크 함수
-   useEffect(() => {
-    const checkLoginStatus = () => setIsLogin(!!localStorage.getItem("token"));
+   // 로그인 상태 확인
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      setIsLogin(!!localStorage.getItem("token"));
+    };
+    // 컴포넌트 마운트 시 로그인 상태 확인
+    checkLoginStatus();
+    // 스토리지 변경 시 이벤트 리스너 등록
     window.addEventListener("storage", checkLoginStatus);
-
+    
     return () => window.removeEventListener("storage", checkLoginStatus);
   }, []);
-
+  
   // 로그아웃 핸들러
   const handleLogout = () => {
     localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
