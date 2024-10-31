@@ -42,9 +42,9 @@ interface CurationDataTypes {
   startDate: string;
   endDate: string;
   content: string;
-  participantsCount: number;
+  entries: string[];
   likes: string[];
-  commentsCount: number;
+  comments: string[];
   thumbnail: string;
 }
 
@@ -142,9 +142,9 @@ const CurationTemplate = () => {
               startDate={curation.startDate}
               endDate={curation.endDate}
               contentPreview={curation.content}
-              participantsCount={curation.participantsCount}
+              entries={curation.entries}
               likes={curation.likes}
-              commentsCount={curation.commentsCount}
+              comments={curation.comments}
               thumbnail={curation.thumbnail}
             />
           ))}

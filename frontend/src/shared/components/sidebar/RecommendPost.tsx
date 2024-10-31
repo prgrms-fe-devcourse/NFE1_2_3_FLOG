@@ -6,6 +6,7 @@ import Comment from "../asset/Comment.svg";
 import { postData } from "../postItem/mockData";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 interface PostDataTypes {
   _id: string;
@@ -88,6 +89,7 @@ const RecommendPostButton = styled.button`
 `;
 
 const RecommendPost = () => {
+  // 렌더링 할 추천 포스트 리스트 state
   const [postList, setPostList] = useState<PostDataTypes[] | null>(null);
 
   // 시간 계산 함수
@@ -128,13 +130,20 @@ const RecommendPost = () => {
     return `${Math.floor(betweenTimeDay / 365)}년 전`;
   };
 
-  // 포스트 데이터에서 3개만 쓰기
-  useEffect(() => {
-    const copyPostList = [...postData];
-    const slicedPostList = copyPostList.slice(0, 3);
+  // api에서 추천 포스트 리스트 불러오는 함수
+  const loadPostList = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/posts/recommend')
+      setPostList([...response.data.postList]);
+    } catch (err) {
+      console.error('추천 포스트 로드중 오류발생', err)
+    }
+  }
 
+  // postList에 api에서 불러온 값 할당
+  useEffect(() => {
     return () => {
-      setPostList(slicedPostList);
+      loadPostList();
     };
   }, []);
 
@@ -146,14 +155,16 @@ const RecommendPost = () => {
       {postList &&
         postList.map((post) => {
           return (
-            <Link to={'/'}>
+            <Link to={`/post/${post._id}`}>
               <RecommendPostWrap>
                 {/* 추천 포스트 제목 */}
                 <RecommendPostHeader>{post.title}</RecommendPostHeader>
 
                 {/* 추천 포스트 내용 */}
                 <RecommendPostDescription>
-                  {post.content}
+                  {post.content.map((postContent) => {
+                    return <>{ postContent.replace(/<[^>]*>?/gm, ' ') }</>
+                  })}
                 </RecommendPostDescription>
 
                 {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}

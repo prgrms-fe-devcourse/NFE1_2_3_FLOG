@@ -5,7 +5,8 @@ import {
   getCuration,
   likeCurationController,
   updateCurationController,
-  deleteCurationController
+  deleteCurationController,
+  getRecommedCurationList
 } from "../controllers/curationController";
 import { authMiddleware, authOptionalMiddleware } from "../middlewares/authMiddleware"; // 사용자 인증 미들웨어
 
@@ -13,6 +14,7 @@ const router = Router();
   
 // 큐레이션 관련 라우트
 router.get("/api/curations", authOptionalMiddleware, getCurationList); // 큐레이션 리스트 조회
+router.get("/api/curations/recommend", getRecommedCurationList); // 추천 큐레이션 리스트 조회
 router.get("/api/curations/:curationId", getCuration); // 특정 큐레이션 조회
 router.post("/api/curations/create", authMiddleware, createCurationController); // 큐레이션 생성 (관리자만)
 // 큐레이션 좋아요 토글

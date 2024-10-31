@@ -7,7 +7,12 @@ import { Link } from "react-router-dom";
 interface PostDataTypes {
   _id: string;
   title: string;
-  authorId: string;
+  authorId: {
+    _id: string;
+    nickname: string;
+    userId: string;
+    profileImage?: string
+  };
   thumbnail: string;
   content: string[];
   tags: string[];
@@ -101,6 +106,26 @@ const PostInfoText = styled.span`
   color: #7d7d7d;
 `;
 
+const ProfileImgWrap = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  & > img {
+    image-rendering: pixelated;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`
+
+const ProfileNickname = styled.p`
+  font-size: 12px;
+  font-weight: 400;
+  color: #7d7d7d;
+  margin-left: 10px;
+`
+
 const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
   // 시간 계산 함수
   const timeForToday = (value: PostDataTypes) => {
@@ -145,26 +170,32 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
     <div style={baseCss}>
       <PostWrap>
         {/* 포스트 작성자 프로필 */}
-        <Link to={`/`}>
+        <Link to={`/user/${post.authorId.userId}`}>
           <PostFlexStartWrap>
-            <div
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%",
-                backgroundColor: "#ddd",
-              }}
-            ></div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: "400",
-                color: "#7d7d7d",
-                marginLeft: "10px",
-              }}
-            >
-              {post.authorId}
-            </p>
+            {
+              post.authorId.profileImage && post.authorId.profileImage !== ''
+              ? (
+                  <div
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      backgroundColor: "#ddd",
+                    }}
+                  ></div>
+              )
+              : (
+                <ProfileImgWrap>
+                  <img
+                    src={post.authorId.profileImage}
+                    alt={`${post.authorId.nickname}님의 프로필 사진`}
+                  />
+                </ProfileImgWrap>
+              )
+            }
+            <ProfileNickname>
+              {post.authorId.nickname}
+            </ProfileNickname>
           </PostFlexStartWrap>
         </Link>
 
