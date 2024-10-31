@@ -23,12 +23,14 @@ export const createComment = async (req: Request, res: Response) => {
 
   if (!authorId) {
     console.error("인증되지 않은 사용자", { authorId });
-    return res.status(401).json({ message: "인증된 사용자가 아닙니다." });
+    res.status(401).json({ message: "인증된 사용자가 아닙니다." });
+    return;
   }
 
   if (!["Curation", "Post"].includes(postType)) {
     console.error("유효하지 않은 postType", { postType });
-    return res.status(400).json({ message: "유효하지 않은 postType입니다." });
+    res.status(400).json({ message: "유효하지 않은 postType입니다." });
+    return;
   }
 
   console.log("postId:", postId);
@@ -40,16 +42,18 @@ export const createComment = async (req: Request, res: Response) => {
       authorId,
       content
     );
-    return res.status(201).json(comment);
+    res.status(201).json(comment);
+    return;
   } catch (error) {
     console.error("댓글 생성 중 오류:", error);
 
     // 에러 메시지를 JSON으로 응답
-    return res.status(500).json({
+    res.status(500).json({
       message: "댓글 생성 중 오류가 발생했습니다.",
       error: error instanceof Error ? error.message : "서버 오류",
       stack: error instanceof Error ? error.stack : undefined, // 스택 추적 추가
     });
+    return;
   }
 };
 

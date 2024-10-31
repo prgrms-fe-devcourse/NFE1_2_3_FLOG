@@ -109,20 +109,34 @@ export const createReply = async (
   authorId: mongoose.Types.ObjectId,
   content: string
 ) => {
-  const newReply = new Reply({
-    authorId,
-    content,
-    likes: [],
-    createAt: new Date(),
-  });
-  const comment = await Comment.findById(commentId);
-  if (!comment) return null;
+  try {
+    // 새로운 대댓글 생성
+    const newReply = new Reply({
+      authorId,
+      content,
+      likes: [],
+      createAt: new Date(),
+    });
 
-  comment.replies.push(newReply);
-  await comment.save();
-  return newReply;
+    // 댓글을 찾기
+    const comment = await Comment.findById(commentId);
+    if (!comment) return null; // 댓글이 없으면 null 반환
+
+    // 대댓글을 댓글의 replies 배열에 추가
+    comment.replies.push(newReply);
+
+    // 대댓글을 먼저 저장
+    await newReply.save(); // 대댓글 저장
+
+    // 댓글을 업데이트하여 대댓글을 추가
+    await comment.save(); // 댓글 업데이트
+
+    return newReply; // 생성된 대댓글 반환
+  } catch (error) {
+    console.error("대댓글 생성 중 오류:", error);
+    throw new Error("대댓글 생성 중 오류가 발생했습니다.");
+  }
 };
-
 // 대댓글 조회 서비스
 export const getRepliesByCommentId = async (commentId: string) => {
   const comment = await Comment.findById(commentId).populate(

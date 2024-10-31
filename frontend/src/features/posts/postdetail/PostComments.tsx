@@ -63,6 +63,7 @@ const PostComments = ({ postId, postType }: PostCommentsProps) => {
         const commentsData = response.data.comments;
         const ids = commentsData.map((comment: { _id: string }) => comment._id);
         setCommentIds(ids);
+        console.log(response.data.comments);
       } else {
         console.error("댓글 데이터가 없습니다.");
       }
@@ -114,7 +115,12 @@ const PostComments = ({ postId, postType }: PostCommentsProps) => {
       {/* 댓글 리스트 */}
       {commentIds.length > 0 ? (
         commentIds.map((commentId) => (
-          <Comment key={commentId} commentId={commentId} />
+          <Comment
+            fetchComments={fetchComments}
+            key={commentId}
+            commentId={commentId}
+            postType={postType}
+          />
         ))
       ) : (
         <p>댓글이 없습니다.</p>
