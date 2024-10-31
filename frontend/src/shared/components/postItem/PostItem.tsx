@@ -11,7 +11,7 @@ interface PostDataTypes {
     _id: string;
     nickname: string;
     userId: string;
-    profileImage?: string
+    profileImage?: string;
   };
   thumbnail: string;
   content: string[];
@@ -117,16 +117,17 @@ const ProfileImgWrap = styled.div`
     height: 100%;
     object-fit: cover;
   }
-`
+`;
 
 const ProfileNickname = styled.p`
   font-size: 12px;
   font-weight: 400;
   color: #7d7d7d;
   margin-left: 10px;
-`
+`;
 
 const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
+  console.log(`post:${JSON.stringify(post)}`);
   // 시간 계산 함수
   const timeForToday = (value: PostDataTypes) => {
     const today = new Date();
@@ -172,31 +173,25 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
         {/* 포스트 작성자 프로필 */}
         <Link to={`/user/${post.authorId.userId}`}>
           <PostFlexStartWrap>
-            {
-              Object.keys(post.authorId).includes('profileImage')
-              ? (
-                  <ProfileImgWrap>
-                    <img
-                      src={post.authorId.profileImage}
-                      alt={`${post.authorId.nickname}님의 프로필 사진`}
-                    />
-                  </ProfileImgWrap> 
-              )
-              : (
-                  // 추후 기본 프로필 사진으로 변경할게요~~
-                  <div
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "50%",
-                      backgroundColor: "#ddd",
-                    }}
-                  />
-              )
-            }
-            <ProfileNickname>
-              {post.authorId.nickname}
-            </ProfileNickname>
+            {Object.keys(post.authorId).includes("profileImage") ? (
+              <ProfileImgWrap>
+                <img
+                  src={post.authorId.profileImage}
+                  alt={`${post.authorId.nickname}님의 프로필 사진`}
+                />
+              </ProfileImgWrap>
+            ) : (
+              // 추후 기본 프로필 사진으로 변경할게요~~
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  backgroundColor: "#ddd",
+                }}
+              />
+            )}
+            <ProfileNickname>{post.authorId.nickname}</ProfileNickname>
           </PostFlexStartWrap>
         </Link>
 
@@ -207,7 +202,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           {/* 포스트 내용 */}
           <PostDescription>
             {post.content.map((postContent) => {
-              return <>{postContent.replace(/<[^>]*>?/gm, ' ')}</>;
+              return <>{postContent.replace(/<[^>]*>?/gm, " ")}</>;
             })}
           </PostDescription>
 
@@ -222,7 +217,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="좋아요 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{ post.likes ? post.likes.length : 0 }</PostInfoText>
+              <PostInfoText>{post.likes ? post.likes.length : 0}</PostInfoText>
             </PostFlexStartWrap>
 
             {/* 댓글 */}
@@ -234,7 +229,9 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                   alt="댓글 아이콘"
                 />
               </PostButton>
-              <PostInfoText>{ post.comments ? post.comments.length : 0 }</PostInfoText>
+              <PostInfoText>
+                {post.comments ? post.comments.length : 0}
+              </PostInfoText>
             </PostFlexStartWrap>
 
             {/* 작성시간 */}
@@ -249,7 +246,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           <img
             src={post.thumbnail}
             alt={`${post.title}의 썸네일`}
-            style={{ imageRendering: 'pixelated' }}
+            style={{ imageRendering: "pixelated" }}
           />
         </PostPreview>
       </Link>
