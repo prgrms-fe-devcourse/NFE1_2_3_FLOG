@@ -69,11 +69,13 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   // 인터섹션 함수
-  const onIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
+  const onIntersection = useCallback((entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
     const firstEntry = entries[0]
 
     if (firstEntry.isIntersecting && hasMore) {
+      observer.unobserve(firstEntry.target)
       loadMorePosts();
+      observer.observe(firstEntry.target)
     }
   }, [hasMore, postData, postList, page])
 
@@ -81,6 +83,11 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   const loadMorePosts = () => {
     // 더이상 로드할게 없을시 스크롤 종료, 그게 아니라면 로드
     // api에 맞게 수정예정
+    console.log(postData)
+    console.log(postList)
+    console.log(elementRef)
+    console.log(page)
+    console.log(hasMore)
     if (postData.length !== 0) {
       if (postData.length === postList.length) {
         setHasMore(false)
@@ -138,18 +145,22 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
 
   // 무한스크롤 실행 구문
   useEffect(() => {
-    const observer = new IntersectionObserver(onIntersection, {
-      threshold: 1,
-    });
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current)
-    }
-
-    return () => {
+    if(postData.length !== postList.length && elementRef.current !== null) {
+      const observer = new IntersectionObserver(onIntersection, {
+        threshold: 1,
+      });
+  
       if (elementRef.current) {
-        observer.unobserve(elementRef.current)
+        observer.observe(elementRef.current)
       }
+  
+      return () => {
+        if (elementRef.current) {
+          observer.unobserve(elementRef.current)
+        }
+      }
+    } else {
+      setHasMore(false)
     }
   }, [onIntersection])
 
@@ -162,13 +173,16 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   useEffect(() => {
     const copyPostData = [...postData]
     if(Array.isArray(copyPostData)) {
+      setPostList([])
       setPostList(copyPostData.slice(0, 4))
     }
     setPage(2)
+    setHasMore(true)
   }, [postData])
 
   // sortType이 정의 될때 postData 재 할당
   useEffect(() => {
+    setPostList([])
     sortPostList(setPostData)
   }, [sortType])
 
