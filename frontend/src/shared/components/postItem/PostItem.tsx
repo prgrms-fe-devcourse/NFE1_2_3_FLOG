@@ -173,8 +173,17 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
         <Link to={`/user/${post.authorId.userId}`}>
           <PostFlexStartWrap>
             {
-              post.authorId.profileImage && post.authorId.profileImage !== ''
+              Object.keys(post.authorId).includes('profileImage')
               ? (
+                  <ProfileImgWrap>
+                    <img
+                      src={post.authorId.profileImage}
+                      alt={`${post.authorId.nickname}님의 프로필 사진`}
+                    />
+                  </ProfileImgWrap> 
+              )
+              : (
+                  // 추후 기본 프로필 사진으로 변경할게요~~
                   <div
                     style={{
                       width: "24px",
@@ -182,15 +191,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
                       borderRadius: "50%",
                       backgroundColor: "#ddd",
                     }}
-                  ></div>
-              )
-              : (
-                <ProfileImgWrap>
-                  <img
-                    src={post.authorId.profileImage}
-                    alt={`${post.authorId.nickname}님의 프로필 사진`}
                   />
-                </ProfileImgWrap>
               )
             }
             <ProfileNickname>
