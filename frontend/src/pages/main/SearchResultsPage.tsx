@@ -168,12 +168,12 @@ const SearchResultsPage = () => {
     loadData(searchValue, keyword.gender, keyword.age, keyword.style)
 
     // URL 재설정
-    let searchUrl = '/search/'
+    let searchUrl = '/search/posts/'
     searchUrl += `?query=${searchValue}`;
     if (keyword.gender && keyword.gender !== '') { searchUrl += `&gender=${keyword.gender}` }
     if (keyword.age) { searchUrl += `&age=${keyword.age}` }
     if (keyword.style) { searchUrl += `&style=${keyword.style}` }
-    searchUrl += `?postType=${postType}`
+    searchUrl += `&postType=${postType}`
     navigate(searchUrl)
   }
 
