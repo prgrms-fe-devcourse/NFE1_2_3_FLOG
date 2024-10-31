@@ -34,45 +34,47 @@ const CurationCreateButtons = () => {
   const navigate = useNavigate();
   const { data, setData } = useCurationCreateStore(); // Curation 데이터를 가져옴
 
-  // 컨텐츠에서 첫 번째 이미지 추출
-  const extractThumbnail = (content: string[]): string | null => {
-    const imgRegex = /<img\s+src="([^"]+)"\s*\/?>/g;
-    const matches: string[] = [];
-    content.forEach((text) => {
-      let match: RegExpExecArray | null;
-      while ((match = imgRegex.exec(text)) !== null) {
-        matches.push(match[1]);
-      }
-    });
-    return matches.length ? matches[0] : null;
-  };
-
   // 큐레이션 출간 요청
   const publishCuration = async () => {
-    const thumbnail = extractThumbnail(data.content || []);
-    if (thumbnail) {
-      setData({ ...data, thumbnail });
-    }
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/curations/create", data, {
+     // 로그인 시 저장된 adminId를 localStorage에서 가져오기
+     const adminId = localStorage.getItem("userId");
+
+     // adminId가 없는 경우, 출간 요청을 막음
+     if (!adminId) {
+       alert("어드민 사용자만 큐레이션을 생성할 수 있습니다.");
+       return;
+     }
+ 
+     // `data`를 복사하여 새로운 객체에 adminId와 status 값을 추가
+  const updatedData = { ...data, adminId, status: "published" };
+
+  // 상태 업데이트가 완료되기 전에 `updatedData`를 사용해 서버로 전송
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/curations/create",
+      updatedData, // 수정된 데이터를 요청 본문에 포함
+      {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      });
-      console.log("큐레이션 출간 성공", res.data);
-      navigate("/curations"); // 성공 시 큐레이션 리스트 페이지로 이동
-    } catch (error) {
-      console.error("큐레이션 출간 실패", error);
+      }
+    );
+    console.log("큐레이션 출간 성공", res.data);
+    alert("큐레이션이 성공적으로 출간되었습니다!");
+    navigate("/curations");
+  } catch (error: any) {
+    if (error.response) {
+      console.error("큐레이션 출간 실패:", error.response.data.message);
+    } else {
+      console.error("큐레이션 출간 실패:", error.message);
     }
+  }
   };
 
   // 큐레이션 임시저장 요청
   const saveDraftCuration = async () => {
-    const thumbnail = extractThumbnail(data.content || []) || "";
-    setData({ ...data, thumbnail, status: "draft" }); // 상태를 draft로 설정
-
     try {
       const res = await axios.post("http://localhost:5000/api/curations/create", data, {
         headers: {
