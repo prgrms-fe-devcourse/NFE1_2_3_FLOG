@@ -92,6 +92,7 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
 
+    // 최소 2글자 이상 검색
     if(!searchValue || searchValue.length <= 2) {
       return alert('검색어는 최소 두글자 이상 입력해주세요')
     }

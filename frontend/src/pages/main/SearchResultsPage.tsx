@@ -7,9 +7,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface KeywordTypes {
-  gender: string
-  age: string
-  style: string
+  gender: string[]
+  age: string[]
+  style: string[]
 }
 interface PostDataTypes {
   _id: string;
@@ -116,11 +116,11 @@ const SearchResultsPage = () => {
   const [postType, setPostType] = useState(query.get('postType'));
 
   // 검색 키워드 카테고리에서 따로 설정한거 저장 (초기값은 쿼리에서)
-  const [keyword, setKeyword] = useState<KeywordTypes>({
-    age: query.get('age') || '',
-    gender: query.get('gender') || '',
-    style: query.get('style') || ''
-  })
+  const [selectedCategories, setSelectedCategories] = useState<KeywordTypes>({
+    gender: [],
+    age: [],
+    style: []
+  });
 
   // 검색창 인풋 onchange하면 받는 값
   const [searchValue, setSearchValue] = useState('')
@@ -136,15 +136,20 @@ const SearchResultsPage = () => {
   };
 
   // 키워드 지정
-  const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
-    setKeyword((prev) => ({
+  const onEditKeyword = (key: keyof KeywordTypes, value: string[]) => {
+    setSelectedCategories((prev) => ({
       ...prev,
       [key]: value
     }));
   };
 
   // 검색 기능 함수
-  const loadData = async (queryString: string, genderString: string, ageString: string, styleString: string) => {
+  const loadData = async (
+    queryString: string,
+    genderString: string[],
+    ageString: string[],
+    styleString: string[]
+  ) => {
     try {
       const response = await axios.get<{ posts: PostDataTypes[] }>('http://localhost:5000/search/posts', {
         params: {
@@ -171,14 +176,14 @@ const SearchResultsPage = () => {
     }
 
     setPostList([]);
-    loadData(searchValue, keyword.gender, keyword.age, keyword.style)
+    loadData(searchValue, selectedCategories.gender, selectedCategories.age, selectedCategories.style)
 
     // URL 재설정
     let searchUrl = '/search/posts/'
     searchUrl += `?query=${searchValue}`;
-    if (keyword.gender && keyword.gender !== '') { searchUrl += `&gender=${keyword.gender}` }
-    if (keyword.age) { searchUrl += `&age=${keyword.age}` }
-    if (keyword.style) { searchUrl += `&style=${keyword.style}` }
+    if (selectedCategories.gender) { searchUrl += `&gender=${selectedCategories.gender}` }
+    if (selectedCategories.age) { searchUrl += `&age=${selectedCategories.age}` }
+    if (selectedCategories.style) { searchUrl += `&style=${selectedCategories.style}` }
     searchUrl += `&postType=${postType}`
     navigate(searchUrl)
   }
@@ -186,9 +191,12 @@ const SearchResultsPage = () => {
   // 검색한 쿼리 기반 데이터 로드
   useEffect(() => {
     return () => {
-      if (query.get('query')) {
-        loadData(query.get('query')!, query.get('gender')!, query.get('age')!, query.get('style')!)
-      }
+      const queryStr = query.get('query') || '';
+      const genderStrArray = query.get('gender') ? query.get('gender')!.split(',') : [];
+      const ageStrArray = query.get('age') ? query.get('age')!.split(',') : [];
+      const styleStrArray = query.get('style') ? query.get('style')!.split(',') : [];
+      
+      if (queryStr) { loadData(queryStr, genderStrArray, ageStrArray, styleStrArray);}
     }
   }, []);
 
@@ -216,7 +224,7 @@ const SearchResultsPage = () => {
         </SearchResultSetCategoryText>
         {
           modalStatus
-          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword} />
+          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword} selectedCategories={selectedCategories} />
           : null
         }
       </form>
