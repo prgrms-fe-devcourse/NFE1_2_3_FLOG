@@ -39,15 +39,15 @@ const useCurationCreateStore = create<ICurationCreateStore>((set) => ({
   // 데이터의 초기값을 설정
   data: {
     title: "",
-    adminId: null, // 초기값 설정
+    adminId: null,
     thumbnail: "",
     startDate: null,
     endDate: null,
     content: [],
     tags: [],
-    genderFilter: ["전체"],
-    ageFilter: ["전체"],
-    styleFilter: ["전체"],
+    genderFilter: ["전체"] as ("남자" | "여자" | "전체")[], // 리터럴 타입으로 설정
+    ageFilter: ["전체"] as ("10대 미만" | "10대" | "20대" | "30대" | "40대" | "50대 이상" | "전체")[],
+    styleFilter: ["전체"] as ("casual" | "street" | "feminine" | "punk" | "sporty" | "business" | "전체")[],
     status: "draft",
   },
   // 데이터를 변경할 때 사용하는 setData 메소드
@@ -66,9 +66,9 @@ const useCurationCreateStore = create<ICurationCreateStore>((set) => ({
         endDate: null,
         content: [],
         tags: [],
-        genderFilter: ["전체"],
-        ageFilter: ["전체"],
-        styleFilter: ["전체"],
+        genderFilter: ["전체"] as ("남자" | "여자" | "전체")[],
+        ageFilter: ["전체"] as ("10대 미만" | "10대" | "20대" | "30대" | "40대" | "50대 이상" | "전체")[],
+        styleFilter: ["전체"] as ("casual" | "street" | "feminine" | "punk" | "sporty" | "business" | "전체")[],
         status: "draft",
       },
     }),
