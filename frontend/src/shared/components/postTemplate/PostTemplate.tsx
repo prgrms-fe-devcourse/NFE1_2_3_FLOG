@@ -3,7 +3,7 @@ import Search from "../search/Search";
 import Sort from "../search/Sort";
 import PostItem from "../postItem/PostItem";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 interface PostTemplatePropTypes {
@@ -69,11 +69,13 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   // 인터섹션 함수
-  const onIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
+  const onIntersection = useCallback((entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
     const firstEntry = entries[0]
 
     if (firstEntry.isIntersecting && hasMore) {
+      observer.unobserve(firstEntry.target)
       loadMorePosts();
+      observer.observe(firstEntry.target)
     }
   }, [hasMore, postData, postList, page])
 
@@ -81,6 +83,11 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   const loadMorePosts = () => {
     // 더이상 로드할게 없을시 스크롤 종료, 그게 아니라면 로드
     // api에 맞게 수정예정
+    console.log(postData)
+    console.log(postList)
+    console.log(elementRef)
+    console.log(page)
+    console.log(hasMore)
     if (postData.length !== 0) {
       if (postData.length === postList.length) {
         setHasMore(false)
@@ -98,6 +105,31 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
     setSortType(value)
   }
 
+  type SetFunctionType = (setFunc: Dispatch<SetStateAction<PostDataTypes[]>>) => void
+
+  // 솔트타입 별 정렬 함수
+  const sortPostList = useCallback<SetFunctionType>((setFunc) => {
+    switch (sortType) {
+      case 'new':
+        setFunc([...postData.sort((a, b) => {
+          return new Date(b.createdAt).getDate() - new Date(a.createdAt).getDate()
+        })]);
+        break;
+
+      case 'like':
+        setFunc([...postData.sort((a, b) => {
+          return b.likes.length - a.likes.length
+        })]);
+        break;
+
+      case 'comment':
+        setFunc([...postData.sort((a, b) => {
+          return b.comments.length - a.comments.length
+        })]);
+        break;
+    }
+  }, [postData, sortType])
+
   // 리스트 받아오기 함수
   const fetchPostList = async () => {
     let listURL = 'http://localhost:5000/api/posts'
@@ -113,18 +145,22 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
 
   // 무한스크롤 실행 구문
   useEffect(() => {
-    const observer = new IntersectionObserver(onIntersection, {
-      threshold: 1,
-    });
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current)
-    }
-
-    return () => {
+    if(postData.length !== postList.length && elementRef.current !== null) {
+      const observer = new IntersectionObserver(onIntersection, {
+        threshold: 1,
+      });
+  
       if (elementRef.current) {
-        observer.unobserve(elementRef.current)
+        observer.observe(elementRef.current)
       }
+  
+      return () => {
+        if (elementRef.current) {
+          observer.unobserve(elementRef.current)
+        }
+      }
+    } else {
+      setHasMore(false)
     }
   }, [onIntersection])
 
@@ -136,12 +172,19 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   // 받아온 리스트를 렌더링할 데이터로 정제
   useEffect(() => {
     const copyPostData = [...postData]
-    copyPostData.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
-    setPostList(copyPostData.slice(0, 4))
+    if(Array.isArray(copyPostData)) {
+      setPostList([])
+      setPostList(copyPostData.slice(0, 4))
+    }
     setPage(2)
+    setHasMore(true)
   }, [postData])
+
+  // sortType이 정의 될때 postData 재 할당
+  useEffect(() => {
+    setPostList([])
+    sortPostList(setPostData)
+  }, [sortType])
 
   return (
     <div>
@@ -154,24 +197,34 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
         </SearchSortWrap>
         <PostTemplatePostWrapper>
           {
-            postList ? postList.map((post, index) => {
+            postList && postList.length !== 0 ? postList.map((post, index) => {
               return (
                 <PostItem post={post} key={index} /> // 추후 post._id로 수정바람
               )
             })
-            : <div>데이터가 없습니다</div>
+            : <div style={{ 
+                width: '864px',
+                height: '80vh',
+                display: "flex",
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>데이터가 없습니다</div>
           }
         </PostTemplatePostWrapper>
       </PostTemplateRightWrap>
-      { hasMore
-        ? (
-          <div ref={elementRef} style={{ textAlign: 'center' }}>
-            새로운 포스트를 불러오는 중...
-          </div>
-        )
-        : (
-          <div style={{ textAlign: 'center' }}>더 이상 포스트가 없습니다.</div>
+      {
+        postList && postList.length !== 0 ? 
+        ( hasMore
+          ? (
+            <div ref={elementRef} style={{ textAlign: 'center' }}>
+              새로운 포스트를 불러오는 중...
+            </div>
+          )
+          : (
+            <div style={{ textAlign: 'center', width: '864px' }}>더 이상 포스트가 없습니다.</div>
+          ) 
         ) 
+        : null
       }
     </div>
   );
