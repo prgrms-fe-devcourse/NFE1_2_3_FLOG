@@ -2,7 +2,7 @@ import PostCreateTitle from "../../features/posts/postcreateedit/PostCreateTitle
 import PostCreateTag from "../../features/posts/postcreateedit/PostCreateTag";
 import PostCreateCategory from "../../features/posts/postcreateedit/PostCreateCategory";
 import PostCreateEditor from "../../features/posts/postcreateedit/PostCreateEditor";
-import PostCreateButtons from "../../features/posts/postcreateedit/PostCreateButtons";
+import CurationCreateButtons from "../../features/curation/CurationCreateButtons";
 import styled from "styled-components";
 
 // 가운데 정렬을 하기 위한 css 코드
@@ -36,7 +36,7 @@ const CurationCreateEditPage = () => {
         <PostCreateCategory />
       </TagCategoryBox>
       <PostCreateEditor />
-      <PostCreateButtons />
+      <CurationCreateButtons />
     </PostCreateContent>
   );
 };
