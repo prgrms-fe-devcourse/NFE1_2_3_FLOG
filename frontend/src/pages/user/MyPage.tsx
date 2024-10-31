@@ -59,7 +59,8 @@ const MyPage = () => {
   }, [USER_ID]);
   //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
   const mypage = userId === LOGINNED_ID;
-  console.log(mypage);
+  console.log(`hi${profileData?.Id}`);
+
   return (
     <div>
       <div
@@ -71,6 +72,8 @@ const MyPage = () => {
       </div>
       <Box>
         <MyPageProfile
+          Id={profileData?.Id || ""}
+          authorId={profileData?.userId || ""}
           isFollow={mypage}
           followers={profileData?.followers || []}
           following={profileData?.following || []}
