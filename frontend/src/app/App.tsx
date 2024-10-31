@@ -17,7 +17,7 @@ import MyPagePost from "../pages/user/MyPagePost";
 import CurationPage from "../pages/curation/CurationPage";
 import CurationDetailPage from "../pages/curation/CurationDetailPage";
 import CurationSubmissionPage from "../pages/curation/CurationSubmissionPage";
-import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage"; 
+import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage";
 
 function App() {
   return (
@@ -34,13 +34,13 @@ function App() {
         <Route path="/post/create" element={<PostCreateEditPage />} />
         <Route path="/user/:userId" element={<MyPage />}></Route>
         <Route path="/:userId/edit" element={<MyPageEdit />}></Route>
-        <Route path="/:userId/follow" element={<MyPageFollow />}></Route>
+        <Route path="/user/:userId/follow" element={<MyPageFollow />}></Route>
         <Route path="/:userId/book" element={<MyPageBook />}></Route>
-        <Route path="/:userId/post" element={<MyPagePost />}></Route>
+        <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
         <Route path="/curations" element={<CurationPage />} />
-        <Route path="/curation/:curationId" element={<CurationDetailPage />} /> 
+        <Route path="/curation/:curationId" element={<CurationDetailPage />} />
         <Route path="/curation/submit" element={<CurationSubmissionPage />} />
-        <Route path="/curation/create" element={<CurationCreateEditPage />} /> 
+        <Route path="/curation/create" element={<CurationCreateEditPage />} />
       </Routes>
     </div>
   );

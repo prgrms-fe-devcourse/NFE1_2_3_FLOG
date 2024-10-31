@@ -1,8 +1,10 @@
 import styled from "styled-components";
-import testImg from "/testImg.png";
 import settingIcon from "/setting.svg";
 import { useNavigate } from "react-router-dom";
 import userIcon from "/userIcon.svg";
+import NoTokenModal from "../../shared/utils/noTokenModal";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Button = styled.button`
   display: flex;
@@ -35,14 +37,64 @@ type UserInfoProps = {
   nickname: string;
   bio: string;
   profileImage: string;
+  followers: string[];
+  authorId: string;
 };
+
 const UserInfo = ({
   isFollow = false,
   nickname,
   bio,
   profileImage,
+  followers,
+  authorId,
 }: UserInfoProps) => {
   const navigate = useNavigate();
+
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const openNoTokenModal = () => {
+    setIsTokenModalOpen(true);
+  };
+  const closeNoTokenModal = () => {
+    setIsTokenModalOpen(false);
+  };
+  console.log(`ddddd${authorId}`);
+
+  //팔로우 api
+  const USER_ID = localStorage.getItem("userId");
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+
+  // 팔로우 상태 확인
+  useEffect(() => {
+    if (followers) {
+      setIsFollowing(followers.includes(USER_ID)); // 팔로우 목록에 authorId가 포함되어 있으면 true
+    } else {
+      setIsFollowing(false); // following이 없으면 false로 설정
+    }
+  }, [followers]);
+
+  const clickFollow = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        openNoTokenModal();
+      }
+      const response = await axios.post(
+        `http://localhost:5000/api/follow/${authorId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setIsFollowing((prev) => !prev);
+      }
+    } catch (error) {
+      console.error("팔로우 토글 오류:", error);
+    }
+  };
 
   return (
     <div>
@@ -70,13 +122,18 @@ const UserInfo = ({
                 <img src={settingIcon} alt="settingIcon"></img>
               </Button>
             )}
-            {!isFollow && <Button>팔로우</Button>}
+            {!isFollow && (
+              <Button onClick={() => clickFollow()}>
+                {isFollowing ? "팔로우" : "팔로잉"}
+              </Button>
+            )}
           </div>
           <div>
             <p style={{ margin: "0px" }}>{bio}</p>
           </div>
         </div>
       </UserInfoBox>
+      {isTokenModalOpen && <NoTokenModal onClose={closeNoTokenModal} />}
     </div>
   );
 };
