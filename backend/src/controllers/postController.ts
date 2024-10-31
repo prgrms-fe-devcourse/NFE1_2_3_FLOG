@@ -122,74 +122,151 @@ export const Bookmark = async (req: Request, res: Response): Promise<void> => {
 // 포스트 생성 API
 import { Post, IPost } from "../models/postModel"; // Post 모델 임포트
 import { IUser } from "../models/userModel"; // IUser 인터페이스 임포트
-// 기존 포스트 생성/편집 핸들러
-export const postCreateEdit = async (req: Request, res: Response): Promise<void> => {
+export const createPost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, content, thumbnail, tags, postId, postType, genderFilter, ageFilter, styleFilter } = req.body;
+    const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;
 
     if (!title || !content || content.length === 0) {
       res.status(400).json({ success: false, message: "제목과 내용을 모두 입력해야 합니다." });
       return;
     }
 
-    if (postId) {
-      const existingPost = await Post.findById(postId);
-      if (!existingPost) {
-        res.status(404).json({ success: false, message: "존재하지 않는 포스트입니다." });
-        return;
+    const newPost: IPost = new Post({
+      title,
+      content,
+      thumbnail,
+      tags,
+      authorId: (req.user as IUser)._id,
+      postType,
+      genderFilter,
+      ageFilter,
+      styleFilter,
+      status: "published", // 기본값을 draft로 설정
+    });
+
+    await newPost.save();
+
+    // User.posts에 새 포스트 ID 추가
+    const user = await User.findById((req.user as IUser)._id);
+    if (user) {
+      if (!user.posts) {
+        user.posts = [];
       }
-
-      if (existingPost.authorId.toString() !== (req.user as IUser)._id?.toString()) {
-        res.status(403).json({ success: false, message: "포스트를 수정할 권한이 없습니다." });
-        return;
-      }
-
-      // 포스트 업데이트
-      existingPost.title = title;
-      existingPost.content = content;
-      existingPost.thumbnail = thumbnail || existingPost.thumbnail;
-      existingPost.tags = tags || existingPost.tags;
-      existingPost.updatedAt = new Date();
-      existingPost.status = "draft";
-      existingPost.postType = postType;
-      existingPost.genderFilter = genderFilter || existingPost.genderFilter;
-      existingPost.ageFilter = ageFilter || existingPost.ageFilter;
-      existingPost.styleFilter = styleFilter || existingPost.styleFilter;
-
-      await existingPost.save();
-
-      res.status(200).json({ success: true, message: "포스트가 성공적으로 수정되었습니다.", post: existingPost });
-      return;
-    } else {
-      const newPost: IPost = new Post({
-        title,
-        content,
-        thumbnail,
-        tags,
-        authorId: (req.user as IUser)._id,
-        postType,
-        genderFilter,
-        ageFilter,
-        styleFilter,
-      });
-
-      await newPost.save();
-
-      // User.posts에 새 포스트 ID 추가
-      const user = await User.findById((req.user as IUser)._id);
-      if (user) {
-        if (!user.posts) {
-          user.posts = [];
-        }
-        user.posts.push(new Types.ObjectId(newPost._id as string));
-        await user.save();
-      }
-
-      res.status(201).json({ success: true, message: "포스트가 성공적으로 생성되었습니다.", post: newPost });
-      return;
+      user.posts.push(new Types.ObjectId(newPost._id as string));
+      await user.save();
     }
+
+    res.status(201).json({ success: true, message: "포스트가 성공적으로 생성되었습니다.", post: newPost });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "서버에서 오류가 발생했습니다." });
+  }
+};
+
+// 포스트 수정 API
+export const editPost = async (req: Request, res: Response): Promise<void> => {
+  const { postId } = req.params; // URL 파라미터에서 postId를 가져옴
+  const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;
+
+  if (!title || !content || content.length === 0) {
+    res.status(400).json({ success: false, message: "제목과 내용을 모두 입력해야 합니다." });
+    return;
+  }
+
+  try {
+    const existingPost = await Post.findById(postId);
+    if (!existingPost) {
+      res.status(404).json({ success: false, message: "존재하지 않는 포스트입니다." });
+      return;
+    }
+
+    if (existingPost.authorId.toString() !== (req.user as IUser)._id?.toString()) {
+      res.status(403).json({ success: false, message: "포스트를 수정할 권한이 없습니다." });
+      return;
+    }
+
+    // 포스트 업데이트
+    existingPost.title = title;
+    existingPost.content = content;
+    existingPost.thumbnail = thumbnail || existingPost.thumbnail;
+    existingPost.tags = tags || existingPost.tags;
+    existingPost.updatedAt = new Date();
+    existingPost.postType = postType;
+    existingPost.genderFilter = genderFilter || existingPost.genderFilter;
+    existingPost.ageFilter = ageFilter || existingPost.ageFilter;
+    existingPost.styleFilter = styleFilter || existingPost.styleFilter;
+
+    await existingPost.save();
+
+    res.status(200).json({ success: true, message: "포스트가 성공적으로 수정되었습니다.", post: existingPost });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "서버에서 오류가 발생했습니다." });
+  }
+};
+
+// 포스트 임시 저장 API
+export const saveDraft = async (req: Request, res: Response): Promise<void> => {
+  const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;
+
+  if (!title || !content || content.length === 0) {
+    res.status(400).json({ success: false, message: "제목과 내용을 모두 입력해야 합니다." });
+    return;
+  }
+
+  try {
+    const newPost: IPost = new Post({
+      title,
+      content,
+      thumbnail,
+      tags,
+      authorId: (req.user as IUser)._id,
+      postType,
+      genderFilter,
+      ageFilter,
+      styleFilter,
+      status: "draft", // 기본값을 draft로 설정
+    });
+
+    await newPost.save();
+    // User.posts에 새 포스트 ID 추가
+    const user = await User.findById((req.user as IUser)._id);
+    if (user) {
+      if (!user.posts) {
+        user.posts = [];
+      }
+      user.posts.push(new Types.ObjectId(newPost._id as string));
+      await user.save();
+    }
+
+    res.status(201).json({ success: true, message: "포스트가 성공적으로 생성되었습니다.", post: newPost });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "서버에서 오류가 발생했습니다." });
+  }
+};
+
+export const getDraftedPost = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?._id;
+
+  if (!userId) {
+    res.status(401).json({ success: false, message: "사용자가 인증되지 않았습니다." });
+    return;
+  }
+
+  try {
+    const user = await User.findById(userId).populate<{ posts: IPost[] }>("posts");
+    if (!user || !user.posts) {
+      res.status(404).json({ success: false, message: "사용자를 찾을 수 없거나 포스트가 없습니다." });
+      return;
+    }
+
+    const draftedPosts = user.posts.filter((post) => post.status === "draft");
+    const mostRecentDraft = draftedPosts.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())[0];
+
+    res.status(200).json({ success: true, mostRecentDraft });
+  } catch (error) {
+    console.error("임시 저장된 포스트 요청 실패:", error); // 추가된 에러 로그
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다.", error: (error as Error).message });
   }
 };
