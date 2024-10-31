@@ -20,18 +20,37 @@ const CategoryButton = styled.button`
 const PostCreateCategory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+   // 카테고리 선택 상태
+   const [selectedCategories, setSelectedCategories] = useState({
+    gender: [],
+    age: [],
+    style: [],
+  });
+
   // 모달 토글 함수
   const toggleModal = () => {
     setIsModalOpen((prev) => !prev);
   };
 
-  const onEditKeyword = () => {};
+    // 카테고리 선택 함수
+    const handleCategorySelect = (key: keyof typeof selectedCategories, value: string[]) => {
+      setSelectedCategories((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    };
+
+
   return (
     <div>
       {/* 카테고리 버튼 클릭 시 모달이 열림 */}
       <CategoryButton onClick={toggleModal}>카테고리</CategoryButton>
       {isModalOpen && (
-        <CategoryModal onModal={toggleModal} onEditKeyword={onEditKeyword} />
+        <CategoryModal
+          onModal={toggleModal}
+          onEditKeyword={handleCategorySelect}
+          selectedCategories={selectedCategories} // 선택된 카테고리 상태 전달
+        />
       )}
     </div>
   );

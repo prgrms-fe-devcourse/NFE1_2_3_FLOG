@@ -14,7 +14,12 @@ interface KeywordTypes {
 
 interface CategoryProps {
   onModal: () => void;
-  onEditKeyword?: (key: keyof KeywordTypes, value: string) => void; // 옵셔널로 변경
+  onEditKeyword?: (key: keyof KeywordTypes, value: string[]) => void; // 옵셔널로 변경
+  selectedCategories: {
+    gender: string[];
+    age: string[];
+    style: string[];
+  };
 }
 
 interface CategoryData {
@@ -106,15 +111,15 @@ const CategoryComplete = styled.p`
   cursor: pointer;
 `;
 
-const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword }) => {
+const CategoryModal: React.FC<CategoryProps> = ({ onModal, onEditKeyword, selectedCategories }) => {
   // 페이드 애니메이션
   const [fade, setFade] = useState("");
 
   const [category, setCategory] = useState<CategoryData>(categoryData);
 
-  const [genderKeyword, setGenderKeyword] = useState<string[]>([]);
-  const [ageKeyword, setAgeKeyword] = useState<string[]>([]);
-  const [styleKeyword, setStyleKeyword] = useState<string[]>([]);
+  const [genderKeyword, setGenderKeyword] = useState(selectedCategories.gender);
+  const [ageKeyword, setAgeKeyword] = useState(selectedCategories.age);
+  const [styleKeyword, setStyleKeyword] = useState(selectedCategories.style);
 
 const handleCategorySelect = (key: keyof KeywordTypes, value: string) => {
   // 선택할 때 기존 선택과 비교하여 다중 선택을 반영
@@ -132,14 +137,17 @@ const handleCategorySelect = (key: keyof KeywordTypes, value: string) => {
   };
 
   if (key === "gender") {
-    setGenderKeyword((prev) => setKeyword(prev));
-    if (onEditKeyword) onEditKeyword(key, value);
+    const newGender = setKeyword(genderKeyword);
+    setGenderKeyword(newGender);
+    onEditKeyword && onEditKeyword(key, newGender); // onEditKeyword가 존재하는 경우에만 호출
   } else if (key === "age") {
-    setAgeKeyword((prev) => setKeyword(prev));
-    if (onEditKeyword) onEditKeyword(key, value);
+    const newAge = setKeyword(ageKeyword);
+    setAgeKeyword(newAge);
+    onEditKeyword && onEditKeyword(key, newAge);
   } else if (key === "style") {
-    setStyleKeyword((prev) => setKeyword(prev));
-    if (onEditKeyword) onEditKeyword(key, value);
+    const newStyle = setKeyword(styleKeyword);
+    setStyleKeyword(newStyle);
+    onEditKeyword && onEditKeyword(key, newStyle);
   }
 };
 
