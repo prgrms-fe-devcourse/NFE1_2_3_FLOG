@@ -162,7 +162,9 @@ const RecommendPost = () => {
 
                 {/* 추천 포스트 내용 */}
                 <RecommendPostDescription>
-                  {post.content}
+                  {post.content.map((postContent) => {
+                    return <>{ postContent.replace(/<[^>]*>?/gm, ' ') }</>
+                  })}
                 </RecommendPostDescription>
 
                 {/* 추천 포스트 좋아요 & 댓글 & 작성시간 */}
