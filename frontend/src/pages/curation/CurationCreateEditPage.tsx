@@ -1,127 +1,43 @@
-import React, { useState } from "react";
+import PostCreateTitle from "../../features/posts/postcreateedit/PostCreateTitle";
+import PostCreateTag from "../../features/posts/postcreateedit/PostCreateTag";
+import PostCreateCategory from "../../features/posts/postcreateedit/PostCreateCategory";
+import PostCreateEditor from "../../features/posts/postcreateedit/PostCreateEditor";
+import PostCreateButtons from "../../features/posts/postcreateedit/PostCreateButtons";
 import styled from "styled-components";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-const Container = styled.div`
-  max-width: 800px;
+// 가운데 정렬을 하기 위한 css 코드
+const PostCreateContent = styled.div`
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
-  padding: 20px;
 `;
 
-const Title = styled.h1`
-  font-size: 24px;
-  margin-bottom: 20px;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: bold;
-  margin-top: 10px;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
+// <PostCreateTag>와 <PostCreateCategory>를 한줄로 정렬하기 위한 css코드
+const TagCategoryBox = styled.div`
+  width: 1000px;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
   margin-top: 5px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
-const TextArea = styled.textarea`
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  margin-top: 5px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: vertical;
-`;
-
-const Button = styled.button`
-  padding: 10px 20px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #333;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #555;
-  }
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const CurationCreateEditPage = () => {
-  const navigate = useNavigate();
-  const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [description, setDescription] = useState("");
-
-  const handleSaveCuration = async () => {
-    if (!title || !startDate || !endDate || !description) {
-      alert("모든 필드를 입력해 주세요.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/curations", {
-        title,
-        startDate,
-        endDate,
-        description,
-      });
-      if (response.data.success) {
-        alert("큐레이션이 성공적으로 생성되었습니다.");
-        navigate("/curations"); // 큐레이션 목록 페이지로 이동
-      } else {
-        alert("큐레이션 생성 중 오류가 발생했습니다.");
-      }
-    } catch (error) {
-      console.error("큐레이션 생성 오류:", error);
-      alert("큐레이션 생성 중 오류가 발생했습니다.");
-    }
-  };
-
+  // PostCreateTitle : 제목을 입력받기 위한 인풋창
+  // PostCreateTag : 태그를 입력받기 위한 인풋창
+  //
   return (
-    <Container>
-      <Title>큐레이션 생성</Title>
-      <Label>제목</Label>
-      <Input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="큐레이션 제목을 입력하세요"
-      />
-      
-      <Label>시작 날짜</Label>
-      <Input
-        type="date"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-      />
-
-      <Label>종료 날짜</Label>
-      <Input
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-      />
-
-      <Label>설명</Label>
-      <TextArea
-        rows={4}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="큐레이션 설명을 입력하세요"
-      />
-
-      <Button onClick={handleSaveCuration}>저장</Button>
-    </Container>
+    <PostCreateContent>
+      <PostCreateTitle />
+      <TagCategoryBox>
+        <PostCreateTag />
+        <PostCreateCategory />
+      </TagCategoryBox>
+      <PostCreateEditor />
+      <PostCreateButtons />
+    </PostCreateContent>
   );
 };
 
