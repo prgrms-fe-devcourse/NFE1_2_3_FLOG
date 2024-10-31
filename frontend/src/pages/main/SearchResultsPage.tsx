@@ -14,7 +14,12 @@ interface KeywordTypes {
 interface PostDataTypes {
   _id: string;
   title: string;
-  authorId: string;
+  authorId: {
+    _id: string;
+    nickname: string;
+    userId: string;
+    profileImage?: string;
+  };
   thumbnail: string;
   content: string[];
   tags: string[];

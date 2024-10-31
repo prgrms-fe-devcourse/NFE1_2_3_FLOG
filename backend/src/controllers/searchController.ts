@@ -11,13 +11,16 @@ export const searchPosts = async (req: Request, res: Response) => {
   };
 
   if (gender && gender !== '전체') {
-    searchConditions.genderFilter = gender;
+    const genderArray = Array.isArray(gender) ? gender : (gender as string).split(',');
+    searchConditions.genderFilter = { $in: genderArray };
   }
   if (age && age !== '전체') {
-    searchConditions.ageFilter = age;
+    const ageArray = Array.isArray(age) ? age : (age as string).split(',');
+    searchConditions.ageFilter = { $in: ageArray };
   }
   if (style && style !== '전체') {
-    searchConditions.styleFilter = style;
+    const styleArray = Array.isArray(style) ? style : (style as string).split(',');
+    searchConditions.styleFilter = { $in: styleArray };
   }
   if (postType) {
     searchConditions.postType = postType;
