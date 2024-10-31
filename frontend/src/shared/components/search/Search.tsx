@@ -91,7 +91,7 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
   // 폼 이벤트 (검색) 함수
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
-    let searchString = `/search/?query=${searchValue}`
+    let searchString = `/search/posts/?query=${searchValue}`
 
     // URL 설정
     if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
