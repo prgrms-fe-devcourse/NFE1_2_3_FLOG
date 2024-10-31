@@ -75,8 +75,21 @@ const CurationCreateButtons = () => {
 
   // 큐레이션 임시저장 요청
   const saveDraftCuration = async () => {
+
+    // 로그인 시 저장된 adminId를 localStorage에서 가져오기
+    const adminId = localStorage.getItem("userId");
+
+    // adminId가 없는 경우, 출간 요청을 막음
+    if (!adminId) {
+      alert("어드민 사용자만 큐레이션을 생성할 수 있습니다.");
+      return;
+    }
+
+    const updatedData = { ...data, adminId };
+
+
     try {
-      const res = await axios.post("http://localhost:5000/api/curations/create", data, {
+      const res = await axios.post("http://localhost:5000/api/curations/create", updatedData, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,

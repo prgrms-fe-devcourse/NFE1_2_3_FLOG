@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import sendIcon from "/send.svg";
@@ -73,6 +74,16 @@ const PostComments = ({ curationId }: PostCommentsProps) => {
 
    // 댓글 작성 핸들러
    const handleCommentSubmit = async () => {
+    const navigate = useNavigate();
+    const userId = localStorage.getItem("userId"); // 로그인된 유저 ID 가져오기
+
+  if (!userId) {
+    // 유저 ID가 없으면 로그인 알림 후 로그인 페이지로 이동
+    alert("댓글을 작성하려면 로그인하세요.");
+    navigate("/signin");
+    return;
+  }
+
     if (!newComment.trim()) return; // 내용이 없으면 무시
     try {
       await axios.post(`/api/comments/${curationId}/create`, { content: newComment });
