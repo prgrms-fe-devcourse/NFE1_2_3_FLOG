@@ -44,23 +44,28 @@ const MoveText = styled.p`
 `;
 
 type ProfileProps = {
+  Id: string;
   followers: string[];
   following: string[];
   nickname: string;
   bio: string;
   profileImage: string;
   isFollow: boolean;
+  authorId: string;
 };
 
 const MyPageProfile = ({
+  Id,
   isFollow,
   followers,
   following,
   nickname,
   bio,
   profileImage,
+  authorId,
 }: ProfileProps) => {
   const navigate = useNavigate();
+  console.log(following);
   return (
     <div>
       <UserInfo
@@ -68,13 +73,24 @@ const MyPageProfile = ({
         nickname={nickname}
         bio={bio}
         profileImage={profileImage}
+        followers={followers}
+        authorId={authorId}
       />
       <FollowBox>
         {" "}
-        <Button onClick={() => navigate("follow")}>
+        <Button
+          onClick={() =>
+            navigate(`/user/${Id}/follow`, { state: { followers } })
+          }
+        >
           <p>{followers.length}</p>팔로워
         </Button>
-        <Button onClick={() => navigate("follow")}>
+        <Button
+          onClick={() =>
+            navigate(`/user/${authorId}/follow`, { state: { following } })
+          }
+        >
+          {" "}
           <p>{following.length}</p>팔로우
         </Button>
       </FollowBox>
