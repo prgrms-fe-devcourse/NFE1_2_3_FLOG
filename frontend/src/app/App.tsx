@@ -17,6 +17,7 @@ import MyPagePost from "../pages/user/MyPagePost";
 import CurationPage from "../pages/curation/CurationPage";
 import CurationDetailPage from "../pages/curation/CurationDetailPage";
 import CurationSubmissionPage from "../pages/curation/CurationSubmissionPage";
+import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage"; 
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/curations" element={<CurationPage />} />
         <Route path="/curation/:curationId" element={<CurationDetailPage />} /> 
         <Route path="/curation/submit" element={<CurationSubmissionPage />} />
+        <Route path="/curation/create" element={<CurationCreateEditPage />} /> 
       </Routes>
     </div>
   );

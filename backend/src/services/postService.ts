@@ -14,3 +14,17 @@ export const getPostListService = async (postType: string | undefined) => {
 
   return await Post.find(filter).populate("authorId", "nickname profileImage")
 }
+
+// 추천 포스트 리스트 조회
+export const getRecommendPostListService = async () => {
+  const dateWeekAgo = new Date();
+  dateWeekAgo.setDate(dateWeekAgo.getDate() - 7);
+
+  const filter: any = {
+    status: 'published',
+    postType: 'post',
+    createdAt: { $gte: dateWeekAgo }
+  }
+
+  return await Post.find(filter)
+}

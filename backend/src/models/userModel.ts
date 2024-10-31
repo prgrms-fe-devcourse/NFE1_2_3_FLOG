@@ -91,9 +91,7 @@ const userSchema = new mongoose.Schema<IUser>({
 });
 
 // 비밀번호 비교 메서드 추가
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
