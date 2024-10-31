@@ -197,24 +197,34 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
         </SearchSortWrap>
         <PostTemplatePostWrapper>
           {
-            postList ? postList.map((post, index) => {
+            postList && postList.length !== 0 ? postList.map((post, index) => {
               return (
                 <PostItem post={post} key={index} /> // 추후 post._id로 수정바람
               )
             })
-            : <div>데이터가 없습니다</div>
+            : <div style={{ 
+                width: '864px',
+                height: '80vh',
+                display: "flex",
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>데이터가 없습니다</div>
           }
         </PostTemplatePostWrapper>
       </PostTemplateRightWrap>
-      { hasMore
-        ? (
-          <div ref={elementRef} style={{ textAlign: 'center' }}>
-            새로운 포스트를 불러오는 중...
-          </div>
-        )
-        : (
-          <div style={{ textAlign: 'center' }}>더 이상 포스트가 없습니다.</div>
+      {
+        postList && postList.length !== 0 ? 
+        ( hasMore
+          ? (
+            <div ref={elementRef} style={{ textAlign: 'center' }}>
+              새로운 포스트를 불러오는 중...
+            </div>
+          )
+          : (
+            <div style={{ textAlign: 'center', width: '864px' }}>더 이상 포스트가 없습니다.</div>
+          ) 
         ) 
+        : null
       }
     </div>
   );
