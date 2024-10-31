@@ -155,7 +155,7 @@ const RecommendPost = () => {
       {postList &&
         postList.map((post) => {
           return (
-            <Link to={`/post/${post._id}`}>
+            <Link to={`/detail/${post._id}`}>
               <RecommendPostWrap>
                 {/* 추천 포스트 제목 */}
                 <RecommendPostHeader>{post.title}</RecommendPostHeader>

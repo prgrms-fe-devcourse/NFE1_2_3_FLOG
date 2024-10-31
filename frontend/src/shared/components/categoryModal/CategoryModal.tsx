@@ -151,26 +151,6 @@ const handleCategorySelect = (key: keyof KeywordTypes, value: string) => {
   }
 };
 
-  // style은 영어로 되어있어서 한글로 번역함
-  const translateStyle = (style: string) => {
-    switch (style) {
-      case "casual":
-        return "캐쥬얼";
-      case "street":
-        return "스트릿";
-      case "feminine":
-        return "페미닌";
-      case "punk":
-        return "펑크";
-      case "sporty":
-        return "스포티";
-      case "business":
-        return "비즈니스";
-      case "전체":
-        return "전체";
-    }
-  };
-
   // 페이드 애니메이션
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -244,7 +224,7 @@ const handleCategorySelect = (key: keyof KeywordTypes, value: string) => {
               onClick={() => handleCategorySelect("style", style)}
               isClicked={styleKeyword.includes(style)}
             >
-              {translateStyle(style)}
+              {style}
             </CategoryModalTagButton>
           ))}
           </CategoryModalTagInner>

@@ -12,7 +12,7 @@ export const getPostListService = async (postType: string | undefined) => {
     filter.postType = postType;
   }
 
-  return await Post.find(filter).populate("authorId", "nickname profileImage")
+  return await Post.find(filter).populate("authorId", "nickname profileImage userId")
 }
 
 // 추천 포스트 리스트 조회
