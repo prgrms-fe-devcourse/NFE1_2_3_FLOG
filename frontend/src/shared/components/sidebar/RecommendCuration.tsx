@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { curationData } from "./mockData";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 interface CurationTypes {
   _id: string
@@ -57,14 +58,22 @@ const RecommendCurationHeader = styled.p`
 
 const RecommendCuration = () => {
 
+  // 큐레이션 리스트
   const [curationList, setCurationList] = useState<CurationTypes[] | null>(null)
 
-  useEffect(() => {
-    const copyCurationList = [...curationData];
-    const slicedCurationList = copyCurationList.slice(0, 3)
+  // 큐레이션 리스트 fetch 함수
+  const loadCurationList = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/curations/recommend');
+      setCurationList([...response.data.curationList])
+    } catch (err) {
+      console.error('API 통신중 오류가 발생하였습니다.' + err)
+    }
+  }
 
+  useEffect(() => {
     return () => {
-      setCurationList([...slicedCurationList])
+      loadCurationList();
     }
   }, [])
 
