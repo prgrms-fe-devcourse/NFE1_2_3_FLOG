@@ -113,6 +113,20 @@ const EditableCommentText = styled.textarea<EditableCommentTextProps>`
   display: ${({ isEditing }) => (isEditing ? "block" : "none")};
 `;
 
+const EditableReplyText = styled.textarea<EditableCommentTextProps>`
+  width: 90%;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #f5f5f5;
+  resize: none;
+  overflow: hidden;
+  display: ${({ isEditing }) => (isEditing ? "block" : "none")};
+  margin: 0;
+`;
+
 const AddCommentText = styled.textarea`
   width: 100%;
   border: 2px solid #7d7d7d;
@@ -130,18 +144,29 @@ interface CommentProps {
   commentId: string;
 }
 
+interface ReplyData {
+  _id: string;
+  authorId: { nickname?: string; profileImage?: string };
+  content: string;
+  likes: string[];
+  createAt: string;
+}
+
 interface CommentData {
   _id: string;
   authorId: { nickname?: string; profileImage?: string };
   createdAt: string;
   content: string;
   likes: string[];
+  replies: ReplyData[]; // 대댓글 리스트 추가
   postId: string;
 }
 
 
 const Comment = ({ commentId }: CommentProps) => {
   const { isModalOpen, openModal, closeModal } = useStore();
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false); // 대댓글 삭제 모달 상태
+  const [replyToDeleteId, setReplyToDeleteId] = useState<string | null>(null); // 삭제할 대댓글 ID
   const [commentData, setCommentData] = useState<CommentData | null>(null);
   const [relativeTime, setRelativeTime] = useState("");
   const [commentText, setCommentText] = useState("");
@@ -149,6 +174,8 @@ const Comment = ({ commentId }: CommentProps) => {
   const [originalComment, setOriginalComment] =useState("");
   const [isAddComment, setIsAddComment] = useState(false);
   const [replyText, setReplyText] = useState(""); // 답글 내용
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editingReplyText, setEditingReplyText] = useState("");
   const isAuthor = true; // 작성자 확인 로직
   const popularComment = commentData && commentData.likes?.length >= 30; // BEST를 위해 좋아요 개수 검사
 
@@ -217,6 +244,60 @@ const Comment = ({ commentId }: CommentProps) => {
     }
   };
 
+   // 대댓글 생성
+   const handleAddReply = async () => {
+    try {
+      await axios.post(`/api/comments/${commentId}/replies/create`, { content: replyText });
+      setReplyText(""); // 입력 필드 초기화
+      setIsAddComment(false); // 답글 창 닫기
+      fetchComment(); // 대댓글 생성 후 업데이트
+    } catch (error) {
+      console.error("대댓글 작성 중 오류:", error);
+    }
+  };
+
+  const handleEditReply = (replyId: string, currentContent: string) => {
+    setEditingReplyId(replyId);
+    setEditingReplyText(currentContent);
+  };
+
+  const handleSaveReply = async (replyId: string) => {
+    try {
+      await axios.put(`/api/comments/${commentId}/replies/${replyId}`, { content: editingReplyText });
+      setEditingReplyId(null);
+      fetchComment();
+    } catch (error) {
+      console.error("대댓글 수정 중 오류:", error);
+    }
+  };
+
+  const handleCancelReplyEdit = () => {
+    setEditingReplyId(null);
+    setEditingReplyText("");
+  };
+
+  const handleLikeReply = async (replyId: string) => {
+    try {
+      await axios.post(`/api/comments/${commentId}/replies/${replyId}/like`);
+      fetchComment(); // 좋아요 후 대댓글 데이터 업데이트
+    } catch (error) {
+      console.error("대댓글 좋아요 처리 중 오류:", error);
+    }
+  };
+
+  const handleConfirmDeleteReply = async () => {
+    if (replyToDeleteId) {
+      try {
+        await axios.delete(`/api/comments/${commentId}/replies/${replyToDeleteId}`);
+        setReplyToDeleteId(null);
+        setIsReplyModalOpen(false);
+        fetchComment();
+      } catch (error) {
+        console.error("대댓글 삭제 중 오류:", error);
+      }
+    }
+  };
+
   return (
     <Box>
       <CommentInfoBox>
@@ -226,6 +307,7 @@ const Comment = ({ commentId }: CommentProps) => {
           </Button>
           <p>랭킹</p>
           <p style={{ fontWeight: "bold" }}>{commentData?.authorId?.nickname || "Unknown User"}</p>
+          <p style={{ color: "#7d7d7d" }}>{relativeTime}</p>
           {popularComment && (
             <BestBox>
               <p style={{ margin: "0px", fontSize: "12px", color: "#ffffff" }}>BEST</p>
@@ -286,9 +368,57 @@ const Comment = ({ commentId }: CommentProps) => {
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="답글을 입력하세요..."
           />
-          <Button onClick={() => setReplyText("")}>답글 달기</Button>
+          <Button onClick={handleAddReply}>답글 작성</Button>
         </div>
       )}
+
+      {/* 대댓글 리스트 */}
+      {commentData?.replies.map((reply) => (
+        <Box key={reply._id} style={{ marginLeft: "20px", borderLeft: "2px solid #ccc" }}>
+          <CommentInfoBox>
+            <CommentInfo>
+              <Button>
+                <ImageBox src={reply.authorId.profileImage || testImg} alt="프로필 이미지" />
+              </Button>
+              <p style={{ fontWeight: "bold" }}>{reply.authorId.nickname || "Unknown User"}</p>
+            </CommentInfo>
+            {editingReplyId === reply._id ? (
+              <EditDeleteBox>
+                <Button onClick={handleCancelReplyEdit}>취소</Button>
+                <Button onClick={() => handleSaveReply(reply._id)}>수정완료</Button>
+              </EditDeleteBox>
+            ) : (
+              <EditDeleteBox>
+                <Button onClick={() => handleEditReply(reply._id, reply.content)}>수정</Button>
+                <Button onClick={() => setIsReplyModalOpen(true)}>삭제</Button>
+              </EditDeleteBox>
+            )}
+          </CommentInfoBox>
+
+          {editingReplyId === reply._id ? (
+            <EditableReplyText
+              isEditing={true}
+              value={editingReplyText}
+              onChange={(e) => setEditingReplyText(e.target.value)}
+            />
+          ) : (
+            <CommentText>{reply.content}</CommentText>
+          )}
+          <ReactionBox>
+            <ReactionItem>
+              <Button onClick={() => handleLikeReply(reply._id)} style={{ width: "20px", height: "20px" }}>
+                <img
+                  src={
+                    reply.likes.includes("userId") ? heartFilledIcon : heartIcon
+                  }
+                  alt="좋아요 아이콘"
+                />
+              </Button>
+              <p style={{ margin: "0px" }}>{reply.likes.length}개</p>
+            </ReactionItem>
+          </ReactionBox>
+        </Box>
+      ))}
 
       {/* 모달 컴포넌트 */}
       {isModalOpen && (
@@ -299,6 +429,19 @@ const Comment = ({ commentId }: CommentProps) => {
           <ModalBox>
             <Button onClick={closeModal}>취소</Button>
             <Button onClick={handleDelete}>삭제</Button>
+          </ModalBox>
+        </Modal>
+      )}
+
+      {/* 대댓글 삭제 모달 */}
+      {isReplyModalOpen && (
+        <Modal onClose={() => setIsReplyModalOpen(false)}>
+          <ModalBox>
+            <h3>정말 대댓글을 삭제하시겠습니까?</h3>
+          </ModalBox>
+          <ModalBox>
+            <Button onClick={() => setIsReplyModalOpen(false)}>취소</Button>
+            <Button onClick={handleConfirmDeleteReply}>삭제</Button>
           </ModalBox>
         </Modal>
       )}
