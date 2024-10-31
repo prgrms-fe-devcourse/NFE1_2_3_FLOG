@@ -3,7 +3,7 @@ import Search from "../search/Search";
 import Sort from "../search/Sort";
 import PostItem from "../postItem/PostItem";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 interface PostTemplatePropTypes {
@@ -98,6 +98,31 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
     setSortType(value)
   }
 
+  type SetFunctionType = (setFunc: Dispatch<SetStateAction<PostDataTypes[]>>) => void
+
+  // 솔트타입 별 정렬 함수
+  const sortPostList = useCallback<SetFunctionType>((setFunc) => {
+    switch (sortType) {
+      case 'new':
+        setFunc([...postData.sort((a, b) => {
+          return new Date(b.createdAt).getDate() - new Date(a.createdAt).getDate()
+        })]);
+        break;
+
+      case 'like':
+        setFunc([...postData.sort((a, b) => {
+          return b.likes.length - a.likes.length
+        })]);
+        break;
+
+      case 'comment':
+        setFunc([...postData.sort((a, b) => {
+          return b.comments.length - a.comments.length
+        })]);
+        break;
+    }
+  }, [postData, sortType])
+
   // 리스트 받아오기 함수
   const fetchPostList = async () => {
     let listURL = 'http://localhost:5000/api/posts'
@@ -136,12 +161,16 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   // 받아온 리스트를 렌더링할 데이터로 정제
   useEffect(() => {
     const copyPostData = [...postData]
-    copyPostData.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
-    setPostList(copyPostData.slice(0, 4))
+    if(Array.isArray(copyPostData)) {
+      setPostList(copyPostData.slice(0, 4))
+    }
     setPage(2)
   }, [postData])
+
+  // sortType이 정의 될때 postData 재 할당
+  useEffect(() => {
+    sortPostList(setPostData)
+  }, [sortType])
 
   return (
     <div>
