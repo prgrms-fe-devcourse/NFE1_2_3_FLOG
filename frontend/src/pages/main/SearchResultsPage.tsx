@@ -164,6 +164,12 @@ const SearchResultsPage = () => {
   // 재 검색 기능 함수 (FormEvent)
   const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // 최소 2글자 이상 검색
+    if(!searchValue || searchValue.length <= 2) {
+      return alert('검색어는 최소 두글자 이상 입력해주세요')
+    }
+
     setPostList([]);
     loadData(searchValue, keyword.gender, keyword.age, keyword.style)
 
