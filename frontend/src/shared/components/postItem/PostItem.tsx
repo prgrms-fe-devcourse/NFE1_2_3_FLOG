@@ -200,7 +200,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
           </PostFlexStartWrap>
         </Link>
 
-        <Link to={`/posts/${post._id}`}>
+        <Link to={`/detail/${post._id}`}>
           {/* 포스트 제목 */}
           <PostTitle>{post.title}</PostTitle>
 
@@ -244,7 +244,7 @@ const PostItem: React.FC<PostDataPropsTypes> = ({ post }) => {
       </PostWrap>
 
       {/* 포스트 사진 미리보기 */}
-      <Link to={`/posts/${post._id}`}>
+      <Link to={`/detail/${post._id}`}>
         <PostPreview>
           <img
             src={post.thumbnail}
