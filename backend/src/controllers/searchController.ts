@@ -12,15 +12,15 @@ export const searchPosts = async (req: Request, res: Response) => {
 
   if (gender && gender !== '전체') {
     const genderArray = Array.isArray(gender) ? gender : (gender as string).split(',');
-    searchConditions.genderFilter = { $in: genderArray };
+    searchConditions.genderFilter = { $all: genderArray };
   }
   if (age && age !== '전체') {
     const ageArray = Array.isArray(age) ? age : (age as string).split(',');
-    searchConditions.ageFilter = { $in: ageArray };
+    searchConditions.ageFilter = { $all: ageArray };
   }
   if (style && style !== '전체') {
     const styleArray = Array.isArray(style) ? style : (style as string).split(',');
-    searchConditions.styleFilter = { $in: styleArray };
+    searchConditions.styleFilter = { $all: styleArray };
   }
   if (postType) {
     searchConditions.postType = postType;
@@ -40,7 +40,7 @@ export const searchPosts = async (req: Request, res: Response) => {
     }
 
     const posts = await Post.find(searchConditions)
-      .populate("authorId", "nickname profileImage")
+      .populate("authorId", "nickname profileImage userId")
     
     res.status(200).json({ posts });
   } catch (err) {
