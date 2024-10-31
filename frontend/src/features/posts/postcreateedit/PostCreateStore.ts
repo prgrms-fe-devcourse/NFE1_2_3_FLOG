@@ -20,6 +20,19 @@ interface IPostCreateStore {
   resetData: () => void;
 }
 
+interface IDraftPostStore {
+  isDraftedPost: boolean;
+  setIsDraftedPost: (state: boolean) => void;
+}
+
+// Draft Post Store
+export const useDraftPostStore = create<IDraftPostStore>((set) => ({
+  isDraftedPost: false,
+  setIsDraftedPost: (state) => {
+    set({ isDraftedPost: state });
+  },
+}));
+
 const usePostCreateStore = create<IPostCreateStore>((set) => ({
   // 데이터의 초기값을 설정
   data: {
@@ -31,7 +44,7 @@ const usePostCreateStore = create<IPostCreateStore>((set) => ({
     ageFilter: [],
     styleFilter: [],
     postType: "post",
-    status: "",
+    status: "published",
   },
   // 데이터를 변경할 때 사용하는 setData 메소드
   setData: (newData: Partial<IPostCreate>) =>
