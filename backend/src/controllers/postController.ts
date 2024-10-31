@@ -1,7 +1,29 @@
 import { Request, Response } from "express";
-import { getPostById, getPostListService } from "../services/postService";
+import { getPostById, getPostListService, getRecommendPostListService } from "../services/postService";
 import { Types } from "mongoose";
 import User from "../models/userModel";
+
+// 추천 포스트 리스트 조회
+export const getRecommendPostList = async (req: Request, res: Response) => {
+  try {
+    // 일주일 이내의 게시물 리스트
+    const originalPostList = await getRecommendPostListService();
+    // 를 좋아요 순으로 솔트한 게시물 리스트
+    const sortedPostList = originalPostList.sort((a, b) => {
+      return b.likes.length - a.likes.length
+    })
+    // 를 3개만 잘라서 보냅니다.
+    const slicedPostList = sortedPostList.slice(0, 3)
+
+    res.status(200).json({ success: true, postList: slicedPostList })
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "추천 포스트 리스트를 불러오는 중 오류가 발생하였습니다",
+      err
+    })
+  }
+}
 
 // 포스트 리스트 조회
 export const getPostList = async (req: Request, res: Response): Promise<void> => {

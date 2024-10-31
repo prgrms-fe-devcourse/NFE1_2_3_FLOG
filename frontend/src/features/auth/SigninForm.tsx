@@ -106,6 +106,17 @@ const SigninForm = () => {
       const data = await res.data;
       localStorage.setItem("userId", data.user._id);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("Id", data.user.userId);
+
+       // 어드민 여부 저장
+    if (data.user.isAdmin) {
+      localStorage.setItem("userRole", "admin");
+      console.log("로그인한 사용자는 어드민입니다."); 
+    } else {
+      localStorage.setItem("userRole", "user");
+      console.log("로그인한 사용자는 일반 유저입니다.");
+    }
+
       console.log(`유저data${JSON.stringify(data)}`);
       alert("로그인 성공");
       navigate("/");

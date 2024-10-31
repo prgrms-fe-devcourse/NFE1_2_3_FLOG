@@ -60,13 +60,13 @@ const PostDetailPage = () => {
 
   //로그인 한 유저 아이디와 포스트 작성자 아이디가 같은지
   const isUser = USER_ID === postData?.authorId._id;
-
   //팔로우했는지, 북마크 했는지
   return (
     <div>
       <Box>
         <PostHeader
           authorId={postData?.authorId._id || ""}
+          Id={postData?.authorId.userId}
           isUser={isUser}
           followers={postData?.authorId?.followers || []}
           following={postData?.authorId?.following || []}

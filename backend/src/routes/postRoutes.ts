@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPost, Like, Bookmark, getPostList } from "../controllers/postController";
+import { getPost, Like, Bookmark, getPostList, getRecommendPostList } from "../controllers/postController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { createPost, editPost, saveDraft, getDraftedPost } from "../controllers/postController";
 
@@ -7,6 +7,7 @@ const router = Router();
 
 router.get("/api/posts", getPostList); // 각 페이지 별 리스트 렌더링
 router.get("/api/posts/draftedpost", authMiddleware, getDraftedPost); // 임시저장된 포스트 불러오기 API
+router.get("/api/posts/recommend", getRecommendPostList); // 추천 포스트 리스트 조회
 router.get("/api/posts/:postId", getPost);
 router.post("/api/posts/:postId/like", authMiddleware, Like);
 router.post("/api/posts/:postId/bookmark", authMiddleware, Bookmark);
