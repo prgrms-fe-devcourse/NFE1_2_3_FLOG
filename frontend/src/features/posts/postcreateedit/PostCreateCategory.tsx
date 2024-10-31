@@ -18,13 +18,21 @@ const CategoryButton = styled.button`
 `;
 
 const PostCreateCategory = () => {
-  const [onMadal, setOnModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 모달 토글 함수
+  const toggleModal = () => {
+    setIsModalOpen((prev) => !prev);
+  };
 
   const onEditKeyword = () => {};
   return (
     <div>
-      <CategoryButton>카테고리</CategoryButton>
-      <CategoryModal onMadal={onMadal}></CategoryModal>
+      {/* 카테고리 버튼 클릭 시 모달이 열림 */}
+      <CategoryButton onClick={toggleModal}>카테고리</CategoryButton>
+      {isModalOpen && (
+        <CategoryModal onModal={toggleModal} onEditKeyword={onEditKeyword} />
+      )}
     </div>
   );
 };
