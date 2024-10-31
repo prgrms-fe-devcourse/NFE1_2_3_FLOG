@@ -87,7 +87,7 @@ const PostDetailPage = () => {
           likes={postData?.likes || []}
           comments={postData?.comments || []}
         ></PostFooter>
-        <PostComments></PostComments>
+        <PostComments postId={postId} postType="Post" />{" "}
       </Box>
     </div>
   );

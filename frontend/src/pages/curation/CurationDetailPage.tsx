@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import styled from 'styled-components';
-import PostComments from "../../features/posts/postdetail/PostComments"; 
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import styled from "styled-components";
+import PostComments from "../../features/posts/postdetail/PostComments";
 
 // Styled Components
 const Container = styled.div`
@@ -118,7 +118,7 @@ interface ICuration {
   genderFilter: string[];
   ageFilter: string[];
   styleFilter: string[];
-  comments: string[]; 
+  comments: string[];
 }
 interface IEntry {
   _id: string;
@@ -140,7 +140,7 @@ const CurationDetailPage = (): JSX.Element => {
   useEffect(() => {
     // 로그인 상태 확인 함수
     const checkLoginStatus = () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       setIsLoggedIn(!!token); // 토큰이 있으면 true, 없으면 false
     };
 
@@ -151,26 +151,28 @@ const CurationDetailPage = (): JSX.Element => {
     const handleStorageChange = () => {
       checkLoginStatus();
     };
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     // 클린업 함수로 이벤트 리스너 제거
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
   useEffect(() => {
     const fetchCuration = async () => {
-      if (!curationId) return;  // curationId가 없으면 API 호출 중단
-  
+      if (!curationId) return; // curationId가 없으면 API 호출 중단
+
       try {
-        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/curations/${curationId}`
+        );
         setCuration(response.data.curation);
       } catch (error) {
-        console.error('큐레이션 데이터를 불러오지 못했습니다.', error);
+        console.error("큐레이션 데이터를 불러오지 못했습니다.", error);
       }
     };
-  
+
     fetchCuration();
   }, [curationId]);
 
@@ -178,35 +180,49 @@ const CurationDetailPage = (): JSX.Element => {
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}/entries`);
-        const sortedEntries = response.data.entries.sort((a: IEntry, b: IEntry) => b.votes.length - a.votes.length);
+        const response = await axios.get(
+          `http://localhost:5000/api/curations/${curationId}/entries`
+        );
+        const sortedEntries = response.data.entries.sort(
+          (a: IEntry, b: IEntry) => b.votes.length - a.votes.length
+        );
         setEntries(sortedEntries);
       } catch (error) {
-        console.error('출품작을 불러오는 중 오류가 발생했습니다.', error);
+        console.error("출품작을 불러오는 중 오류가 발생했습니다.", error);
       }
     };
 
     fetchEntries();
   }, [curationId]);
 
-   // 투표 핸들러
-   const handleVote = async (entryId: string) => {
+  // 투표 핸들러
+  const handleVote = async (entryId: string) => {
     if (!isLoggedIn) {
-      navigate('/signin');
+      navigate("/signin");
       return;
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/entries/${entryId}/vote`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      alert('투표가 완료되었습니다.');
+      await axios.post(
+        `http://localhost:5000/api/entries/${entryId}/vote`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("투표가 완료되었습니다.");
       // 투표 후 다시 데이터 불러오기
-      const updatedEntries = await axios.get(`http://localhost:5000/api/curations/${curationId}/entries`);
-      setEntries(updatedEntries.data.entries.sort((a: IEntry, b: IEntry) => b.votes.length - a.votes.length));
+      const updatedEntries = await axios.get(
+        `http://localhost:5000/api/curations/${curationId}/entries`
+      );
+      setEntries(
+        updatedEntries.data.entries.sort(
+          (a: IEntry, b: IEntry) => b.votes.length - a.votes.length
+        )
+      );
     } catch (error) {
-      console.error('투표 중 오류가 발생했습니다.', error);
-      alert('투표 중 오류가 발생했습니다.');
+      console.error("투표 중 오류가 발생했습니다.", error);
+      alert("투표 중 오류가 발생했습니다.");
     }
   };
 
@@ -219,7 +235,7 @@ const CurationDetailPage = (): JSX.Element => {
       navigate(`/signin`, { state: { from: `/curation/${curationId}` } });
     }
   };
-  
+
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
   }
@@ -228,9 +244,9 @@ const CurationDetailPage = (): JSX.Element => {
     <Container>
       {/* 필터 정보 */}
       <Filters>
-        <FilterItem>Gender: {curation.genderFilter.join(', ')}</FilterItem>
-        <FilterItem>Age: {curation.ageFilter.join(', ')}</FilterItem>
-        <FilterItem>Style: {curation.styleFilter.join(', ')}</FilterItem>
+        <FilterItem>Gender: {curation.genderFilter.join(", ")}</FilterItem>
+        <FilterItem>Age: {curation.ageFilter.join(", ")}</FilterItem>
+        <FilterItem>Style: {curation.styleFilter.join(", ")}</FilterItem>
       </Filters>
 
       {/* 큐레이션 제목 */}
@@ -238,7 +254,8 @@ const CurationDetailPage = (): JSX.Element => {
 
       {/* 큐레이션 기간 */}
       <DateRange>
-        {new Date(curation.startDate).toLocaleDateString()} - {new Date(curation.endDate).toLocaleDateString()}
+        {new Date(curation.startDate).toLocaleDateString()} -{" "}
+        {new Date(curation.endDate).toLocaleDateString()}
       </DateRange>
 
       {/* 큐레이션 본문 */}
@@ -257,22 +274,23 @@ const CurationDetailPage = (): JSX.Element => {
         {entries.map((entry) => (
           <EntryItem key={entry._id}>
             <EntryTitle>{entry.title}</EntryTitle>
-             {/* 사진 슬라이더 */}
-             <PhotoSlider photos={entry.photos} />
+            {/* 사진 슬라이더 */}
+            <PhotoSlider photos={entry.photos} />
             <EntryDescription>{entry.description}</EntryDescription>
             {/* 작성자 표시 */}
             <p>작성자: {entry.authorId.nickname}</p>
             <EntryVotes>투표 수: {entry.votes.length}</EntryVotes>
-            <VoteButton onClick={() => handleVote(entry._id)}>투표하기</VoteButton>
+            <VoteButton onClick={() => handleVote(entry._id)}>
+              투표하기
+            </VoteButton>
           </EntryItem>
         ))}
       </EntryListContainer>
       {/* PostComments 컴포넌트 추가 */}
       {curation && (
-  <PostComments
-    curationId={curationId!}
-  />
-)}
+        <PostComments curationId={curationId!} />
+        //<PostComments postId={curationData?.id} postType="Curation" />
+      )}
     </Container>
   );
 };
@@ -286,18 +304,26 @@ const PhotoSlider = ({ photos }: PhotoSliderProps) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentPhotoIndex((prevIndex) => (prevIndex === 0 ? photos.length - 1 : prevIndex - 1));
+    setCurrentPhotoIndex((prevIndex) =>
+      prevIndex === 0 ? photos.length - 1 : prevIndex - 1
+    );
   };
 
   const handleNext = () => {
-    setCurrentPhotoIndex((prevIndex) => (prevIndex === photos.length - 1 ? 0 : prevIndex + 1));
+    setCurrentPhotoIndex((prevIndex) =>
+      prevIndex === photos.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   return (
     <SliderContainer>
-      {photos.length > 1 && <SliderButton onClick={handlePrev}>{"<"}</SliderButton>}
+      {photos.length > 1 && (
+        <SliderButton onClick={handlePrev}>{"<"}</SliderButton>
+      )}
       <EntryImage src={photos[currentPhotoIndex]} alt="출품작 사진" />
-      {photos.length > 1 && <SliderButton onClick={handleNext}>{">"}</SliderButton>}
+      {photos.length > 1 && (
+        <SliderButton onClick={handleNext}>{">"}</SliderButton>
+      )}
     </SliderContainer>
   );
 };
