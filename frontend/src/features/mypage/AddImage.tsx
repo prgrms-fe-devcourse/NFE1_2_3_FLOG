@@ -131,8 +131,9 @@ const AddImage = (props: AddImageProps) => {
           <Button
             onClick={isUpload ? handleDeleteImage : handleAddImage}
             title={isUpload ? "사진삭제" : "사진추가"}
+            style={{ marginLeft: "-457px", marginBottom: "-130px" }}
           >
-            이미지 업로드
+            인생템 이미지 업로드
           </Button>
         )}
         <input
