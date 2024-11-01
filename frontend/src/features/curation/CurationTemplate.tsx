@@ -67,12 +67,14 @@ const CurationTemplate = () => {
    // API에서 큐레이션 데이터를 가져오는 함수
    const fetchCurations = async (page: number, sortType: string) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5000/api/curations`, {
         params: {
           page,
           sortType,
           ...filters, // 필터 파라미터 포함
         },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = response.data.curations;
 
