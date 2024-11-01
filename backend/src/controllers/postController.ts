@@ -183,6 +183,22 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
       await user.save();
     }
 
+    // 팔로워들에게만 알림생성
+    const followerList = user?.followers || [];
+    if (followerList.length !== 0) {
+      for (const followerId of followerList) {
+        if(!followerId.equals(req.user?._id) && req.user?._id) {
+          await createNotification(
+            followerId,
+            req.user?._id,
+            "newPost",
+            new Types.ObjectId(newPost._id as string),
+            `${user?.nickname}님이 새로운 포스트를 작성했습니다.`
+          )
+        }
+      }
+    }
+
     res.status(201).json({ success: true, message: "포스트가 성공적으로 생성되었습니다.", post: newPost });
   } catch (err) {
     console.error(err);
