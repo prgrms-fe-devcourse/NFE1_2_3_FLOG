@@ -106,25 +106,43 @@ const CurationCreateCategory = () => {
   };
 
   const handleGenderSelect = (value: typeof genderOptions[number]) => {
-    const newGenderFilter = data.genderFilter.includes(value)
-      ? data.genderFilter.filter((g) => g !== value)
-      : [...data.genderFilter, value];
+    const newGenderFilter: ("전체" | "남자" | "여자")[] =
+      value === "전체"
+        ? ["전체"]
+        : data.genderFilter.includes(value)
+        ? data.genderFilter.filter((g) => g !== value) as ("전체" | "남자" | "여자")[]
+        : [...data.genderFilter.filter((g) => g !== "전체"), value];
     setData({ genderFilter: newGenderFilter });
   };
 
   const handleAgeSelect = (value: typeof ageOptions[number]) => {
-    const newAgeFilter = data.ageFilter.includes(value)
-      ? data.ageFilter.filter((a) => a !== value)
-      : [...data.ageFilter, value];
+    const newAgeFilter: ("전체" | "10대 미만" | "10대" | "20대" | "30대" | "40대" | "50대 이상")[] =
+      value === "전체"
+        ? ["전체"]
+        : data.ageFilter.includes(value)
+        ? data.ageFilter.filter((a) => a !== value)
+        : [...data.ageFilter.filter((a) => a !== "전체"), value];
     setData({ ageFilter: newAgeFilter });
   };
 
   const handleStyleSelect = (value: typeof styleOptions[number]) => {
+    const styleMapping: { [key: string]: "casual" | "street" | "feminine" | "punk" | "sporty" | "business" | "전체" } = {
+      "전체": "전체",
+      "캐쥬얼": "casual",
+      "스트릿": "street",
+      "페미닌": "feminine",
+      "펑크": "punk",
+      "스포티": "sporty",
+      "비즈니스": "business",
+    };
     const mappedValue = styleMapping[value];
-    const newStyleFilter = data.styleFilter.includes(mappedValue)
-      ? data.styleFilter.filter((s) => s !== mappedValue)
-      : [...data.styleFilter, mappedValue];
-    setData({ styleFilter: newStyleFilter });
+    const newStyleFilter =
+      mappedValue === "전체"
+        ? ["전체"]
+        : data.styleFilter.includes(mappedValue)
+        ? data.styleFilter.filter((s) => s !== mappedValue)
+        : [...data.styleFilter.filter((s) => s !== "전체"), mappedValue];
+    setData({ styleFilter: newStyleFilter as ("전체" | "casual" | "street" | "feminine" | "punk" | "sporty" | "business")[] });
   };
 
   return (

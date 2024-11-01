@@ -1,8 +1,8 @@
-import PostCreateTitle from "../../features/posts/postcreateedit/PostCreateTitle";
-import PostCreateTag from "../../features/posts/postcreateedit/PostCreateTag";
-import PostCreateCategory from "../../features/posts/postcreateedit/PostCreateCategory";
-import PostCreateEditor from "../../features/posts/postcreateedit/PostCreateEditor";
-import PostCreateButtons from "../../features/posts/postcreateedit/PostCreateButtons";
+import PostCreateTitle from "../../features/posts/postcreate/PostCreateTitle";
+import PostCreateTag from "../../features/posts/postcreate/PostCreateTag";
+import PostCreateCategory from "../../features/posts/postcreate/PostCreateCategory";
+import PostCreateEditor from "../../features/posts/postcreate/PostCreateEditor";
+import PostCreateButtons from "../../features/posts/postcreate/PostCreateButtons";
 import styled from "styled-components";
 
 // 가운데 정렬을 하기 위한 css 코드
@@ -24,7 +24,7 @@ const TagCategoryBox = styled.div`
   align-items: center;
 `;
 
-const PostCreateEditPage = () => {
+const PostCreatePage = () => {
   // PostCreateTitle : 제목을 입력받기 위한 인풋창
   // PostCreateTag : 태그를 입력받기 위한 인풋창
   //
@@ -41,4 +41,4 @@ const PostCreateEditPage = () => {
   );
 };
 
-export default PostCreateEditPage;
+export default PostCreatePage;

@@ -10,20 +10,20 @@ export const getRecommendPostList = async (req: Request, res: Response) => {
     const originalPostList = await getRecommendPostListService();
     // 를 좋아요 순으로 솔트한 게시물 리스트
     const sortedPostList = originalPostList.sort((a, b) => {
-      return b.likes.length - a.likes.length
-    })
+      return b.likes.length - a.likes.length;
+    });
     // 를 3개만 잘라서 보냅니다.
-    const slicedPostList = sortedPostList.slice(0, 3)
+    const slicedPostList = sortedPostList.slice(0, 3);
 
-    res.status(200).json({ success: true, postList: slicedPostList })
+    res.status(200).json({ success: true, postList: slicedPostList });
   } catch (err) {
     res.status(500).json({
       success: false,
       message: "추천 포스트 리스트를 불러오는 중 오류가 발생하였습니다",
-      err
-    })
+      err,
+    });
   }
-}
+};
 
 // 포스트 리스트 조회
 export const getPostList = async (req: Request, res: Response): Promise<void> => {
@@ -209,7 +209,7 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
 // 포스트 수정 API
 export const editPost = async (req: Request, res: Response): Promise<void> => {
   const { postId } = req.params; // URL 파라미터에서 postId를 가져옴
-  const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;
+  const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter, status } = req.body;
 
   if (!title || !content || content.length === 0) {
     res.status(400).json({ success: false, message: "제목과 내용을 모두 입력해야 합니다." });
@@ -238,6 +238,7 @@ export const editPost = async (req: Request, res: Response): Promise<void> => {
     existingPost.genderFilter = genderFilter || existingPost.genderFilter;
     existingPost.ageFilter = ageFilter || existingPost.ageFilter;
     existingPost.styleFilter = styleFilter || existingPost.styleFilter;
+    existingPost.status = status || "";
 
     await existingPost.save();
 

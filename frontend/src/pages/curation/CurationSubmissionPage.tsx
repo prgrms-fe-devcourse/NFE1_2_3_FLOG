@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -64,44 +65,54 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
-// Interface for Curation data
-interface CurationData {
-  title: string;
-  images: File[];
-  description: string;
-}
 
 const CurationSubmissionPage: React.FC = () => {
+  const { curationId } = useParams<{ curationId: string }>(); // URL에서 curationId 추출
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<string[]>(['', '', '']);
   const [description, setDescription] = useState('');
 
-  // Handle image selection
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImages((prevImages) => {
-        const newImages = [...prevImages];
-        newImages[index] = file;
-        return newImages;
-      });
-    }
-  };
+    // 만약 curationId가 없다면 이전 페이지로 돌아가게 하는 로직
+    useEffect(() => {
+      if (!curationId) {
+        alert("큐레이션 ID가 누락되었습니다.");
+        navigate(-1);
+      }
+    }, [curationId, navigate]);
+
+    const handleImageBoxClick = async (index: number) => {
+      const url = prompt("이미지 URL을 입력하세요:");
+      if (url) {
+        setImages((prevImages) => {
+          const newImages = [...prevImages];
+          newImages[index] = url;
+          return newImages;
+        });
+      }
+    };  
 
   // Handle form submission
   const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    images.forEach((image, index) => formData.append(`image${index}`, image));
+    if (!curationId) return;
+
+    const filteredImages = images.filter((url) => url.trim() !== '');
+
+    const entryData = {
+      curationId,
+      title,
+      photos: filteredImages,  // 배열로서 직접 전달
+      description,
+    };
 
     try {
-      await axios.post('/api/curations', formData, {
+      await axios.post(`http://localhost:5000/api/curations/${curationId}/entry`, entryData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`,
         },
       });
       alert('큐레이션이 성공적으로 제출되었습니다.');
+      navigate(`/curations/${curationId}`);
     } catch (error) {
       console.error('큐레이션 제출 중 오류 발생:', error);
       alert('큐레이션 제출에 실패했습니다.');
@@ -121,15 +132,10 @@ const CurationSubmissionPage: React.FC = () => {
 
       {/* 사진 업로드 */}
       <ImageUploadWrapper>
-        {[0, 1, 2].map((index) => (
-          <ImageBox key={index}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e, index)}
-            />
-            {images[index] ? (
-              <img src={URL.createObjectURL(images[index])} alt="큐레이션 이미지" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {images.map((image, index) => (
+          <ImageBox key={index} onClick={() => handleImageBoxClick(index)}>
+            {image ? (
+              <img src={image} alt={`큐레이션 이미지 ${index + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               <span>+</span>
             )}
