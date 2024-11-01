@@ -13,6 +13,7 @@ interface PostDetailProps {
 }
 
 const PostDetailText = ({ content }: PostDetailProps) => {
-  return <DetailText>{content}</DetailText>;
+  return <DetailText dangerouslySetInnerHTML={{ __html: content }} />;
 };
+
 export default PostDetailText;

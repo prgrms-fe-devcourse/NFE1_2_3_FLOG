@@ -35,13 +35,16 @@ function App() {
         <Route path="/post/create" element={<PostCreatePage />} />
         <Route path="/post/edit" element={<PostEditPage />} />
         <Route path="/user/:userId" element={<MyPage />}></Route>
-        {/* <Route path="/:userId/edit" element={<MyPageEdit />}></Route> */}
         <Route path="/user/:userId/follow" element={<MyPageFollow />}></Route>
         <Route path="/user/:userId/bookmark" element={<MyPageBook />}></Route>
         <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
+        <Route path="/mypage/edit" element={<MyPageEdit />} />
         <Route path="/curations" element={<CurationPage />} />
         <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-        <Route path="/curation/:curationId/submit" element={<CurationSubmissionPage />} />
+        <Route
+          path="/curation/:curationId/submit"
+          element={<CurationSubmissionPage />}
+        />
         <Route path="/curation/create" element={<CurationCreateEditPage />} />
       </Routes>
     </div>
