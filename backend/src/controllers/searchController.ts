@@ -6,17 +6,21 @@ export const searchPosts = async (req: Request, res: Response) => {
   const { query, gender, age, style, postType } = req.query;
 
   const searchConditions: any = {
-    title: { $regex: query, $options: "i" }
+    title: { $regex: query, $options: "i" },
+    status: 'published'
   };
 
   if (gender && gender !== '전체') {
-    searchConditions.genderFilter = gender;
+    const genderArray = Array.isArray(gender) ? gender : (gender as string).split(',');
+    searchConditions.genderFilter = { $all: genderArray };
   }
   if (age && age !== '전체') {
-    searchConditions.ageFilter = age;
+    const ageArray = Array.isArray(age) ? age : (age as string).split(',');
+    searchConditions.ageFilter = { $all: ageArray };
   }
   if (style && style !== '전체') {
-    searchConditions.styleFilter = style;
+    const styleArray = Array.isArray(style) ? style : (style as string).split(',');
+    searchConditions.styleFilter = { $all: styleArray };
   }
   if (postType) {
     searchConditions.postType = postType;
@@ -36,7 +40,7 @@ export const searchPosts = async (req: Request, res: Response) => {
     }
 
     const posts = await Post.find(searchConditions)
-      .populate("authorId", "nickname profileImage")
+      .populate("authorId", "nickname profileImage userId")
     
     res.status(200).json({ posts });
   } catch (err) {

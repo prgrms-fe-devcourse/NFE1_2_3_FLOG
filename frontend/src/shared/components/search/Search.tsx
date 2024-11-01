@@ -9,9 +9,9 @@ interface SearchPropTypes {
   postType: "post"  | "promotion" | "event" 
 }
 interface KeywordTypes {
-  gender: string
-  age: string
-  style: string
+  gender: string[];
+  age: string[];
+  style: string[];
 }
 
 const SearchInputWrap = styled.div`
@@ -71,11 +71,11 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
 
   // 카테고리 모달 상태 관리
   const [modalStatus, setModalStatus] = useState(false);
-  const [keyword, setKeyword] = useState<KeywordTypes>({
-    age: '',
-    gender: '',
-    style: ''
-  })
+  const [selectedCategories, setSelectedCategories] = useState<KeywordTypes>({
+    gender: [],
+    age: [],
+    style: []
+  });
   const [searchValue, setSearchValue] = useState('');
 
   // 카테고리 모달 핸들 함수
@@ -91,23 +91,37 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
   // 폼 이벤트 (검색) 함수
   const handleForm = (e: FormEvent) => {
     e.preventDefault();
-    let searchString = `/search/?query=${searchValue}`
+
+    // 최소 2글자 이상 검색
+    if(!searchValue || searchValue.length <= 2) {
+      return alert('검색어는 최소 두글자 이상 입력해주세요')
+    }
+
+    let searchString = `/search/posts/?query=${searchValue}`
 
     // URL 설정
-    if(keyword.gender !== '') { searchString += `&gender=${keyword.gender}` };
-    if(keyword.age !== '') { searchString += `&age=${keyword.age}` };
-    if(keyword.style !== '') { searchString += `&style=${keyword.style}` };
-    if(postType) { searchString += `&postType=${postType}` }
+    if (selectedCategories.gender.length) {
+      searchString += `&gender=${selectedCategories.gender.join(",")}`;
+    }
+    if (selectedCategories.age.length) {
+      searchString += `&age=${selectedCategories.age.join(",")}`;
+    }
+    if (selectedCategories.style.length) {
+      searchString += `&style=${selectedCategories.style.join(",")}`;
+    }
+    if (postType) {
+      searchString += `&postType=${postType}`;
+    }
     navigate(searchString);
-  }
+  };
 
   // 키워드 설정 함수
-  const onEditKeyword = (key: keyof KeywordTypes, value: string) => {
-    setKeyword((prev) => ({
+  const onEditKeyword = (key: keyof KeywordTypes, value: string[]) => {
+    setSelectedCategories((prev) => ({
       ...prev,
       [key]: value
     }));
-  }
+  };
 
   return (
     <form onSubmit={(e) => handleForm(e)}>
@@ -125,7 +139,7 @@ const Search: React.FC<SearchPropTypes> = ({ postType }) => {
         <SearchCategory onClick={handleModal}>카테고리 설정</SearchCategory>
         {
           modalStatus
-          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword}/>
+          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword}  selectedCategories={selectedCategories} />
           : null
         }
       </SearchInputWrap>

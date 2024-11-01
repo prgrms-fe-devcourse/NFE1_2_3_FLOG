@@ -9,6 +9,8 @@ import authRoutes from "./routes/authRoutes"; // 인증 라우트 임포트
 import entryRoutes from "./routes/entryRoutes"; // 출품작 관련 라우트 임포트
 import postRoutes from "./routes/postRoutes"; //포스트 상세 관련 라우트
 import commentRoutes from "./routes/commentRoutes"; //댓글 관련 라우트
+import userRoutes from "./routes/userRoutes"; //마이페이지 관련 라우트
+import followRoutes from "./routes/followRoutes";
 import searchRoutes from "./routes/searchRoutes"; //검색 관련 라우트
 import notificationRoutes from './routes/notificationRoutes' //알림 관련 라우트
 import setupWebSocket from "./socket/setUpWebSocket";
@@ -48,6 +50,10 @@ app.use("/", postRoutes);
 //댓글 관련 라우트 추가
 app.use("/", commentRoutes);
 
+app.use("/", userRoutes);
+
+//팔로우 관련 라우트
+app.use("/", followRoutes);
 //검색 관련 라우트 추가
 app.use('/', searchRoutes)
 

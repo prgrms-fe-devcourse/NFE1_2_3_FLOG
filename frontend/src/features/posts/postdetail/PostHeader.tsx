@@ -1,7 +1,14 @@
 import styled from "styled-components";
-import { useState } from "react";
+import starIcon from "/star.svg";
+import starFilledIcon from "/starFilled.svg";
+import { useState, useEffect } from "react";
 import useStore from "../../../app/store";
 import Modal from "../../../shared/components/Modal";
+import { formatDate } from "../../../shared/utils/formatDate";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import NoTokenModal from "../../../shared/utils/noTokenModal";
+import { useNavigate } from "react-router-dom";
 
 const CategoryBox = styled.div`
   display: flex;
@@ -51,47 +58,168 @@ const ModalBox = styled.div`
   gap: 30px;
 `;
 
-const PostHeader = () => {
-  const { isModalOpen, openModal, closeModal } = useStore();
+interface PostHeaderProps {
+  authorId: string;
+  Id: string;
+  isUser: boolean;
+  title: string;
+  author: string;
+  date: string;
+  categories: string[];
+  followers: string[];
+  following: string[];
+}
+export const USER_ID = localStorage.getItem("userId");
 
-  const starIcon = "/star.svg";
-  const starFilledIcon = "/starFilled.svg";
+const PostHeader = ({
+  authorId,
+  Id,
+  isUser,
+  title,
+  author,
+  date,
+  categories,
+  followers,
+  following,
+}: PostHeaderProps) => {
+  const { isModalOpen, openModal, closeModal } = useStore();
+  const formatedDate = formatDate(date);
+  const { postId } = useParams();
+  const navigate = useNavigate();
+
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const openNoTokenModal = () => {
+    setIsTokenModalOpen(true);
+  };
+
+  const closeNoTokenModal = () => {
+    setIsTokenModalOpen(false);
+  };
 
   //게시물이 본인인지 아닌지 확인
   //이거 댓글도 수정 삭제 있어서 로직 뺄 수 있으면 공통으로 빼기
-  const isAuthor = true;
+  const isAuthor = isUser;
 
-  //지금은 팔로우 하지 않은 걸 초기로 넣었지만 나중에 팔로워 했는지 안 했는지 가져와서 넣어야함
-  const [isFollow, setIsFollow] = useState(false);
-  const clickFollow = () => {
-    setIsFollow((prev) => !prev);
-  };
-  //북마크도 마찬가지
+  const [isFollow, setIsFollow] = useState<boolean | null>(null);
   const [isBookMark, setIsBookMark] = useState(false);
-  const clickBookMark = () => {
-    setIsBookMark((prev) => !prev);
+
+  //내 아이디로북마크한글가져오기
+  const fetchBookmarkedPosts = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`
+      );
+      const bookmarkedPosts = response.data.items; // 성공적인 응답에서 글 목록 가져오기
+      const isBookmarked = bookmarkedPosts.some(
+        (post) => post.postId === postId
+      );
+      setIsBookMark(isBookmarked); // 초기값 설정
+      console.log("북마크한 글 목록:", bookmarkedPosts);
+    } catch (error) {
+      console.error("북마크 글 목록 가져오기 오류:", error);
+    }
+  };
+  useEffect(() => {
+    fetchBookmarkedPosts();
+  }, []);
+  // 북마크 추가 및 삭제 함수
+  const clickBookMark = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      openNoTokenModal();
+      return;
+    }
+
+    try {
+      if (isBookMark) {
+        await axios.delete(
+          `http://localhost:5000/api/posts/${postId}/bookmark`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        await axios.post(
+          `http://localhost:5000/api/posts/${postId}/bookmark`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+      setIsBookMark((prev) => !prev); // 북마크 상태 토글
+    } catch (error) {
+      console.error("북마크 토글 오류:", error);
+    }
+  };
+
+  // 팔로우 상태 확인
+  useEffect(() => {
+    if (followers && authorId) {
+      setIsFollow(followers.includes(USER_ID)); // 팔로우 목록에 authorId가 포함되어 있으면 true
+    } else {
+      setIsFollow(false); // following이 없으면 false로 설정
+    }
+  }, [followers, authorId]); // following 또는 authorId가 변경될 때마다 실행
+  console.log(`isFollow:${isFollow}`);
+  console.log(`authorId:${authorId}`);
+  console.log(following);
+  const clickFollow = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        openNoTokenModal();
+      }
+      const response = await axios.post(
+        `http://localhost:5000/api/follow/${authorId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setIsFollow((prev) => !prev);
+      }
+    } catch (error) {
+      console.error("팔로우 토글 오류:", error);
+    }
   };
 
   return (
     <div>
       <CategoryBox>
-        <Category>카테고리</Category>
-        <Category>카테고리</Category>
-        <Category>카테고리</Category>
-        <Category>카테고리</Category>
-        <Category>카테고리</Category>
-        <Category>카테고리</Category>
+        {categories.map((category, index) => (
+          <Category key={index}>{category}</Category>
+        ))}
       </CategoryBox>
       <div>
-        <Title>
-          포스트 상세 페이지 제목 타이틀 뭐시깽이 포스트 상세 페이지 제목 타이틀
-          뭐시깽이
-        </Title>
+        <Title>{title}</Title>
       </div>
       <PostInfoBox>
         <div>
-          <PostInfo>닉넴이지롱</PostInfo>
-          <PostInfo>2024.10.22</PostInfo>
+          <button
+            style={{
+              border: "none",
+              backgroundColor: "#ffffff",
+              cursor: "pointer",
+            }}
+          >
+            <PostInfo
+              onClick={() => {
+                navigate(`/user/${Id}`);
+              }}
+              style={{ color: "#000000" }}
+            >
+              {author}
+            </PostInfo>
+          </button>
+          <PostInfo>{formatedDate}</PostInfo>
         </div>
         {isAuthor ? (
           <div>
@@ -139,6 +267,7 @@ const PostHeader = () => {
           </ModalBox>
         </Modal>
       )}
+      {isTokenModalOpen && <NoTokenModal onClose={closeNoTokenModal} />}
     </div>
   );
 };

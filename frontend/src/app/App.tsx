@@ -14,24 +14,33 @@ import MyPageEdit from "../pages/user/MyPageEdit";
 import MyPageFollow from "../pages/user/MyPageFollow";
 import MyPageBook from "../pages/user/MyPageBook";
 import MyPagePost from "../pages/user/MyPagePost";
+import CurationPage from "../pages/curation/CurationPage";
+import CurationDetailPage from "../pages/curation/CurationDetailPage";
+import CurationSubmissionPage from "../pages/curation/CurationSubmissionPage";
+import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage";
+
 function App() {
   return (
     <div>
       <Header />
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/detail" element={<PostDetailPage />} />
-        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/detail/:postId" element={<PostDetailPage />} />
+        <Route path="/search/posts" element={<SearchResultsPage />} />
         <Route path="/event" element={<EventSchedulePage />} />
         <Route path="/promotion" element={<StorePromotionPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/post/create" element={<PostCreateEditPage />} />
-        <Route path="/mypage" element={<MyPage />}></Route>
-        <Route path="/mypage/edit" element={<MyPageEdit />}></Route>
-        <Route path="/mypage/follow" element={<MyPageFollow />}></Route>
-        <Route path="/mypage/book" element={<MyPageBook />}></Route>
-        <Route path="/mypage/post" element={<MyPagePost />}></Route>
+        <Route path="/user/:userId" element={<MyPage />}></Route>
+        <Route path="/:userId/edit" element={<MyPageEdit />}></Route>
+        <Route path="/user/:userId/follow" element={<MyPageFollow />}></Route>
+        <Route path="/user/:userId/bookmark" element={<MyPageBook />}></Route>
+        <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
+        <Route path="/curations" element={<CurationPage />} />
+        <Route path="/curation/:curationId" element={<CurationDetailPage />} />
+        <Route path="/curation/submit" element={<CurationSubmissionPage />} />
+        <Route path="/curation/create" element={<CurationCreateEditPage />} />
       </Routes>
     </div>
   );

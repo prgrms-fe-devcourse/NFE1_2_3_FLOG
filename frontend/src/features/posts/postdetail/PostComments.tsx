@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import sendIcon from "../../../../public/send.svg";
+import axios from "axios";
+import sendIcon from "/send.svg";
 import Comment from "./Comment";
 
 const InputBox = styled.div`
@@ -37,21 +39,92 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const PostComments = () => {
+interface PostCommentsProps {
+  postId: string;
+  postType: "Post" | "Curation"; // 포스트인지 큐레이션인지 구분
+}
+
+const PostComments = ({ postId, postType }: PostCommentsProps) => {
+  const [commentIds, setCommentIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState("");
+
+  // 특정 포스트 또는 큐레이션의 댓글 목록을 불러오는 함수
+  const fetchComments = async () => {
+    try {
+      const url =
+        postType === "Curation"
+          ? `http://localhost:5000/api/curations/${postId}/comments`
+          : `http://localhost:5000/api/posts/${postId}/comments`;
+
+      const response = await axios.get(url);
+
+      if (response.data && response.data.comments) {
+        const commentsData = response.data.comments;
+        const ids = commentsData.map((comment: { _id: string }) => comment._id);
+        setCommentIds(ids);
+        console.log(response.data.comments);
+      } else {
+        console.error("댓글 데이터가 없습니다.");
+      }
+    } catch (error) {
+      console.error("댓글 데이터를 가져오는 중 오류:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [postId, postType]);
+
+  // 댓글 작성 핸들러
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const token = localStorage.getItem("token"); // 로컬 스토리지에서 토큰을 가져옴
+      const url = `http://localhost:5000/api/comments/${postType}/${postId}/create`;
+      await axios.post(
+        url,
+        { content: newComment },
+        { headers: { Authorization: `Bearer ${token}` } } // 헤더에 토큰 설정
+      );
+      setNewComment("");
+      fetchComments();
+    } catch (error) {
+      console.error("댓글 작성 중 오류:", error);
+    }
+  };
+
+  if (loading) return <p>댓글을 불러오는 중입니다...</p>;
+
   return (
     <div>
       <p>댓글 작성하기</p>
       <InputBox>
-        <Input placeholder="댓글을 입력하세요" maxLength={208}></Input>
-        <Button>
+        <Input
+          placeholder="댓글을 입력하세요"
+          maxLength={208}
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+        />
+        <Button onClick={handleCommentSubmit}>
           <img src={sendIcon} alt={sendIcon}></img>
         </Button>
       </InputBox>
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
-      <Comment />
+      {/* 댓글 리스트 */}
+      {commentIds.length > 0 ? (
+        commentIds.map((commentId) => (
+          <Comment
+            fetchComments={fetchComments}
+            key={commentId}
+            commentId={commentId}
+            postType={postType}
+          />
+        ))
+      ) : (
+        <p>댓글이 없습니다.</p>
+      )}
     </div>
   );
 };

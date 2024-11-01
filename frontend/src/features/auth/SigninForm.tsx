@@ -104,7 +104,20 @@ const SigninForm = () => {
         password: inputData.password,
       });
       const data = await res.data;
+      localStorage.setItem("userId", data.user._id);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("Id", data.user.userId);
+
+       // 어드민 여부 저장
+    if (data.user.isAdmin) {
+      localStorage.setItem("userRole", "admin");
+      console.log("로그인한 사용자는 어드민입니다."); 
+    } else {
+      localStorage.setItem("userRole", "user");
+      console.log("로그인한 사용자는 일반 유저입니다.");
+    }
+
+      console.log(`유저data${JSON.stringify(data)}`);
       alert("로그인 성공");
       navigate("/");
     } catch (error) {
@@ -150,7 +163,7 @@ const SigninForm = () => {
         >
           로그인
         </Button>
-        <GoSignup>아이다가 없으신가요? 회원가입</GoSignup>
+        <GoSignup>아이디가 없으신가요? 회원가입</GoSignup>
       </ButtonBox>
     </Form>
   );
