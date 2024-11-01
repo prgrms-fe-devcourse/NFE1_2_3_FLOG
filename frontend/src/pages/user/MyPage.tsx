@@ -56,10 +56,10 @@ const MyPage = () => {
       }
     };
     fetchProfile();
-  }, [USER_ID]);
+  }, [userId]);
   //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
   const mypage = userId === LOGINNED_ID;
-  console.log(`hi${profileData?.Id}`);
+  console.log(`hi${JSON.stringify(profileData?.bookmarkedPosts)}`);
 
   return (
     <div>
@@ -80,6 +80,8 @@ const MyPage = () => {
           nickname={profileData?.nickname || ""}
           bio={profileData?.bio || "아직 블로그 소개가 없어요!"}
           profileImage={profileData?.profileImage || "기본"}
+          post={profileData?.posts || []}
+          bookmark={profileData?.bookmarkedPosts || []}
         />
         <MyPageItem lifetimeItem={profileData?.lifetimeItem || undefined} />
         {mypage && <MyPageAuth Id={profileData?.Id} />}

@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import MyPageHeader from "../../features/mypage/MyPageHeader";
 import PostItem from "../../shared/components/postItem/PostItem";
+import { useLocation } from "react-router-dom";
 
 const Box = styled.div`
   display: flex;
@@ -13,19 +13,30 @@ const Box = styled.div`
   gap: 30px;
 `;
 
-const MyPageBook = () => {
-  //해당 마이페이지의 유저가 북마크 한 글만hgwertyhjklfghfgbhtf jyhfvb jygvholjnimnhsrerxihhi
+const MyPagePost = () => {
+  const location = useLocation();
+  const bookmark = location.state?.bookmark;
+
   return (
     <div>
-      <MyPageHeader />
+      <div
+        style={{ display: "flex", justifyContent: "center", margin: "20px" }}
+      >
+        <h2> 북마크</h2>
+      </div>
       <Box>
-        <PostItem />
-        <PostItem /> vh
-        <PostItem />
-        <PostItem />
+        {bookmark && bookmark.length !== 0 ? (
+          bookmark.map((bookmark: any) => {
+            return <PostItem post={bookmark} key={bookmark._id} />;
+          })
+        ) : (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            아직 북마크 한 글이 없습니다.
+          </div>
+        )}
       </Box>
     </div>
   );
 };
 
-export default MyPageBook;
+export default MyPagePost;

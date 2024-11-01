@@ -52,6 +52,8 @@ type ProfileProps = {
   profileImage: string;
   isFollow: boolean;
   authorId: string;
+  post: string[];
+  bookmark: string[];
 };
 
 const MyPageProfile = ({
@@ -63,6 +65,8 @@ const MyPageProfile = ({
   bio,
   profileImage,
   authorId,
+  post,
+  bookmark,
 }: ProfileProps) => {
   const navigate = useNavigate();
   console.log(following);
@@ -95,10 +99,16 @@ const MyPageProfile = ({
         </Button>
       </FollowBox>
       <MoveBox>
-        <MoveButton onClick={() => navigate("post")}>
+        <MoveButton
+          onClick={() => navigate(`/user/${Id}/post`, { state: { post } })}
+        >
           <MoveText>포스트</MoveText>
         </MoveButton>
-        <MoveButton onClick={() => navigate("book")}>
+        <MoveButton
+          onClick={() =>
+            navigate(`/user/${Id}/bookmark`, { state: { bookmark } })
+          }
+        >
           <MoveText>북마크</MoveText>
         </MoveButton>
       </MoveBox>

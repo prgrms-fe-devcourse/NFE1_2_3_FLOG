@@ -12,7 +12,12 @@ interface PostTemplatePropTypes {
 interface PostDataTypes {
   _id: string
   title: string
-  authorId: string
+  authorId: {
+    _id: string;
+    nickname: string;
+    userId: string;
+    profileImage?: string
+  }
   thumbnail: string
   content: string[]
   tags: string[]
@@ -178,6 +183,7 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
     }
     setPage(2)
     setHasMore(true)
+    console.log(postData)
   }, [postData])
 
   // sortType이 정의 될때 postData 재 할당
