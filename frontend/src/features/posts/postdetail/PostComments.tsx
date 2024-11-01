@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import sendIcon from "/send.svg";
@@ -41,54 +40,57 @@ const Button = styled.button`
 `;
 
 interface PostCommentsProps {
-  curationId: string;
+  postId: string;
+  postType: "Post" | "Curation"; // 포스트인지 큐레이션인지 구분
 }
 
-const PostComments = ({ curationId }: PostCommentsProps) => {
+const PostComments = ({ postId, postType }: PostCommentsProps) => {
   const [commentIds, setCommentIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
 
-    // 특정 큐레이션의 댓글 목록을 불러오는 함수
-    const fetchComments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/curations/${curationId}/comments`);
-    
-        if (response.data && response.data.comments) { 
-          const commentsData = response.data.comments;
-          const ids = commentsData.map((comment: { _id: string }) => comment._id);
-          setCommentIds(ids);
-        } else {
-          console.error("댓글 데이터가 없습니다.");
-        }
-      } catch (error) {
-        console.error("댓글 데이터를 가져오는 중 오류:", error);
-      } finally {
-        setLoading(false);
+  // 특정 포스트 또는 큐레이션의 댓글 목록을 불러오는 함수
+  const fetchComments = async () => {
+    try {
+      const url =
+        postType === "Curation"
+          ? `http://localhost:5000/api/curations/${postId}/comments`
+          : `http://localhost:5000/api/posts/${postId}/comments`;
+
+      const response = await axios.get(url);
+
+      if (response.data && response.data.comments) {
+        const commentsData = response.data.comments;
+        const ids = commentsData.map((comment: { _id: string }) => comment._id);
+        setCommentIds(ids);
+        console.log(response.data.comments);
+      } else {
+        console.error("댓글 데이터가 없습니다.");
       }
-    };
-    
+    } catch (error) {
+      console.error("댓글 데이터를 가져오는 중 오류:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchComments();
-  }, [curationId]);
+  }, [postId, postType]);
 
-   // 댓글 작성 핸들러
-   const handleCommentSubmit = async () => {
-    const navigate = useNavigate();
-    const userId = localStorage.getItem("userId"); // 로그인된 유저 ID 가져오기
-
-  if (!userId) {
-    // 유저 ID가 없으면 로그인 알림 후 로그인 페이지로 이동
-    alert("댓글을 작성하려면 로그인하세요.");
-    navigate("/signin");
-    return;
-  }
-
-    if (!newComment.trim()) return; // 내용이 없으면 무시
+  // 댓글 작성 핸들러
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
     try {
-      await axios.post(`/api/comments/${curationId}/create`, { content: newComment });
-      setNewComment(""); // 입력 필드 초기화
-      fetchComments(); // 새 댓글을 불러와 업데이트
+      const token = localStorage.getItem("token"); // 로컬 스토리지에서 토큰을 가져옴
+      const url = `http://localhost:5000/api/comments/${postType}/${postId}/create`;
+      await axios.post(
+        url,
+        { content: newComment },
+        { headers: { Authorization: `Bearer ${token}` } } // 헤더에 토큰 설정
+      );
+      setNewComment("");
+      fetchComments();
     } catch (error) {
       console.error("댓글 작성 중 오류:", error);
     }
@@ -100,7 +102,7 @@ const PostComments = ({ curationId }: PostCommentsProps) => {
     <div>
       <p>댓글 작성하기</p>
       <InputBox>
-      <Input
+        <Input
           placeholder="댓글을 입력하세요"
           maxLength={208}
           value={newComment}
@@ -110,9 +112,16 @@ const PostComments = ({ curationId }: PostCommentsProps) => {
           <img src={sendIcon} alt={sendIcon}></img>
         </Button>
       </InputBox>
-     {/* 댓글 리스트 */}
-     {commentIds.length > 0 ? (
-        commentIds.map((commentId) => <Comment key={commentId} commentId={commentId} />)
+      {/* 댓글 리스트 */}
+      {commentIds.length > 0 ? (
+        commentIds.map((commentId) => (
+          <Comment
+            fetchComments={fetchComments}
+            key={commentId}
+            commentId={commentId}
+            postType={postType}
+          />
+        ))
       ) : (
         <p>댓글이 없습니다.</p>
       )}

@@ -189,7 +189,7 @@ const CurationDetailPage = (): JSX.Element => {
 
     fetchCuration();
   }, [curationId, navigate]);
-  
+
   // 출품작 리스트 가져오기 (투표 수로 정렬)
   useEffect(() => {
     const fetchEntries = async () => {
@@ -327,8 +327,7 @@ const CurationDetailPage = (): JSX.Element => {
       </EntryListContainer>
       {/* PostComments 컴포넌트 추가 */}
       {curation && (
-        <PostComments curationId={curationId!} />
-        //<PostComments postId={curationData?.id} postType="Curation" />
+        <PostComments postId={curationId!} postType="Curation" />
       )}
     </Container>
   );

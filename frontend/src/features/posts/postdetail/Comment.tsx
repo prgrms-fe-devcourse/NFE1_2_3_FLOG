@@ -159,7 +159,7 @@ interface CommentProps {
 
 interface ReplyData {
   _id: string;
-  authorId: { nickname?: string; profileImage?: string };
+  authorId: { _id?: string; nickname?: string; profileImage?: string };
   content: string;
   likes: string[];
   createAt: string;
@@ -634,8 +634,10 @@ const Comment = ({ commentId, postType, fetchComments }: PostCommentsProps) => {
             <Button onClick={() => setIsReplyModalOpen(false)}>취소</Button>
             <Button
               onClick={() => {
-                handleConfirmDeleteReply(replyToDeleteId); // ID 사용
-                setReplyToDeleteId(null); // ID 초기화
+                if (replyToDeleteId) {
+                  handleConfirmDeleteReply(replyToDeleteId); // replyToDeleteId가 null이 아닐 때만 호출
+                  setReplyToDeleteId(null); // ID 초기화
+                }
               }}
             >
               {" "}
