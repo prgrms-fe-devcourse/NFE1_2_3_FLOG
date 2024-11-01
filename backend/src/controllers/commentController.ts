@@ -13,6 +13,9 @@ import {
   toggleLikeReply as toggleLikeReplyService,
   getPostCommentsService,
 } from "../services/commentService";
+import { Post } from "../models/postModel";
+import { createNotification } from "./notificationController";
+import mongoose from "mongoose";
 
 // 댓글 생성
 export const createComment = async (req: Request, res: Response) => {
@@ -42,6 +45,21 @@ export const createComment = async (req: Request, res: Response) => {
       authorId,
       content
     );
+
+    // 댓글 작성후 알림 생성 
+    const post = await Post.findById(postId);
+    const postAuthorId = post?.authorId
+
+    if (postAuthorId && postAuthorId !== authorId) { // 본인 게시물에는 알림X
+      await createNotification(
+        new mongoose.Types.ObjectId(postAuthorId),
+        authorId,
+        "comment",
+        new mongoose.Types.ObjectId(postId),
+        "새 댓글이 달렸습니다"
+      )
+    }
+
     res.status(201).json(comment);
     return;
   } catch (error) {
