@@ -91,6 +91,10 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
       await post.save();
       res.status(200).json({ success: true, message: "좋아요가 취소되었습니다." });
     }
+
+    if(post._id instanceof Types.ObjectId) {
+      await createNotification(post.authorId, userObjectId, 'like', post._id, "좋아요를 남겼습니다.")
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "좋아요 토글 중 오류가 발생했습니다." });
@@ -144,6 +148,7 @@ export const Bookmark = async (req: Request, res: Response): Promise<void> => {
 // 포스트 생성 API
 import { Post, IPost } from "../models/postModel"; // Post 모델 임포트
 import { IUser } from "../models/userModel"; // IUser 인터페이스 임포트
+import { createNotification } from "./notificationController";
 export const createPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;

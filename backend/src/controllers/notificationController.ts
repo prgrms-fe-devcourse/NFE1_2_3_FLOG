@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getNotificationListService, createNotificationService } from "../services/notificationService";
 import mongoose from "mongoose";
+import User from "../models/userModel";
 
 // 알림 리스트 받아오기
 export const getNotificationList = async (req: Request, res: Response) => {
@@ -33,9 +34,15 @@ export const createNotification = async (
       postId,
       message
     );
+
+    // 유저 필드의 notifications에 알림 ObjectId추가
+    await User.findByIdAndUpdate(userId, {
+      $push: { notifications: newNotification._id },
+    });
+
     return newNotification
   } catch (err) {
     console.error("알림 생성 오류", err);
-    throw Error (`$알림 생성 오류 : {err}`)
+    throw Error (`알림 생성 오류 : ${err}`)
   }
 }
