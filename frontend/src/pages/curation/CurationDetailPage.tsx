@@ -166,19 +166,25 @@ const CurationDetailPage = (): JSX.Element => {
 
   useEffect(() => {
     const fetchCuration = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!curationId || !token) return;
+      if (!curationId) return;
 
       try {
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
         const response = await axios.get(
           `http://localhost:5000/api/curations/${curationId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers }
         );
 
         const fetchedCuration = response.data.curation;
+
+        // 로그인 상태가 아니거나 어드민이 아닌 경우, 출간된 큐레이션만 접근 가능
+        if (!isAdmin && fetchedCuration.status !== "published") {
+          alert("이 큐레이션에 접근할 수 없습니다.");
+          navigate(-1); // 이전 페이지로 이동
+          return;
+        }
 
         setCuration(fetchedCuration);
       } catch (error) {
@@ -188,7 +194,7 @@ const CurationDetailPage = (): JSX.Element => {
     };
 
     fetchCuration();
-  }, [curationId, navigate]);
+  }, [curationId, isAdmin, navigate]);
 
   // 출품작 리스트 가져오기 (투표 수로 정렬)
   useEffect(() => {
