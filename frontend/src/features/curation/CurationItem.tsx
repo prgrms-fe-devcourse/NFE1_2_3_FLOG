@@ -8,26 +8,47 @@ const ItemContainer = styled.div`
   flex-direction: row;
   padding: 10px;
   border-bottom: 1px solid #eaeaea;
+  width: 100%;
+  max-width: 800px; // 전체 카드의 가로 너비 고정
+  max-height: 140px; // 각 아이템의 최대 높이 고정
+  overflow: hidden;
+  align-items: center;
+  box-sizing: border-box;
+  cursor: pointer;
 `;
 
 const TextContent = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; // 제목, 날짜, 내용이 일정한 간격으로 배치되도록 설정
+  height: 100%; // 부모 컨테이너에 맞춰 높이 고정
 `;
 
 const DateText = styled.p`
   color: #999;
   font-size: 12px;
+  margin: 0;
+  flex-shrink: 0; // 날짜의 위치 고정
 `;
 
 const Title = styled.h2`
   font-size: 18px;
   margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; // 긴 제목이 잘리지 않게 처리
+  flex-shrink: 0; // 제목의 위치 고정
 `;
 
 const Preview = styled.p`
   font-size: 14px;
   color: #333;
-  margin-bottom: 10px;
+  margin: 5px 0 10px 0;
+  line-height: 1.2;
+  max-height: 2.4em; // 텍스트 줄 수 제한 (2줄)
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const MetaInfo = styled.div`
@@ -35,6 +56,7 @@ const MetaInfo = styled.div`
   align-items: center;
   color: #999;
   font-size: 12px;
+  margin-top: auto; // 아래쪽으로 고정
 `;
 
 const MetaItem = styled.span`
@@ -42,7 +64,10 @@ const MetaItem = styled.span`
 `;
 
 const ThumbnailWrapper = styled.div`
+  width: 100px; // 썸네일의 고정 너비
+  height: 100px; // 썸네일의 고정 높이
   margin-left: 20px;
+  flex-shrink: 0; // 썸네일 위치 고정
 `;
 
 const Thumbnail = styled.img`
