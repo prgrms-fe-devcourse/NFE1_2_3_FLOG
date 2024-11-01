@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import editIcon from "/edit.svg";
 import testImg from "/testImg.png";
 
@@ -23,10 +24,9 @@ const ImageEditBox = styled.div`
 `;
 
 const ImageBox = styled.img`
-  direction: flex;
   width: 100px;
   height: 100px;
-  border-radius: 50px;
+  border-radius: 50%;
 `;
 
 interface AddImageProps {
@@ -49,6 +49,7 @@ const AddImage = (props: AddImageProps) => {
   } = props;
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+
   const handleAddImage = () => {
     imageInputRef.current?.click();
   };
@@ -61,8 +62,10 @@ const AddImage = (props: AddImageProps) => {
       imageInputRef.current.value = "";
     }
   };
-  const maxSize = 2 * 1024 * 1024; //파일 최대 크기
-  const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const maxSize = 2 * 1024 * 1024; // 파일 최대 크기
+
+  const handleChangeImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const imgFile = e.target.files?.[0] || null;
     if (imgFile && imgFile.size > maxSize) {
       console.error(
@@ -73,10 +76,41 @@ const AddImage = (props: AddImageProps) => {
     }
 
     if (imgFile) {
-      onChangeImage(imgFile);
-      onChangeUpload(true);
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+
+        try {
+          const response = await axios.post(
+            "http://localhost:5000/api/users/profile/upload",
+            {
+              profileImage: base64String,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          if (response.data.success) {
+            console.log("프로필 사진이 성공적으로 업로드되었습니다.");
+            const photoUrl = response.data.photoUrl;
+            console.log(`photoUrl: ${photoUrl}`);
+
+            onChangeImage(imgFile); // 로컬 상태 업데이트
+            onChangeUpload(true);
+          } else {
+            console.error("프로필 사진 업로드 실패:", response.data.message);
+          }
+        } catch (error) {
+          console.error("프로필 사진 업로드 중 오류 발생:", error);
+        }
+      };
+      reader.readAsDataURL(imgFile);
     }
   };
+
   return (
     <div className="add-image">
       <div className="add-image-container">
@@ -84,21 +118,22 @@ const AddImage = (props: AddImageProps) => {
 
         {isProfile ? (
           <ImageEditBox>
-            <ImageBox src={testImg} alt={testImg}></ImageBox>
+            <ImageBox src={testImg} alt="profile image" />
+
             <Button
               onClick={isUpload ? handleDeleteImage : handleAddImage}
               title={isUpload ? "사진삭제" : "사진추가"}
             >
-              <img src={editIcon} alt="editIcon"></img>
+              <img src={editIcon} alt="edit icon" />
             </Button>
           </ImageEditBox>
         ) : (
-          <button
+          <Button
             onClick={isUpload ? handleDeleteImage : handleAddImage}
             title={isUpload ? "사진삭제" : "사진추가"}
           >
             이미지 업로드
-          </button>
+          </Button>
         )}
         <input
           type="file"
