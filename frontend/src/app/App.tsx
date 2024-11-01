@@ -41,7 +41,7 @@ function App() {
         <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
         <Route path="/curations" element={<CurationPage />} />
         <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-        <Route path="/curation/submit" element={<CurationSubmissionPage />} />
+        <Route path="/curation/:curationId/submit" element={<CurationSubmissionPage />} />
         <Route path="/curation/create" element={<CurationCreateEditPage />} />
       </Routes>
     </div>

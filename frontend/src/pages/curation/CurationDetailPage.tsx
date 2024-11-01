@@ -134,14 +134,19 @@ const CurationDetailPage = (): JSX.Element => {
   const { curationId } = useParams<{ curationId: string }>();
   const [curation, setCuration] = useState<ICuration | null>(null);
   const [entries, setEntries] = useState<IEntry[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // 로그인 상태 확인 함수
     const checkLoginStatus = () => {
       const token = localStorage.getItem("token");
+      const userRole = localStorage.getItem("userRole");
       setIsLoggedIn(!!token); // 토큰이 있으면 true, 없으면 false
+      setIsAdmin(localStorage.getItem("userRole") === "admin"); 
+
+      console.log("로그인 여부:", !!token, "어드민 여부:", userRole === "admin");
     };
 
     // 컴포넌트가 처음 마운트될 때 로그인 상태 확인
@@ -161,20 +166,29 @@ const CurationDetailPage = (): JSX.Element => {
 
   useEffect(() => {
     const fetchCuration = async () => {
-      if (!curationId) return; // curationId가 없으면 API 호출 중단
+      const token = localStorage.getItem("token");
+
+      if (!curationId || !token) return;
 
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/curations/${curationId}`
+          `http://localhost:5000/api/curations/${curationId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
-        setCuration(response.data.curation);
+
+        const fetchedCuration = response.data.curation;
+
+        setCuration(fetchedCuration);
       } catch (error) {
         console.error("큐레이션 데이터를 불러오지 못했습니다.", error);
+        navigate(-1); // 이전 페이지로 이동
       }
     };
 
     fetchCuration();
-  }, [curationId]);
+  }, [curationId, navigate]);
 
   // 출품작 리스트 가져오기 (투표 수로 정렬)
   useEffect(() => {
@@ -226,13 +240,38 @@ const CurationDetailPage = (): JSX.Element => {
     }
   };
 
-  const handleSubmitClick = () => {
-    if (isLoggedIn) {
-      // 로그인된 경우 큐레이션 제출 페이지로 이동
-      navigate(`/curation/submit`);
-    } else {
-      // 로그인되지 않은 경우 로그인 페이지로 이동
-      navigate(`/signin`, { state: { from: `/curation/${curationId}` } });
+  const handleSubmitClick = async () => {
+    if (!isLoggedIn) {
+      navigate('/signin', { state: { from: `/curation/${curationId}` } });
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/curations/${curationId}/entries`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+
+      console.log('API 응답 데이터:', response.data);
+
+      const entries = response.data.entries || [];
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) {
+        alert("로그인이 필요합니다.");
+        navigate("/signin");
+        return;
+      }
+
+      const userHasEntry = entries.some((entry: IEntry) => entry.authorId?._id === userId);
+
+      if (userHasEntry) {
+        alert('이미 큐레이션에 참여하셨습니다!');
+      } else {
+        navigate(`/curation/${curationId}/submit`);
+      }
+    } catch (error) {
+      console.error('출품 여부 확인 중 오류가 발생했습니다.', error);
+      alert('출품 여부 확인 중 오류가 발생했습니다.');
     }
   };
 
@@ -288,8 +327,7 @@ const CurationDetailPage = (): JSX.Element => {
       </EntryListContainer>
       {/* PostComments 컴포넌트 추가 */}
       {curation && (
-        <PostComments curationId={curationId!} />
-        //<PostComments postId={curationData?.id} postType="Curation" />
+        <PostComments postId={curationId!} postType="Curation" />
       )}
     </Container>
   );
