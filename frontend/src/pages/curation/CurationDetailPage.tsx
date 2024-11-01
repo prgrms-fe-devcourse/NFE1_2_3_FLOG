@@ -179,13 +179,6 @@ const CurationDetailPage = (): JSX.Element => {
 
         const fetchedCuration = response.data.curation;
 
-        // 로그인 상태가 아니거나 어드민이 아닌 경우, 출간된 큐레이션만 접근 가능
-        if (!isAdmin && fetchedCuration.status !== "published") {
-          alert("이 큐레이션에 접근할 수 없습니다.");
-          navigate(-1); // 이전 페이지로 이동
-          return;
-        }
-
         setCuration(fetchedCuration);
       } catch (error) {
         console.error("큐레이션 데이터를 불러오지 못했습니다.", error);
