@@ -14,6 +14,6 @@ router.post("/api/posts/:postId/bookmark", authMiddleware, Bookmark);
 router.delete("/api/posts/:postId/bookmark", authMiddleware, Bookmark);
 router.post("/api/posts/create", authMiddleware, createPost); // 포스트 생성 API
 router.post("/api/posts/draft", authMiddleware, saveDraft); // 포스트 임시저장 API
-router.put("/api/posts/update", authMiddleware, editPost); // 포스트 수정 API
+router.put("/api/posts/update/:postId", authMiddleware, editPost); // 포스트 수정 API
 
 export default router;
