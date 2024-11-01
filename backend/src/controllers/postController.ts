@@ -91,6 +91,10 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
       await post.save();
       res.status(200).json({ success: true, message: "좋아요가 취소되었습니다." });
     }
+
+    if(post._id instanceof Types.ObjectId) {
+      await createNotification(post.authorId, userObjectId, 'like', post._id, "좋아요를 남겼습니다.")
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "좋아요 토글 중 오류가 발생했습니다." });
@@ -144,6 +148,7 @@ export const Bookmark = async (req: Request, res: Response): Promise<void> => {
 // 포스트 생성 API
 import { Post, IPost } from "../models/postModel"; // Post 모델 임포트
 import { IUser } from "../models/userModel"; // IUser 인터페이스 임포트
+import { createNotification } from "./notificationController";
 export const createPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, content, thumbnail, tags, postType, genderFilter, ageFilter, styleFilter } = req.body;
@@ -176,6 +181,22 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
       }
       user.posts.push(new Types.ObjectId(newPost._id as string));
       await user.save();
+    }
+
+    // 팔로워들에게만 알림생성
+    const followerList = user?.followers || [];
+    if (followerList.length !== 0) {
+      for (const followerId of followerList) {
+        if(!followerId.equals(req.user?._id) && req.user?._id) {
+          await createNotification(
+            followerId,
+            req.user?._id,
+            "newPost",
+            new Types.ObjectId(newPost._id as string),
+            `${user?.nickname}님이 새로운 포스트를 작성했습니다.`
+          )
+        }
+      }
     }
 
     res.status(201).json({ success: true, message: "포스트가 성공적으로 생성되었습니다.", post: newPost });
