@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import MyPageHeader from "../../features/mypage/MyPageHeader";
 import AddImage from "../../features/mypage/AddImage";
+import axios from "axios";
 
 const Box = styled.div`
   display: flex;
@@ -10,6 +11,17 @@ const Box = styled.div`
   margin: 0 auto;
   width: 864px;
   margin-top: 50px;
+`;
+
+const Button = styled.button`
+  color: #000000;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0px;
+  margin: 20px;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 const Input = styled.input`
@@ -34,33 +46,75 @@ const MyPageEdit = () => {
   const [introduction, setIntroduction] = useState("");
   const [lifeItems, setLifeItems] = useState(["", "", ""]);
 
-  useEffect(() => {
-    // DB에서 값 가져오기 (가상의 API 호출)
-    const fetchData = async () => {
-      // 예시 데이터: 실제 API 호출로 대체해야 함
-      const dataFromDB = {
-        blogName: "내블로그",
-        nickname: "내닉넴",
-        introduction: "",
-        lifeItems: ["브랜드임", "", "좋음"],
-      };
+  const userId = localStorage.getItem("Id");
 
-      setBlogName(dataFromDB.blogName || "블로그 이름을 입력하세요");
-      setNickname(dataFromDB.nickname || "닉네임을 입력하세요");
-      setIntroduction(dataFromDB.introduction || "소개를 입력하세요");
-      setLifeItems(
-        dataFromDB.lifeItems.length
-          ? dataFromDB.lifeItems
-          : [
-              "브랜드 이름을 입력하세요",
-              "아이템 이름을 입력하세요",
-              "아이템을 소개해주세요",
-            ]
-      );
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log("User ID:", userId);
+
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/users/profile/${userId}`
+        );
+
+        const user = response.data;
+
+        setBlogName(user.blogName || "블로그 이름을 입력하세요");
+        setNickname(user.nickname || "닉네임을 입력하세요");
+        setIntroduction(user.bio || "소개를 입력하세요");
+        setLifeItems(
+          user.lifetimeItem
+            ? [
+                `${user.lifetimeItem.brandName}`,
+                `${user.lifetimeItem.productName}`,
+                `${user.lifetimeItem.description}`,
+              ]
+            : [
+                "브랜드 이름을 입력하세요",
+                "아이템 이름을 입력하세요",
+                "아이템을 소개해주세요",
+              ]
+        );
+      } catch (error) {
+        console.error("데이터를 가져오는 중 오류 발생:", error);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
+
+  const handleUpdateProfile = async () => {
+    const token = localStorage.getItem("token");
+    const profileData = {
+      blogName,
+      nickname,
+      bio: introduction,
+      lifetimeItem: {
+        brandName: lifeItems[0],
+        productName: lifeItems[1],
+        description: lifeItems[2],
+      },
+    };
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/users/profile/edit`,
+        profileData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.success) {
+        alert("프로필이 성공적으로 업데이트되었습니다.");
+      } else {
+        alert("프로필 업데이트에 실패했습니다: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("프로필 업데이트 중 오류 발생:", error);
+      alert("서버 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div>
@@ -123,6 +177,7 @@ const MyPageEdit = () => {
             />
           </div>
         </div>
+        <Button onClick={handleUpdateProfile}>수정 완료</Button>
       </Box>
     </div>
   );
