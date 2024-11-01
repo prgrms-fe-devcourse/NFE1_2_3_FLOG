@@ -1,7 +1,7 @@
-import PostCreateTitle from "../../features/posts/postcreateedit/PostCreateTitle";
-import PostCreateTag from "../../features/posts/postcreateedit/PostCreateTag";
-import PostCreateCategory from "../../features/posts/postcreateedit/PostCreateCategory";
-import PostCreateEditor from "../../features/posts/postcreateedit/PostCreateEditor";
+import PostCreateTitle from "../../features/posts/postcreate/PostCreateTitle";
+import PostCreateTag from "../../features/posts/postcreate/PostCreateTag";
+import PostCreateCategory from "../../features/posts/postcreate/PostCreateCategory";
+import PostCreateEditor from "../../features/posts/postcreate/PostCreateEditor";
 import CurationCreateButtons from "../../features/curation/CurationCreateButtons";
 import styled from "styled-components";
 
