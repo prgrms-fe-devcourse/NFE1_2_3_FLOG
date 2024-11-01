@@ -13,7 +13,7 @@ import userRoutes from "./routes/userRoutes"; //마이페이지 관련 라우트
 import followRoutes from "./routes/followRoutes";
 import searchRoutes from "./routes/searchRoutes"; //검색 관련 라우트
 import notificationRoutes from './routes/notificationRoutes' //알림 관련 라우트
-import setupWebSocket from "./socket/setUpWebSocket";
+import setupWebSocket from "./socket/setupWebSocket";
 
 // 환경변수 로드
 dotenv.config();
