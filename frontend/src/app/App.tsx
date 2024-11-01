@@ -7,7 +7,8 @@ import Header from "../shared/components/header/Header";
 import StorePromotionPage from "../pages/promotion/StorePromotionPage";
 import EventSchedulePage from "../pages/event/EventSchedulePage";
 import SigninPage from "../pages/auth/SigninPage";
-import PostCreateEditPage from "../pages/post/PostCreateEditPage";
+import PostCreatePage from "../pages/post/PostCreatePage";
+import PostEditPage from "../pages/post/PostEditPage";
 import PostDetailPage from "../pages/post/PostDetailPage";
 import MyPage from "../pages/user/MyPage";
 import MyPageEdit from "../pages/user/MyPageEdit";
@@ -31,9 +32,10 @@ function App() {
         <Route path="/promotion" element={<StorePromotionPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
-        <Route path="/post/create" element={<PostCreateEditPage />} />
+        <Route path="/post/create" element={<PostCreatePage />} />
+        <Route path="/post/edit" element={<PostEditPage />} />
         <Route path="/user/:userId" element={<MyPage />}></Route>
-        <Route path="/:userId/edit" element={<MyPageEdit />}></Route>
+        {/* <Route path="/:userId/edit" element={<MyPageEdit />}></Route> */}
         <Route path="/user/:userId/follow" element={<MyPageFollow />}></Route>
         <Route path="/:userId/book" element={<MyPageBook />}></Route>
         <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
