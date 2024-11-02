@@ -211,7 +211,7 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
       }
       onAlarm();
       navigate(`/detail/${alarm.postId}`)
-    } else if (e.target instanceof HTMLSpanElement) {
+    } else if (e.target instanceof HTMLSpanElement) { // e.target이 삭제버튼이면
       if (alarmList !== null) {
         await axios.delete(`http://localhost:5000/api/notifications/delete/${alarm._id}`, {
           headers: {
@@ -220,6 +220,7 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
         })
         .then((res) => console.log(res))
         .catch((err) => console.error(err))
+        // 클라이언트 알림 리스트에서 해당 알림 제거
         const copyAlarmList = [...alarmList]
         const filtedAlarmList = copyAlarmList.filter((item) => {
           return item._id !== alarm._id
