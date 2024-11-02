@@ -13,13 +13,19 @@ const Container = styled.div`
 
 const Filters = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap; // 줄 바꿈을 허용하여 여러 줄로 표시되게 함
+  gap: 10px; // 요소 간의 간격 설정
   margin-bottom: 20px;
 `;
 
 const FilterItem = styled.span`
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background-color: #f9f4f4; // 배경색 추가
+  color: #7d7d7d;
   font-size: 14px;
-  color: #666;
+  margin: 0px; // 각 항목의 기본 여백 제거
 `;
 
 const Title = styled.h1`
@@ -282,9 +288,9 @@ const CurationDetailPage = (): JSX.Element => {
     <Container>
       {/* 필터 정보 */}
       <Filters>
-        <FilterItem>Gender: {curation.genderFilter.join(", ")}</FilterItem>
-        <FilterItem>Age: {curation.ageFilter.join(", ")}</FilterItem>
-        <FilterItem>Style: {curation.styleFilter.join(", ")}</FilterItem>
+        <FilterItem>{curation.genderFilter.join(", ")}</FilterItem>
+        <FilterItem>{curation.ageFilter.join(", ")}</FilterItem>
+        <FilterItem>{curation.styleFilter.join(", ")}</FilterItem>
       </Filters>
 
       {/* 큐레이션 제목 */}
