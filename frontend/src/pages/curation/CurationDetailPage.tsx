@@ -45,6 +45,22 @@ const Content = styled.div`
   margin-bottom: 40px;
 `;
 
+const TagsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+const TagItem = styled.span`
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background-color: #e3f2fd;
+  color: #0277bd;
+  font-size: 14px;
+`;
+
 const SubmitButton = styled.button`
   display: inline-block;
   padding: 10px 20px;
@@ -124,6 +140,7 @@ interface ICuration {
   genderFilter: string[];
   ageFilter: string[];
   styleFilter: string[];
+  tags: string[];
   comments: string[];
 }
 interface IEntry {
@@ -308,6 +325,12 @@ const CurationDetailPage = (): JSX.Element => {
           <p key={index}>{paragraph}</p>
         ))}
       </Content>
+
+      <TagsContainer>
+        {curation.tags.map((tag, index) => (
+          <TagItem key={index}>{tag}</TagItem>
+        ))}
+      </TagsContainer>
 
       {/* 큐레이션 제출 버튼 */}
       <SubmitButton onClick={handleSubmitClick}>큐레이션 제출</SubmitButton>
