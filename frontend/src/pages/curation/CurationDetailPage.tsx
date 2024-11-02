@@ -212,6 +212,11 @@ const CurationDetailPage = (): JSX.Element => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { setData } = useCurationCreateStore(); 
   const navigate = useNavigate();
+  const stripHtmlTags = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+  };
+  
 
   useEffect(() => {
     // 로그인 상태 확인 함수
@@ -428,9 +433,9 @@ const CurationDetailPage = (): JSX.Element => {
           </DateRange>
 
           <Content>
-            {curation.content.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          {curation.content.map((paragraph, index) => (
+    <p key={index}>{stripHtmlTags(paragraph)}</p>
+  ))}
           </Content>
 
           <TagsContainer>
