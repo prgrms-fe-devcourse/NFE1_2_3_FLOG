@@ -5,7 +5,7 @@ import { Notification } from "../models/notificationModel";
 // 알림 리스트 받아오기
 export const getNotificationListService = async (userId: unknown) => {
   try {
-    const notifications = await Notification.find({ userId })
+    const notifications = await Notification.find({ userId }).populate("fromUserId", "nickname").lean()
     return notifications
   } catch (err) {
     throw new Error(`알림 조회 오류 : ${err}`)

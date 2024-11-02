@@ -4,6 +4,6 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 
-router.get('/notifications', authMiddleware, getNotificationList);
+router.get('/api/notifications', authMiddleware, getNotificationList);
 
 export default router;

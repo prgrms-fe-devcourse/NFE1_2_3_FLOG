@@ -8,6 +8,7 @@ export const getNotificationList = async (req: Request, res: Response) => {
   try {
     // 유저 고유 아이디
     const userId = req.user?._id;
+    console.log(userId)
 
     // 서비스에서 return 한 값
     const notifications = await getNotificationListService(userId)
