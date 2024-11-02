@@ -2,6 +2,31 @@ import mongoose from "mongoose";
 import { wss } from "..";
 import { Notification } from "../models/notificationModel";
 
+// 알림 삭제
+export const deleteNotificationService = async (notificationId: unknown) => {
+  try {
+    const notification = await Notification.findByIdAndDelete(notificationId)
+    return notification
+  } catch (err) {
+    throw new Error(`알림 삭제 오류 : ${err}`)
+  }
+}
+
+// 알림 클릭했을때 isRead 바뀌는 함수
+export const setNotificationReadService = async (notificationId: unknown) => {
+  try {
+    const notification = await Notification.findById(notificationId);
+
+    if(notification && notification.isRead === false) {
+      notification.isRead = true
+      notification.save();
+      return notification;
+    }
+  } catch(err) {
+    throw new Error(`알림 조회 오류 : ${err}`)
+  }
+}
+
 // 알림 리스트 받아오기
 export const getNotificationListService = async (userId: unknown) => {
   try {

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Exit from "../asset/Exit.svg";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface AlarmData {
   _id: string;
@@ -15,7 +16,6 @@ interface AlarmData {
   };
   type: string;
   postId: string;
-  postUrl: string;
   message: string;
   isRead: boolean;
   createdAt: string;
@@ -93,6 +93,7 @@ const AlarmLink = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: keep-all;
+  cursor: pointer;
 `;
 
 const AlarmGrayText = styled.span`
@@ -122,6 +123,8 @@ const NewAlarmPoint = styled.div`
 `;
 
 const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
+
+  const navigate = useNavigate();
 
   // 애니메이션 클래스 state
   const [fade, setFade] = useState("");
@@ -180,14 +183,50 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
     }
   };
 
+  // 알림 데이터 조회
   const loadAlarmList = async () => {
     const response = await axios.get('http://localhost:5000/api/notifications', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       }
     })
-    console.log(response.data.notifications);
     setAlarmList(response.data.notifications);
+  }
+
+  // 알림 클릭시 isRead변경 및 게시물로 Navigate & 삭제 기능
+  const setNotificationRead = async (
+    alarm: AlarmData,
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
+    // e.target이 삭제버튼이 아니면 isRead 수정 & 해당게시물 navigate
+    if (!(e.target instanceof HTMLSpanElement)) {
+      if (alarm.isRead === false) {
+        await axios.put(`http://localhost:5000/api/notifications/read/${alarm._id}`,{}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        })
+        .then((res) => console.log(res))
+        .catch((err) => console.error(err))
+      }
+      onAlarm();
+      navigate(`/detail/${alarm.postId}`)
+    } else if (e.target instanceof HTMLSpanElement) {
+      if (alarmList !== null) {
+        await axios.delete(`http://localhost:5000/api/notifications/delete/${alarm._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        })
+        .then((res) => console.log(res))
+        .catch((err) => console.error(err))
+        const copyAlarmList = [...alarmList]
+        const filtedAlarmList = copyAlarmList.filter((item) => {
+          return item._id !== alarm._id
+        })
+        setAlarmList(filtedAlarmList);
+      }
+    }
   }
 
   // 알림 삭제 기능
@@ -248,7 +287,10 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
       <AlarmInnerWrap>
          {alarmList && alarmList.map((alarm, index) => {
           return (
-            <AlarmInner key={index}>
+            <AlarmInner
+              key={alarm._id}
+              onClick={(e) => {setNotificationRead(alarm, e)}}
+            >
               {/* 알림 읽었는지 안 읽었는지 */}
               {alarm.isRead ? null : <NewAlarmPoint />}
               {/* 댓글 & 좋아요 인지 새로운 게시물인지? */}
