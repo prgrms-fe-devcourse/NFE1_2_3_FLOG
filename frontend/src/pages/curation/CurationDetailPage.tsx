@@ -13,6 +13,9 @@ import CurationCreateEditor from "../../features/curation/CurationCreateEditor";
 import CurationCreateButtons from "../../features/curation/CurationCreateButtons";
 import CurationEditButtons from "../../features/curation/CurationEditButtons";
 import useCurationCreateStore from "../../features/curation/CurationCreateStore";
+import heartIcon from "/heart.svg";
+import heartFilledIcon from "/heartFilled.svg";
+import commentIcon from "/comment.svg";
 
 
 // Styled Components
@@ -20,6 +23,10 @@ const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+`;
+
+const SectionWrapper = styled.div`
+  margin-bottom: 40px; // 섹션 간 간격 추가
 `;
 
 const Filters = styled.div`
@@ -228,6 +235,41 @@ const SliderButton = styled.button`
   font-size: 24px;
   cursor: pointer;
 `;
+
+const ReactionBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+   margin-bottom: 20px; 
+`;
+
+const ReactionItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  color: #7d7d7d;
+  font-size: 14px;
+`;
+
+const Button = styled.button`
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+`;
+
+const LikeCount = styled.p`
+  margin: 0;
+  font-size: 14px;
+`;
+
+const CommentCount = styled.p`
+  margin: 0;
+  font-size: 14px;
+`;
 interface ICuration {
   title: string;
   startDate: string;
@@ -257,6 +299,9 @@ const CurationDetailPage = (): JSX.Element => {
   const [entries, setEntries] = useState<IEntry[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
   const { setData } = useCurationCreateStore(); 
   const navigate = useNavigate();
   const stripHtmlTags = (html: string) => {
@@ -307,6 +352,9 @@ const CurationDetailPage = (): JSX.Element => {
         const fetchedCuration = response.data.curation;
 
         setCuration(fetchedCuration);
+        setLikeCount(fetchedCuration.likes.length);
+        setCommentCount(fetchedCuration.comments.length);
+        setIsLiked(fetchedCuration.likes.includes(localStorage.getItem("userId")!));
 
         // content 배열을 하나의 문자열로 변환
         const contentString = fetchedCuration.content.join("\n\n");
@@ -437,6 +485,25 @@ const CurationDetailPage = (): JSX.Element => {
     }
   };
 
+  const handleLikeToggle = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/curations/${curationId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setIsLiked(!isLiked);
+      setLikeCount(response.data.likes);
+    } catch (error) {
+      console.error("좋아요 토글 중 오류 발생:", error);
+      alert("좋아요 처리에 실패했습니다.");
+    }
+  };
+
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
   }
@@ -496,6 +563,7 @@ const CurationDetailPage = (): JSX.Element => {
           )}
 
 {curation.status === 'published' && (
+  <SectionWrapper>
           <EntryListWrapper>
             <EntryTitleContainer>출품작 리스트</EntryTitleContainer>
             <EntryListContainer>
@@ -532,7 +600,30 @@ const CurationDetailPage = (): JSX.Element => {
               ))}
             </EntryListContainer>
           </EntryListWrapper>
+          </SectionWrapper>
         )}
+
+        {/* 좋아요 및 댓글 아이콘 표시 */}
+      <ReactionBox>
+        <ReactionItem>
+          <Button onClick={handleLikeToggle}>
+            <img
+              src={isLiked ? heartFilledIcon : heartIcon}
+              alt={isLiked ? "좋아요 취소" : "좋아요"}
+              style={{ width: "20px", height: "20px" }}
+            />
+          </Button>
+          <LikeCount>{likeCount}개</LikeCount>
+        </ReactionItem>
+        <ReactionItem>
+          <img
+            src={commentIcon}
+            alt="댓글"
+            style={{ width: "20px", height: "20px" }}
+          />
+          <CommentCount>{commentCount}개</CommentCount>
+        </ReactionItem>
+      </ReactionBox>
 
           {curation && <PostComments postId={curationId!} postType="Curation" />}
         </>
