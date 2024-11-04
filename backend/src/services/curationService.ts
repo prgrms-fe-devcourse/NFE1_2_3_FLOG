@@ -66,6 +66,7 @@ export const createCuration = async (curationData: Partial<ICuration>): Promise<
 
   // 특정 큐레이션 수정 (관리자만 가능)
 export const updateCuration = async (curationId: string, updates: Partial<ICuration>): Promise<ICuration | null> => {
+  delete updates.adminId;
   const updatedCuration = await Curation.findByIdAndUpdate(curationId, updates, { new: true });
   return updatedCuration;
 };
