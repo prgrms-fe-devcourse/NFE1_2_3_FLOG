@@ -60,9 +60,15 @@ interface PostFooterProps {
   tags: string[];
   likes: string[];
   comments: string[];
+  commentLength: number;
 }
 
-const PostFooter = ({ tags, likes, comments }: PostFooterProps) => {
+const PostFooter = ({
+  tags,
+  likes,
+  comments,
+  commentLength,
+}: PostFooterProps) => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
@@ -136,7 +142,7 @@ const PostFooter = ({ tags, likes, comments }: PostFooterProps) => {
         </ReactionItem>
         <ReactionItem>
           <img src={commentIcon} alt="commentIcon" />
-          <p>{comments.length}개</p>
+          <p>{commentLength}개</p>
         </ReactionItem>
       </ReactionBox>
       {isModalOpen && <NoTokenModal onClose={closeNoTokenModal} />}

@@ -69,7 +69,7 @@ const MyPageProfile = ({
   bookmark,
 }: ProfileProps) => {
   const navigate = useNavigate();
-  console.log(following);
+  console.log(followers);
   return (
     <div>
       <UserInfo
@@ -95,7 +95,7 @@ const MyPageProfile = ({
           }
         >
           {" "}
-          <p>{following.length}</p>팔로우
+          <p>{following.length}</p>팔로잉
         </Button>
       </FollowBox>
       <MoveBox>

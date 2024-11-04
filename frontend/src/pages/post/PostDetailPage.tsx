@@ -22,7 +22,12 @@ export const USER_ID = localStorage.getItem("userId");
 
 const PostDetailPage = () => {
   const { postId } = useParams();
-
+  const [totalCommentLength, setTotalCommentLength] = useState(0);
+  const handleCommentLengthUpdate = (length) => {
+    setTotalCommentLength((prevLength) => prevLength + length);
+  };
+  console.log(`totalCommentLength${totalCommentLength}`);
+  handleCommentLengthUpdate;
   const [postData, setPostData] = useState<{
     title: string;
     content: string;
@@ -86,8 +91,13 @@ const PostDetailPage = () => {
           tags={postData?.tags || []}
           likes={postData?.likes || []}
           comments={postData?.comments || []}
+          commentLength={totalCommentLength}
         ></PostFooter>
-        <PostComments postId={postId} postType="Post" />{" "}
+        <PostComments
+          setCommentLength={handleCommentLengthUpdate}
+          postId={postId}
+          postType="Post"
+        />{" "}
       </Box>
     </div>
   );
