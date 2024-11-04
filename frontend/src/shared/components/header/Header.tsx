@@ -108,7 +108,7 @@ const Header = () => {
     window.addEventListener("storage", checkLoginStatus);
     
     return () => window.removeEventListener("storage", checkLoginStatus);
-  }, []);
+  }, [localStorage.getItem("token")]);
   
   // 로그아웃 핸들러
   const handleLogout = () => {

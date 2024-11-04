@@ -1,18 +1,21 @@
 import "../animation.css";
 
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Exit from "../asset/Exit.svg";
-import { alarmData } from "./data/alarmMockData";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface AlarmData {
   _id: string;
   userId: string;
-  fromUserId: string;
+  fromUserId: {
+    _id: string;
+    nickname: string
+  };
   type: string;
   postId: string;
-  postUrl: string;
   message: string;
   isRead: boolean;
   createdAt: string;
@@ -90,6 +93,7 @@ const AlarmLink = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: keep-all;
+  cursor: pointer;
 `;
 
 const AlarmGrayText = styled.span`
@@ -120,10 +124,14 @@ const NewAlarmPoint = styled.div`
 
 const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
 
+  const navigate = useNavigate();
+
   // 애니메이션 클래스 state
   const [fade, setFade] = useState("");
   
-  const [alarmList, setAlarmList] = useState<AlarmData[]>(alarmData);
+  const [alarmList, setAlarmList] = useState<AlarmData[] | null>(null);
+
+  const webSocket = useRef<WebSocket | null>(null);
 
   // 시간 계산 함수
   const timeForToday = (value: AlarmData) => {
@@ -167,23 +175,70 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
   const alarmTypeDivision = (value: AlarmData) => {
     switch (value.type) {
       case "newPost":
-        return `${value.fromUserId}님이 새로운 게시물을 작성하였습니다.`;
+        return `${value.fromUserId.nickname}님이 새로운 게시물을 작성하였습니다.`;
       case "like":
-        return `${value.fromUserId}님이 좋아요를 눌렀습니다.`;
+        return `${value.fromUserId.nickname}님이 좋아요를 눌렀습니다.`;
       case "comment":
-        return `${value.fromUserId}님이 댓글을 남겼습니다.`;
+        return `${value.fromUserId.nickname}님이 댓글을 남겼습니다.`;
     }
   };
 
-  // 알림 삭제 기능
-  const handleAlarmDelete = (alarmId: string) => {
-    const copyAlarmList:AlarmData[] = [...alarmList];
-    const filtedAlarmList = copyAlarmList.filter((alarm) => {
-      return alarm._id !== alarmId;
+  // 알림 데이터 조회
+  const loadAlarmList = async () => {
+    const response = await axios.get('http://localhost:5000/api/notifications', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
     })
+    setAlarmList(response.data.notifications);
+  }
 
-    setAlarmList(filtedAlarmList);
-  };
+  // 알림 클릭시 isRead변경 및 게시물로 Navigate & 삭제 기능
+  const setNotificationRead = async (
+    alarm: AlarmData,
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
+    // e.target이 삭제버튼이 아니면 isRead 수정 & 해당게시물 navigate
+    if (!(e.target instanceof HTMLSpanElement)) {
+      if (alarm.isRead === false) {
+        await axios.put(`http://localhost:5000/api/notifications/read/${alarm._id}`,{}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        })
+        .then((res) => console.log(res))
+        .catch((err) => console.error(err))
+      }
+      onAlarm();
+      navigate(`/detail/${alarm.postId}`)
+    } else if (e.target instanceof HTMLSpanElement) { // e.target이 삭제버튼이면
+      if (alarmList !== null) {
+        await axios.delete(`http://localhost:5000/api/notifications/delete/${alarm._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        })
+        .then((res) => console.log(res))
+        .catch((err) => console.error(err))
+        // 클라이언트 알림 리스트에서 해당 알림 제거
+        const copyAlarmList = [...alarmList]
+        const filtedAlarmList = copyAlarmList.filter((item) => {
+          return item._id !== alarm._id
+        })
+        setAlarmList(filtedAlarmList);
+      }
+    }
+  }
+
+  // 알림 삭제 기능
+  // const handleAlarmDelete = (alarmId: string) => {
+  //   const copyAlarmList:AlarmData[] = [...alarmList];
+  //   const filtedAlarmList = copyAlarmList.filter((alarm) => {
+  //     return alarm._id !== alarmId;
+  //   })
+
+  //   setAlarmList(filtedAlarmList);
+  // };
 
   // 진입시 애니메이션
   useEffect(() => {
@@ -197,16 +252,20 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
   }, []);
 
   // 시간순 알림 정렬
-  useEffect(() => {
-    const copyAlarmList: AlarmData[] = [...alarmList];
-    copyAlarmList.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+  // useEffect(() => {
+  //   const copyAlarmList: AlarmData[] = [...alarmList];
+  //   copyAlarmList.sort((a, b) => {
+  //     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  //   });
 
-    return () => {
-      setAlarmList(copyAlarmList)
-    };
-  }, []);
+  //   return () => {
+  //     setAlarmList(copyAlarmList)
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    loadAlarmList()
+  }, [])
 
   return (
     <AlarmWrap className={`start ${fade}`}>
@@ -227,16 +286,19 @@ const AlarmModal: React.FC<AlarmPropTypes> = ({ onAlarm }) => {
 
       {/* 알림 내부 래퍼 */}
       <AlarmInnerWrap>
-        {alarmList.map((alarm, index) => {
+         {alarmList && alarmList.map((alarm, index) => {
           return (
-            <AlarmInner key={index}>
+            <AlarmInner
+              key={alarm._id}
+              onClick={(e) => {setNotificationRead(alarm, e)}}
+            >
               {/* 알림 읽었는지 안 읽었는지 */}
               {alarm.isRead ? null : <NewAlarmPoint />}
               {/* 댓글 & 좋아요 인지 새로운 게시물인지? */}
               <AlarmLink>{alarmTypeDivision(alarm)}</AlarmLink>
               <AlarmInnerBottom>
                 <AlarmGrayText>{timeForToday(alarm)}</AlarmGrayText>
-                <AlarmButton onClick={() => handleAlarmDelete(alarm._id)}>
+                <AlarmButton>
                   <AlarmGrayText>삭제</AlarmGrayText>
                 </AlarmButton>
               </AlarmInnerBottom>
