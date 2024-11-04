@@ -92,8 +92,8 @@ export const Like = async (req: Request, res: Response): Promise<void> => {
       res.status(200).json({ success: true, message: "좋아요가 취소되었습니다." });
     }
 
-    if(post._id instanceof Types.ObjectId) {
-      await createNotification(post.authorId, userObjectId, 'like', post._id, "좋아요를 남겼습니다.")
+    if (post._id instanceof Types.ObjectId) {
+      await createNotification(post.authorId, userObjectId, "like", post._id, "좋아요를 남겼습니다.");
     }
   } catch (error) {
     console.error(error);
@@ -187,14 +187,8 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
     const followerList = user?.followers || [];
     if (followerList.length !== 0) {
       for (const followerId of followerList) {
-        if(!followerId.equals(req.user?._id) && req.user?._id) {
-          await createNotification(
-            followerId,
-            req.user?._id,
-            "newPost",
-            new Types.ObjectId(newPost._id as string),
-            `${user?.nickname}님이 새로운 포스트를 작성했습니다.`
-          )
+        if (!followerId.equals(req.user?._id) && req.user?._id) {
+          await createNotification(followerId, req.user?._id, "newPost", new Types.ObjectId(newPost._id as string), `${user?.nickname}님이 새로운 포스트를 작성했습니다.`);
         }
       }
     }
@@ -312,5 +306,32 @@ export const getDraftedPost = async (req: Request, res: Response): Promise<void>
   } catch (error) {
     console.error("임시 저장된 포스트 요청 실패:", error); // 추가된 에러 로그
     res.status(500).json({ success: false, message: "서버 오류가 발생했습니다.", error: (error as Error).message });
+  }
+};
+
+// 포스트 삭제 API
+export const deletePost = async (req: Request, res: Response): Promise<void> => {
+  const { postId } = req.params; // URL 파라미터에서 postId를 가져옴
+  const userId = (req.user as IUser)?._id;
+  try {
+    // 해당 포스트를 데이터베이스에서 찾기
+    const post = await Post.findById(postId);
+    if (!post) {
+      res.status(404).json({ success: false, message: "존재하지 않는 포스트입니다." });
+      return;
+    }
+
+    // 포스트의 작성자와 현재 요청의 사용자 ID가 일치하는지 확인
+    if (post.authorId.toString() !== userId?.toString()) {
+      res.status(403).json({ success: false, message: "포스트를 삭제할 권한이 없습니다." });
+      return;
+    }
+
+    // 포스트 삭제
+    await Post.findByIdAndDelete(postId);
+    res.status(200).json({ success: true, message: "포스트가 성공적으로 삭제되었습니다." });
+  } catch (err) {
+    console.error("포스트 삭제 실패:", err);
+    res.status(500).json({ success: false, message: "서버에서 오류가 발생했습니다." });
   }
 };
