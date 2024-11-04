@@ -17,6 +17,6 @@ router.post("/api/posts/create", authMiddleware, createPost); // 포스트 생�
 router.post("/api/posts/draft", authMiddleware, saveDraft); // 포스트 임시저장 API
 router.put("/api/posts/update/:postId", authMiddleware, editPost); // 포스트 수정 API
 router.delete("/api/posts/:postId", authMiddleware, deletePost); // 포스트 수정 API
-router.post("/api/posts/img", upload.single("img"), saveImg); // 포스트 사진 저장 API
+router.post("/api/posts/img", upload.single("image"), saveImg); // 포스트 사진 저장 API
 
 export default router;

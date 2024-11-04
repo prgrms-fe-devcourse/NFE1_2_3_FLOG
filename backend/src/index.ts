@@ -18,7 +18,6 @@ import setupWebSocket from "./socket/setupWebSocket";
 // 환경변수 로드
 dotenv.config();
 
-export const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/mydb"; // 기본값 설정
@@ -30,6 +29,12 @@ const wss = setupWebSocket(server);
 // 미들웨어
 app.use(cors());
 app.use(express.json());
+/*app.use(express.urlencoded({ extended: false })); // 내부 url 파서 사용 */
+
+//포스트 관련 라우트 추가
+export const path = require("path");
+app.use(express.static(path.join(__dirname + "/public"))); // 정적 파일 위치 설정
+app.use("/", postRoutes);
 
 // 기본 라우트 (테스트용)
 app.get("/", (req, res) => {
@@ -44,10 +49,6 @@ app.use("/", authRoutes); // 인증 라우트 등록
 
 // 큐레이션 출품작 관련 라우트 추가
 app.use("/", entryRoutes); // '/api/curations/:curationId/entry' 등의 경로로 출품작 관련 라우트 등록
-
-//포스트 관련 라우트 추가
-app.use(express.static(path.join(__dirname + "/public"))); // 정적 파일 위치 설정
-app.use("/", postRoutes);
 
 //댓글 관련 라우트 추가
 app.use("/", commentRoutes);
