@@ -12,19 +12,20 @@ import commentRoutes from "./routes/commentRoutes"; //댓글 관련 라우트
 import userRoutes from "./routes/userRoutes"; //마이페이지 관련 라우트
 import followRoutes from "./routes/followRoutes";
 import searchRoutes from "./routes/searchRoutes"; //검색 관련 라우트
-import notificationRoutes from './routes/notificationRoutes' //알림 관련 라우트
+import notificationRoutes from "./routes/notificationRoutes"; //알림 관련 라우트
 import setupWebSocket from "./socket/setupWebSocket";
 
 // 환경변수 로드
 dotenv.config();
 
+export const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/mydb"; // 기본값 설정
 const server = http.createServer(app); // WebSocket 서버 생성
 
 // 웹 소켓 서버 기본설정과 연결
-const wss = setupWebSocket(server)
+const wss = setupWebSocket(server);
 
 // 미들웨어
 app.use(cors());
@@ -45,6 +46,7 @@ app.use("/", authRoutes); // 인증 라우트 등록
 app.use("/", entryRoutes); // '/api/curations/:curationId/entry' 등의 경로로 출품작 관련 라우트 등록
 
 //포스트 관련 라우트 추가
+app.use(express.static(path.join(__dirname + "/public"))); // 정적 파일 위치 설정
 app.use("/", postRoutes);
 
 //댓글 관련 라우트 추가
@@ -55,10 +57,10 @@ app.use("/", userRoutes);
 //팔로우 관련 라우트
 app.use("/", followRoutes);
 //검색 관련 라우트 추가
-app.use('/', searchRoutes)
+app.use("/", searchRoutes);
 
 // 알림 관련 라우트 추가
-app.use('/', notificationRoutes)
+app.use("/", notificationRoutes);
 
 mongoose
   .connect(MONGO_URI)
