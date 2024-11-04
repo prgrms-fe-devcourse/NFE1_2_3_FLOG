@@ -37,7 +37,7 @@ type UserInfoProps = {
   nickname: string;
   bio: string;
   profileImage: string;
-  followers: string[];
+  followers: { id: string }[]; // followers가 객체 배열이라고 가정합니다.
   authorId: string;
 };
 
@@ -50,34 +50,29 @@ const UserInfo = ({
   authorId,
 }: UserInfoProps) => {
   const navigate = useNavigate();
-
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null); // 초기 상태를 null로 설정해 로딩 상태 확인 가능
+
+  useEffect(() => {
+    const USER_ID = localStorage.getItem("Id");
+    if (USER_ID) {
+      setIsFollowing(followers.some((follower) => follower.userId === USER_ID));
+    }
+  }, [followers]);
+  console.log(followers);
   const openNoTokenModal = () => {
     setIsTokenModalOpen(true);
   };
   const closeNoTokenModal = () => {
     setIsTokenModalOpen(false);
   };
-  console.log(`ddddd${authorId}`);
-
-  //팔로우 api
-  const USER_ID = localStorage.getItem("userId");
-  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
-
-  // 팔로우 상태 확인
-  useEffect(() => {
-    if (followers) {
-      setIsFollowing(followers.includes(USER_ID)); // 팔로우 목록에 authorId가 포함되어 있으면 true
-    } else {
-      setIsFollowing(false); // following이 없으면 false로 설정
-    }
-  }, [followers]);
 
   const clickFollow = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         openNoTokenModal();
+        return;
       }
       const response = await axios.post(
         `http://localhost:5000/api/follow/${authorId}`,
@@ -88,6 +83,7 @@ const UserInfo = ({
           },
         }
       );
+      // 팔로우 상태를 토글
       if (response.data.success) {
         setIsFollowing((prev) => !prev);
       }
@@ -123,8 +119,8 @@ const UserInfo = ({
               </Button>
             )}
             {!isFollow && (
-              <Button onClick={() => clickFollow()}>
-                {isFollowing ? "팔로우" : "팔로잉"}
+              <Button onClick={clickFollow}>
+                {isFollowing ? "팔로잉" : "팔로우"}
               </Button>
             )}
           </div>
@@ -137,4 +133,5 @@ const UserInfo = ({
     </div>
   );
 };
+
 export default UserInfo;
