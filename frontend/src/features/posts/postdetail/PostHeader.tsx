@@ -71,17 +71,7 @@ interface PostHeaderProps {
 }
 export const USER_ID = localStorage.getItem("userId");
 
-const PostHeader = ({
-  authorId,
-  Id,
-  isUser,
-  title,
-  author,
-  date,
-  categories,
-  followers,
-  following,
-}: PostHeaderProps) => {
+const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, followers, following }: PostHeaderProps) => {
   const { isModalOpen, openModal, closeModal } = useStore();
   const formatedDate = formatDate(date);
   const { postId } = useParams();
@@ -96,6 +86,20 @@ const PostHeader = ({
     setIsTokenModalOpen(false);
   };
 
+  const deletePost = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("포스트 삭제 요청 API:", res);
+    } catch (err) {
+      console.error("포스트 삭제 요청 실패:", err);
+    }
+  };
+
   //게시물이 본인인지 아닌지 확인
   //이거 댓글도 수정 삭제 있어서 로직 뺄 수 있으면 공통으로 빼기
   const isAuthor = isUser;
@@ -106,13 +110,9 @@ const PostHeader = ({
   //내 아이디로북마크한글가져오기
   const fetchBookmarkedPosts = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`
-      );
+      const response = await axios.get(`http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`);
       const bookmarkedPosts = response.data.items; // 성공적인 응답에서 글 목록 가져오기
-      const isBookmarked = bookmarkedPosts.some(
-        (post) => post.postId === postId
-      );
+      const isBookmarked = bookmarkedPosts.some((post) => post.postId === postId);
       setIsBookMark(isBookmarked); // 초기값 설정
       console.log("북마크한 글 목록:", bookmarkedPosts);
     } catch (error) {
@@ -132,14 +132,11 @@ const PostHeader = ({
 
     try {
       if (isBookMark) {
-        await axios.delete(
-          `http://localhost:5000/api/posts/${postId}/bookmark`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await axios.delete(`http://localhost:5000/api/posts/${postId}/bookmark`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       } else {
         await axios.post(
           `http://localhost:5000/api/posts/${postId}/bookmark`,
@@ -232,18 +229,9 @@ const PostHeader = ({
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Button onClick={clickFollow}>
-              {isFollow ? <P>팔로잉</P> : <P>팔로우</P>}
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center", height: "28px" }}
-              onClick={clickBookMark}
-            >
-              {isBookMark ? (
-                <img src={starFilledIcon} alt="starFilledIcon"></img>
-              ) : (
-                <img src={starIcon} alt="starIcon"></img>
-              )}
+            <Button onClick={clickFollow}>{isFollow ? <P>팔로잉</P> : <P>팔로우</P>}</Button>
+            <Button style={{ display: "flex", alignItems: "center", height: "28px" }} onClick={clickBookMark}>
+              {isBookMark ? <img src={starFilledIcon} alt="starFilledIcon"></img> : <img src={starIcon} alt="starIcon"></img>}
             </Button>
           </div>
         )}
@@ -257,9 +245,13 @@ const PostHeader = ({
           <ModalBox>
             <Button onClick={closeModal}>취소</Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
                 // 여기에서 삭제 로직 추가
+                e.preventDefault();
+                deletePost();
                 closeModal();
+                navigate("/");
+                alert("포스트 삭제 완료");
               }}
             >
               삭제
