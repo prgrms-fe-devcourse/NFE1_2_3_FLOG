@@ -62,8 +62,8 @@ const usePostCreateStore = create<IPostCreateStore>((set) => ({
         genderFilter: [],
         ageFilter: [],
         styleFilter: [],
-        postType: "",
-        status: "",
+        postType: "post",
+        status: "published",
       },
     }),
 }));
