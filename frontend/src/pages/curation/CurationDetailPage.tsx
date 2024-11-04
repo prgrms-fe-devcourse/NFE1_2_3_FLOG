@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 import PostComments from "../../features/posts/postdetail/PostComments";
@@ -106,9 +107,18 @@ const SubmitButton = styled.button`
   font-size: 16px;
 `;
 
+const EntryListWrapper = styled.div`
+  margin-top: 40px;
+`;
+
+const EntryTitleContainer = styled.h2`
+  margin-bottom: 20px;
+  text-align: left;
+`;
+
 const EntryListContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr); // 한 줄에 4개씩 배열
+  grid-template-columns: repeat(3, 1fr); // 한 줄에 3개씩 배치
   gap: 20px;
   margin-top: 40px;
 `;
@@ -116,26 +126,32 @@ const EntryListContainer = styled.div`
 const EntryItem = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between; // 요소들을 위아래로 균등하게 배치
   align-items: center;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
-  aspect-ratio: 3 / 4; // 아이템 모양을 3:4로 유지
-  overflow: hidden;
   background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100%; // 카드의 전체 높이 설정
+  aspect-ratio: 3 / 4; // 3:4 비율 유지
+  overflow: hidden;
+  height: 100%; // 부모의 높이를 유지
 `;
 
 const EntryTitle = styled.h3`
   font-size: 16px;
   margin: 5px 0;
   text-align: center;
+  flex-shrink: 0; // 제목의 크기 고정
 `;
 
 const EntryImage = styled.img`
-  width: 100%;
+  width: 100%; // 컨테이너에 맞추어 가로 크기를 설정
+  max-width: 150px; // 이미지의 최대 너비 고정
+  height: auto; // 자동으로 높이를 조절하여 정사각형 유지
   aspect-ratio: 1 / 1; // 정사각형 비율 유지
-  object-fit: cover;
+  object-fit: cover; // 이미지가 잘리지 않고 꽉 차도록 설정
   border-radius: 5px;
   margin-bottom: 10px;
 `;
@@ -143,17 +159,47 @@ const EntryImage = styled.img`
 const EntryDescription = styled.p`
   font-size: 14px;
   color: #333;
-  margin: 5px 0;
+  margin-bottom: 2px;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; // 설명이 길 경우 줄 바꿈 방지
+  flex-grow: 1; // 공간을 채우도록 함
+  min-height: 20px; // 작성자 텍스트의 최소 높이 설정
+`;
+
+const ProfileImgWrap = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  & > img {
+    image-rendering: pixelated;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const ProfileNickname = styled.p`
+  font-size: 12px;
+  font-weight: 400;
+  color: #7d7d7d;
+  margin-left: 10px;
+`;
+
+const PostFlexStartWrap = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px; // 프로필과 설명 사이의 여백 추가
 `;
 
 const EntryVotes = styled.p`
-  font-size: 14px;
+   font-size: 14px;
   color: #999;
   margin: 5px 0;
+  text-align: center;
+  flex-shrink: 0; // 투표 수의 높이 고정
 `;
 
 const VoteButton = styled.button`
@@ -165,6 +211,7 @@ const VoteButton = styled.button`
   cursor: pointer;
   font-size: 14px;
   margin-top: auto; // 버튼을 아래로 고정
+  flex-shrink: 0; // 크기 축소 방지
 `;
 
 // Photo slider styles
@@ -196,7 +243,7 @@ interface ICuration {
 interface IEntry {
   _id: string;
   title: string;
-  authorId: { _id: string; nickname: string };
+  authorId: { _id: string; nickname: string; profileImage?: string;};
   photos: string[];
   description: string;
   votes: string[]; // User ID 배열로 투표자 정보가 들어있음
@@ -212,6 +259,11 @@ const CurationDetailPage = (): JSX.Element => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { setData } = useCurationCreateStore(); 
   const navigate = useNavigate();
+  const stripHtmlTags = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+  };
+  
 
   useEffect(() => {
     // 로그인 상태 확인 함수
@@ -428,9 +480,9 @@ const CurationDetailPage = (): JSX.Element => {
           </DateRange>
 
           <Content>
-            {curation.content.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          {curation.content.map((paragraph, index) => (
+    <p key={index}>{stripHtmlTags(paragraph)}</p>
+  ))}
           </Content>
 
           <TagsContainer>
@@ -439,25 +491,48 @@ const CurationDetailPage = (): JSX.Element => {
             ))}
           </TagsContainer>
 
-          {curation.status === 'published' && (
+          {curation.status === 'published' && new Date(curation.endDate) > new Date() && (
             <SubmitButton onClick={handleSubmitClick}>큐레이션 제출</SubmitButton>
           )}
 
-          {curation.status === 'published' && (
+{curation.status === 'published' && (
+          <EntryListWrapper>
+            <EntryTitleContainer>출품작 리스트</EntryTitleContainer>
             <EntryListContainer>
-              <h2>출품작 리스트</h2>
               {entries.map((entry) => (
                 <EntryItem key={entry._id}>
                   <EntryTitle>{entry.title}</EntryTitle>
-                  <PhotoSlider photos={entry.photos} />
+                  <EntryImage src={entry.photos[0]} alt="출품작 이미지" />
                   <EntryDescription>{entry.description}</EntryDescription>
-                  <p>작성자: {entry.authorId.nickname}</p>
+                  <Link to={`/user/${entry.authorId._id}`}>
+      <PostFlexStartWrap>
+        {entry.authorId.profileImage ? (
+          <ProfileImgWrap>
+            <img
+              src={entry.authorId.profileImage}
+              alt={`${entry.authorId.nickname}님의 프로필 사진`}
+            />
+          </ProfileImgWrap>
+        ) : (
+          <div
+            style={{
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              backgroundColor: "#ddd",
+            }}
+          />
+        )}
+        <ProfileNickname>{entry.authorId.nickname}</ProfileNickname>
+      </PostFlexStartWrap>
+    </Link>
                   <EntryVotes>투표 수: {entry.votes.length}</EntryVotes>
                   <VoteButton onClick={() => handleVote(entry._id)}>투표하기</VoteButton>
                 </EntryItem>
               ))}
             </EntryListContainer>
-          )}
+          </EntryListWrapper>
+        )}
 
           {curation && <PostComments postId={curationId!} postType="Curation" />}
         </>
