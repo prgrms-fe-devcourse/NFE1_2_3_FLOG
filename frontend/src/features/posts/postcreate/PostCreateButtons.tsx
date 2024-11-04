@@ -33,11 +33,11 @@ const Button = styled.button`
 
 const PostCreateButtons = () => {
   const navigate = useNavigate();
-  const { data, setData } = usePostCreateStore();
+  const { data, setData, resetData } = usePostCreateStore();
   const { isDraftedPost, setIsDraftedPost } = useDraftPostStore();
 
   const extractThumbnail = (text: string): string | null => {
-    const imgRegex = /<img\s+src="([^"]+)"\s*\/?>/g;
+    const imgRegex = /<img\s+[^>]*src="([^"]+)"[^>]*\/?>/g;
     const matches: string[] = [];
     let match: RegExpExecArray | null;
 
@@ -62,6 +62,7 @@ const PostCreateButtons = () => {
         },
       });
       console.log(res.data);
+      resetData();
       navigate("/"); // 성공 시 메인페이지로 이동
     } catch (error) {
       console.error("게시물 생성 실패", error);
@@ -84,6 +85,7 @@ const PostCreateButtons = () => {
       });
       console.log(res.data);
       alert("임시저장 완료");
+      resetData();
     } catch (error) {
       console.error("게시물 생성 실패", error);
     }
