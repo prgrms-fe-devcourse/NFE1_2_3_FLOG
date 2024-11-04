@@ -7,9 +7,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface KeywordTypes {
-  gender: string[]
-  age: string[]
-  style: string[]
+  gender: string[];
+  age: string[];
+  style: string[];
 }
 interface PostDataTypes {
   _id: string;
@@ -97,11 +97,10 @@ const SearchResultListWrap = styled.div`
 `;
 
 const useQuery = () => {
-  return new URLSearchParams(useLocation().search)
-}
+  return new URLSearchParams(useLocation().search);
+};
 
 const SearchResultsPage = () => {
-
   const location = useLocation();
   const query = useQuery();
   const navigate = useNavigate();
@@ -113,17 +112,19 @@ const SearchResultsPage = () => {
   const [postList, setPostList] = useState<PostDataTypes[]>([]);
 
   // 재 검색을 위한 포스트 타입 저장
-  const [postType, setPostType] = useState(query.get('postType'));
+  const [postType, setPostType] = useState(query.get("postType"));
 
-  // 검색 키워드 카테고리에서 따로 설정한거 저장 (초기값은 쿼리에서)
+  const params = new URLSearchParams(window.location.search);
+  const queryWord: string | null = params.get("query");
+  const searchWord = decodeURIComponent(queryWord || "");
   const [selectedCategories, setSelectedCategories] = useState<KeywordTypes>({
     gender: [],
     age: [],
-    style: []
+    style: [],
   });
 
   // 검색창 인풋 onchange하면 받는 값
-  const [searchValue, setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState("");
 
   // 카테고리 모달 핸들 함수
   const handleModal = () => {
@@ -139,7 +140,7 @@ const SearchResultsPage = () => {
   const onEditKeyword = (key: keyof KeywordTypes, value: string[]) => {
     setSelectedCategories((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -151,53 +152,73 @@ const SearchResultsPage = () => {
     styleString: string[]
   ) => {
     try {
-      const response = await axios.get<{ posts: PostDataTypes[] }>('http://localhost:5000/search/posts', {
-        params: {
-          query: queryString,
-          gender: genderString,
-          age: ageString,
-          style: styleString,
-          postType: postType
+      const response = await axios.get<{ posts: PostDataTypes[] }>(
+        "http://localhost:5000/search/posts",
+        {
+          params: {
+            query: queryString,
+            gender: genderString,
+            age: ageString,
+            style: styleString,
+            postType: postType,
+          },
         }
-      });
-      setPostList(response.data.posts)
+      );
+      setPostList(response.data.posts);
     } catch (err) {
-      console.error("API 호출 에러", err)
+      console.error("API 호출 에러", err);
     }
-  }
+  };
 
   // 재 검색 기능 함수 (FormEvent)
   const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 최소 2글자 이상 검색
-    if(!searchValue || searchValue.length <= 2) {
-      return alert('검색어는 최소 두글자 이상 입력해주세요')
+    if (!searchValue || searchValue.length < 2) {
+      return alert("검색어는 최소 두글자 이상 입력해주세요");
     }
 
     setPostList([]);
-    loadData(searchValue, selectedCategories.gender, selectedCategories.age, selectedCategories.style)
+    loadData(
+      searchValue,
+      selectedCategories.gender,
+      selectedCategories.age,
+      selectedCategories.style
+    );
 
     // URL 재설정
-    let searchUrl = '/search/posts/'
+    let searchUrl = "/search/posts/";
     searchUrl += `?query=${searchValue}`;
-    if (selectedCategories.gender) { searchUrl += `&gender=${selectedCategories.gender}` }
-    if (selectedCategories.age) { searchUrl += `&age=${selectedCategories.age}` }
-    if (selectedCategories.style) { searchUrl += `&style=${selectedCategories.style}` }
-    searchUrl += `&postType=${postType}`
-    navigate(searchUrl)
-  }
+    if (selectedCategories.gender) {
+      searchUrl += `&gender=${selectedCategories.gender}`;
+    }
+    if (selectedCategories.age) {
+      searchUrl += `&age=${selectedCategories.age}`;
+    }
+    if (selectedCategories.style) {
+      searchUrl += `&style=${selectedCategories.style}`;
+    }
+    searchUrl += `&postType=${postType}`;
+    navigate(searchUrl);
+  };
 
   // 검색한 쿼리 기반 데이터 로드
   useEffect(() => {
     return () => {
-      const queryStr = query.get('query') || '';
-      const genderStrArray = query.get('gender') ? query.get('gender')!.split(',') : [];
-      const ageStrArray = query.get('age') ? query.get('age')!.split(',') : [];
-      const styleStrArray = query.get('style') ? query.get('style')!.split(',') : [];
-      
-      if (queryStr) { loadData(queryStr, genderStrArray, ageStrArray, styleStrArray);}
-    }
+      const queryStr = query.get("query") || "";
+      const genderStrArray = query.get("gender")
+        ? query.get("gender")!.split(",")
+        : [];
+      const ageStrArray = query.get("age") ? query.get("age")!.split(",") : [];
+      const styleStrArray = query.get("style")
+        ? query.get("style")!.split(",")
+        : [];
+
+      if (queryStr) {
+        loadData(queryStr, genderStrArray, ageStrArray, styleStrArray);
+      }
+    };
   }, []);
 
   return (
@@ -208,7 +229,7 @@ const SearchResultsPage = () => {
           {/* 상단 검색창 인풋 */}
           <SearchResultsPageInput
             type="text"
-            placeholder="검색어를 입력해주세요"
+            placeholder={searchWord ? searchWord : "검색어를 입력해주세요"}
             onChange={(e) => setSearchValue(e.target.value)}
           />
 
@@ -222,19 +243,22 @@ const SearchResultsPage = () => {
         <SearchResultSetCategoryText onClick={handleModal}>
           카테고리 설정
         </SearchResultSetCategoryText>
-        {
-          modalStatus
-          ? <CategoryModal onModal={onModal} onEditKeyword={onEditKeyword} selectedCategories={selectedCategories} />
-          : null
-        }
+        {modalStatus ? (
+          <CategoryModal
+            onModal={onModal}
+            onEditKeyword={onEditKeyword}
+            selectedCategories={selectedCategories}
+          />
+        ) : null}
       </form>
       <SearchResultListWrap>
-        {
-          postList && postList.length !== 0 ? postList.map((post) => {
+        {postList && postList.length !== 0 ? (
+          postList.map((post) => {
             return <PostItem post={post} key={post._id} />;
           })
-          : <div>검색결과가 없습니다.</div>
-        }
+        ) : (
+          <div>검색결과가 없습니다.</div>
+        )}
       </SearchResultListWrap>
     </SearchResultsPageWrap>
   );

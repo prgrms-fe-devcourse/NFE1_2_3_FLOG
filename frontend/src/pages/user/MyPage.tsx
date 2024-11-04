@@ -16,7 +16,6 @@ const Box = styled.div`
   margin-top: 50px;
 `;
 
-const USER_ID = localStorage.getItem("userId");
 const LOGINNED_ID = localStorage.getItem("Id");
 type LifetimeItemType = {
   brandName: string;
@@ -51,6 +50,7 @@ const MyPage = () => {
           `http://localhost:5000/api/users/profile/${userId}`
         );
         setProfileData(response.data);
+        // followers 배열에 USER_ID가 포함되어 있는지 확인
       } catch (error) {
         console.error(error);
       }
@@ -59,7 +59,7 @@ const MyPage = () => {
   }, [userId]);
   //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
   const mypage = userId === LOGINNED_ID;
-  console.log(`hi${JSON.stringify(profileData?.profileImage)}`);
+  console.log(`hi${JSON.stringify(profileData)}`);
 
   return (
     <div>

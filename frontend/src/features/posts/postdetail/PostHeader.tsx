@@ -71,7 +71,17 @@ interface PostHeaderProps {
 }
 export const USER_ID = localStorage.getItem("userId");
 
-const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, followers, following }: PostHeaderProps) => {
+const PostHeader = ({
+  authorId,
+  Id,
+  isUser,
+  title,
+  author,
+  date,
+  categories,
+  followers,
+  following,
+}: PostHeaderProps) => {
   const { isModalOpen, openModal, closeModal } = useStore();
   const formatedDate = formatDate(date);
   const { postId } = useParams();
@@ -89,11 +99,14 @@ const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, fol
   const deletePost = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("포스트 삭제 요청 API:", res);
     } catch (err) {
       console.error("포스트 삭제 요청 실패:", err);
@@ -110,9 +123,13 @@ const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, fol
   //내 아이디로북마크한글가져오기
   const fetchBookmarkedPosts = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`);
+      const response = await axios.get(
+        `http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`
+      );
       const bookmarkedPosts = response.data.items; // 성공적인 응답에서 글 목록 가져오기
-      const isBookmarked = bookmarkedPosts.some((post) => post.postId === postId);
+      const isBookmarked = bookmarkedPosts.some(
+        (post) => post.postId === postId
+      );
       setIsBookMark(isBookmarked); // 초기값 설정
       console.log("북마크한 글 목록:", bookmarkedPosts);
     } catch (error) {
@@ -132,11 +149,14 @@ const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, fol
 
     try {
       if (isBookMark) {
-        await axios.delete(`http://localhost:5000/api/posts/${postId}/bookmark`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await axios.delete(
+          `http://localhost:5000/api/posts/${postId}/bookmark`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
       } else {
         await axios.post(
           `http://localhost:5000/api/posts/${postId}/bookmark`,
@@ -220,18 +240,33 @@ const PostHeader = ({ authorId, Id, isUser, title, author, date, categories, fol
         </div>
         {isAuthor ? (
           <div>
-            <Button>
+            <Button onClick={() => navigate(`/post/edit?postId=${postId}`)}>
               <P>수정</P>
             </Button>
-            <Button onClick={openModal}>
+            <Button
+              onClick={() => {
+                deletePost();
+                navigate("/");
+                alert("포스트 삭제 완료");
+              }}
+            >
               <P>삭제</P>
             </Button>
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Button onClick={clickFollow}>{isFollow ? <P>팔로잉</P> : <P>팔로우</P>}</Button>
-            <Button style={{ display: "flex", alignItems: "center", height: "28px" }} onClick={clickBookMark}>
-              {isBookMark ? <img src={starFilledIcon} alt="starFilledIcon"></img> : <img src={starIcon} alt="starIcon"></img>}
+            <Button onClick={clickFollow}>
+              {isFollow ? <P>팔로잉</P> : <P>팔로우</P>}
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center", height: "28px" }}
+              onClick={clickBookMark}
+            >
+              {isBookMark ? (
+                <img src={starFilledIcon} alt="starFilledIcon"></img>
+              ) : (
+                <img src={starIcon} alt="starIcon"></img>
+              )}
             </Button>
           </div>
         )}

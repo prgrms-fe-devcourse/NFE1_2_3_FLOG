@@ -88,11 +88,6 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
   const loadMorePosts = () => {
     // 더이상 로드할게 없을시 스크롤 종료, 그게 아니라면 로드
     // api에 맞게 수정예정
-    console.log(postData)
-    console.log(postList)
-    console.log(elementRef)
-    console.log(page)
-    console.log(hasMore)
     if (postData.length !== 0) {
       if (postData.length === postList.length) {
         setHasMore(false)
@@ -117,7 +112,7 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
     switch (sortType) {
       case 'new':
         setFunc([...postData.sort((a, b) => {
-          return new Date(b.createdAt).getDate() - new Date(a.createdAt).getDate()
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         })]);
         break;
 
@@ -142,7 +137,10 @@ const PostTemplate: React.FC<PostTemplatePropTypes> = ({ postType }) => {
       const response = await axios.get<{ postList: PostDataTypes[] }>(listURL, {
         params: { postType }
       });
-      setPostData(response.data.postList)
+      const sortedData = response.data.postList.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      });
+      setPostData(sortedData)
     } catch(err) {
       console.error("API 호출 에러", err)
     }

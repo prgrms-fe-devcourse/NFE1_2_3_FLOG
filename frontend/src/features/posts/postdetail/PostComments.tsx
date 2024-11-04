@@ -16,9 +16,10 @@ const InputBox = styled.div`
 const Input = styled.textarea`
   position: flex;
   margin: 0 auto;
-  width: 90%;
+  width: 95%;
   height: 80%;
   border: none;
+  margin-left: -20px;
   line-height: 1.5;
   transform: translate(5%, 10%);
   resize: none;
@@ -44,7 +45,11 @@ interface PostCommentsProps {
   postType: "Post" | "Curation"; // 포스트인지 큐레이션인지 구분
 }
 
-const PostComments = ({ postId, postType }: PostCommentsProps) => {
+const PostComments = ({
+  postId,
+  postType,
+  setCommentLength,
+}: PostCommentsProps) => {
   const [commentIds, setCommentIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
@@ -120,6 +125,7 @@ const PostComments = ({ postId, postType }: PostCommentsProps) => {
             key={commentId}
             commentId={commentId}
             postType={postType}
+            setCommentLength={setCommentLength}
           />
         ))
       ) : (

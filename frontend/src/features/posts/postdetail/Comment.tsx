@@ -181,7 +181,12 @@ interface PostCommentsProps {
   fetchComments: () => Promise<void>; // fetchComments 함수 추가
 }
 
-const Comment = ({ commentId, postType, fetchComments }: PostCommentsProps) => {
+const Comment = ({
+  commentId,
+  postType,
+  fetchComments,
+  setCommentLength,
+}: PostCommentsProps) => {
   const { isModalOpen, openModal, closeModal } = useStore();
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false); // 대댓글 삭제 모달 상태
   const [replyToDeleteId, setReplyToDeleteId] = useState<string | null>(null); // 삭제할 대댓글 ID
@@ -197,9 +202,9 @@ const Comment = ({ commentId, postType, fetchComments }: PostCommentsProps) => {
   const popularComment = commentData && commentData.likes?.length >= 3; // BEST를 위해 좋아요 개수 검사
   const [isLiked, setIsLiked] = useState(false); // 댓글 좋아요 상태 추가
   const [liked, setLiked] = useState(false); // 대댓글조아요 상태 관리
-
   const navigate = useNavigate();
   // 댓글 데이터를 API로부터 가져오기
+
   const fetchComment = async () => {
     try {
       const response = await axios.get(
@@ -225,6 +230,10 @@ const Comment = ({ commentId, postType, fetchComments }: PostCommentsProps) => {
       setCommentData(response.data);
       setCommentText(response.data.content);
       setOriginalComment(response.data.content);
+      // 댓글 + 대댓글 수 계산
+      const singleCommentCount =
+        1 + (response.data.replies ? response.data.replies.length : 0);
+      setCommentLength(singleCommentCount / 2); // 부모 컴포넌트에 댓글 수 전달
     } catch (error) {
       console.error("댓글 데이터를 가져오는 중 오류:", error);
     }

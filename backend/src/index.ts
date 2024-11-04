@@ -60,6 +60,10 @@ app.use('/', searchRoutes)
 // 알림 관련 라우트 추가
 app.use('/', notificationRoutes)
 
+server.listen(5001, () => {
+  console.log(`웹소켓서버실행중`)
+})
+
 mongoose
   .connect(MONGO_URI)
   .then(() => {
