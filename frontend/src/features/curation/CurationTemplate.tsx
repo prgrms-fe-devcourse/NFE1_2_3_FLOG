@@ -84,7 +84,14 @@ const CurationTemplate = () => {
       if (data.length === 0) {
         setHasMore(false);
       } else {
-        setCurationList((prev) => [...prev, ...data]);
+        // 기존 리스트에 중복되지 않게 새 데이터를 추가
+        setCurationList((prev) => {
+          const uniqueData = data.filter((newItem: CurationDataTypes) => 
+            !prev.some((prevItem: CurationDataTypes) => prevItem._id === newItem._id)
+          );
+          return [...prev, ...uniqueData];
+        });
+        
         setPage(page + 1); // 다음 페이지로 증가
       }
     } catch (error) {
@@ -126,6 +133,10 @@ const CurationTemplate = () => {
   }, [onIntersection]);
 
   useEffect(() => {
+     // 초기 필터나 정렬 변경 시 페이지와 리스트를 초기화하고 첫 페이지 로드
+  setCurationList([]); // 기존 리스트 초기화
+  setPage(1); // 페이지 초기화
+  setHasMore(true); // 데이터를 더 불러올 수 있는 상태로 초기화
     // 필터나 정렬이 변경될 때마다 초기화하고 새로 로드
     fetchCurations(1, sortType);
   }, [filters, sortType]);
