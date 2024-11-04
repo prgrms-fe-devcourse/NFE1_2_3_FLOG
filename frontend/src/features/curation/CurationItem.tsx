@@ -101,6 +101,11 @@ const CurationItem = ({
   }: CurationItemProps) => {
     const navigate = useNavigate();
 
+    const stripHtmlTags = (html: string) => {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return doc.body.textContent || "";
+    };    
+
   const handleItemClick = () => {
     navigate(`/curation/${curationId}`); // curationId 기반으로 상세 페이지 이동
   };
@@ -115,7 +120,7 @@ const CurationItem = ({
           <Title>{title}</Title>
   
           {/* 내용 미리보기 */}
-          <Preview>{contentPreview}</Preview>
+          <Preview>{stripHtmlTags(contentPreview)}</Preview>
   
           {/* 출품 인원, 좋아요, 댓글 수 */}
           <MetaInfo>

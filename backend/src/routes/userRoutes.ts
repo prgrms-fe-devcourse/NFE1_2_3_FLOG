@@ -5,6 +5,7 @@ import {
   updateProfile,
   getProfile,
   getUserItems,
+  uploadProfileImage,
 } from "../controllers/userController";
 
 const router = Router();
@@ -13,5 +14,6 @@ const router = Router();
 router.put("/api/users/profile/edit", authMiddleware, updateProfile);
 router.get("/api/users/profile/:userId", getProfile);
 router.get("/api/users/profile/:userId/:type", getUserItems);
+router.post("/api/users/profile/upload", authMiddleware, uploadProfileImage);
 
 export default router;

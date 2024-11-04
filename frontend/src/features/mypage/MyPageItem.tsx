@@ -53,10 +53,10 @@ const MyPageItem = ({ lifetimeItem }: { lifetimeItem?: LifetimeItemType }) => {
         <ItemBox>
           <div>
             <img
-              src={testImg}
-              alt="testImg"
+              src={lifetimeItem.photoUrl} // 서버에서 가져온 이미지 URL 사용
+              alt={lifetimeItem.productName} // 제품 이름을 alt 속성으로 사용
               style={{ width: "150px", height: "auto", objectFit: "cover" }}
-            ></img>
+            />
           </div>
           <ItemDetailBox>
             <Text>

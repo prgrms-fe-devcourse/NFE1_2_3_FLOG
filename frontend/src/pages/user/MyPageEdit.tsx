@@ -44,14 +44,43 @@ const MyPageEdit = () => {
   const [blogName, setBlogName] = useState("");
   const [nickname, setNickname] = useState("");
   const [introduction, setIntroduction] = useState("");
-  const [lifeItems, setLifeItems] = useState(["", "", ""]);
+  const [lifeItems, setLifeItems] = useState(["", "", ""]); // Initialize as an array
+  const [profileImage, setProfileImage] = useState("");
+  const [lifetimeItem, setLifetimeItem] = useState({
+    brandName: "",
+    productName: "",
+    description: "",
+    photoUrl: "",
+  });
 
   const userId = localStorage.getItem("Id");
 
+  const handleImageUpload = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result); // base64 문자열로 설정
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 아이템 이미지 업로드 핸들러
+  const handleItemImageUpload = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLifetimeItem((prevItem) => ({
+        ...prevItem,
+        photoUrl: reader.result, // 아이템 이미지를 base64 문자열로 설정
+      }));
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      console.log("User ID:", userId);
-
       try {
         const response = await axios.get(
           `http://localhost:5000/api/users/profile/${userId}`
@@ -62,19 +91,28 @@ const MyPageEdit = () => {
         setBlogName(user.blogName || "블로그 이름을 입력하세요");
         setNickname(user.nickname || "닉네임을 입력하세요");
         setIntroduction(user.bio || "소개를 입력하세요");
-        setLifeItems(
-          user.lifetimeItem
-            ? [
-                `${user.lifetimeItem.brandName}`,
-                `${user.lifetimeItem.productName}`,
-                `${user.lifetimeItem.description}`,
-              ]
-            : [
-                "브랜드 이름을 입력하세요",
-                "아이템 이름을 입력하세요",
-                "아이템을 소개해주세요",
-              ]
-        );
+        setProfileImage(user.profileImage || "");
+
+        // Ensure lifeItems is set correctly
+        if (user.lifetimeItem) {
+          setLifeItems([
+            user.lifetimeItem.brandName || "브랜드 이름을 입력하세요",
+            user.lifetimeItem.productName || "아이템 이름을 입력하세요",
+            user.lifetimeItem.description || "아이템을 소개해주세요",
+          ]);
+          setLifetimeItem({
+            brandName: user.lifetimeItem.brandName,
+            productName: user.lifetimeItem.productName,
+            description: user.lifetimeItem.description,
+            photoUrl: user.lifetimeItem.photoUrl || "",
+          });
+        } else {
+          setLifeItems([
+            "브랜드 이름을 입력하세요",
+            "아이템 이름을 입력하세요",
+            "아이템을 소개해주세요",
+          ]);
+        }
       } catch (error) {
         console.error("데이터를 가져오는 중 오류 발생:", error);
       }
@@ -89,13 +127,14 @@ const MyPageEdit = () => {
       blogName,
       nickname,
       bio: introduction,
+      profileImage, // 프로필 이미지 URL 추가
       lifetimeItem: {
         brandName: lifeItems[0],
         productName: lifeItems[1],
         description: lifeItems[2],
+        photoUrl: lifetimeItem.photoUrl, // photoUrl 추가
       },
     };
-
     try {
       const response = await axios.put(
         `http://localhost:5000/api/users/profile/edit`,
@@ -108,57 +147,72 @@ const MyPageEdit = () => {
       if (response.data.success) {
         alert("프로필이 성공적으로 업데이트되었습니다.");
       } else {
-        alert("프로필 업데이트에 실패했습니다: " + response.data.message);
+        alert("프로필 업데이트에 실패했습니다.");
       }
     } catch (error) {
       console.error("프로필 업데이트 중 오류 발생:", error);
-      alert("서버 오류가 발생했습니다.");
     }
   };
 
   return (
-    <div>
-      <MyPageHeader />
-      <Box>
-        <AddImage
-          isUpload={false}
-          onChangeUpload={false}
-          onChangeImgDelete={false}
-          postImage={null}
-          onChangeImage={null}
-          isProfile={true}
+    <Box>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <h3> 내 프로필 수정</h3>
+      </div>
+      <AddImage
+        isUpload={!!profileImage}
+        onChangeUpload={(isUpload) =>
+          setProfileImage(isUpload ? profileImage : "")
+        }
+        onChangeImgDelete={() => setProfileImage("")}
+        postImage={null}
+        onChangeImage={handleImageUpload} // 파일 업로드 시 호출
+        isProfile={true}
+      />
+      <div>
+        <h3>블로그 이름</h3>
+        <Input
+          type="text"
+          placeholder="블로그 이름"
+          value={blogName}
+          onChange={(e) => setBlogName(e.target.value)}
         />
+      </div>
+      <div>
+        <h3>닉네임</h3>
+        <Input
+          type="text"
+          placeholder="닉네임"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+        />{" "}
+      </div>
+      <div>
+        <h3>소개</h3>
+        <Input
+          type="text"
+          placeholder="소개"
+          value={introduction}
+          onChange={(e) => setIntroduction(e.target.value)}
+        />{" "}
+      </div>
+      <div>
+        <h3>인생템</h3>
         <div>
-          <h3>블로그 이름</h3>
-          <Input
-            placeholder={blogName}
-            value={blogName}
-            onChange={(e) => setBlogName(e.target.value)}
-          />
-        </div>
-        <div>
-          <h3>닉네임</h3>
-          <Input
-            placeholder={nickname}
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-        </div>
-        <div>
-          <h3>소개</h3>
-          <Input
-            placeholder={introduction}
-            value={introduction}
-            onChange={(e) => setIntroduction(e.target.value)}
-          />
-        </div>
-        <div>
-          <h3>인생템</h3>
-          <div>
-            {lifeItems.map((item, index) => (
+          {lifeItems.length === 0 ? (
+            <p>인생템이 아직 없어요!</p>
+          ) : (
+            lifeItems.map((item, index) => (
               <Input
                 key={index}
-                placeholder={item || `인생템 ${index + 1}`}
+                type="text"
+                placeholder={
+                  index === 0
+                    ? "브랜드 이름"
+                    : index === 1
+                      ? "아이템 이름"
+                      : "아이템 설명"
+                }
                 value={item}
                 onChange={(e) => {
                   const newLifeItems = [...lifeItems];
@@ -166,20 +220,33 @@ const MyPageEdit = () => {
                   setLifeItems(newLifeItems);
                 }}
               />
-            ))}
-            <AddImage
-              isUpload={false}
-              onChangeUpload={false}
-              onChangeImgDelete={false}
-              postImage={null}
-              onChangeImage={null}
-              isProfile={false}
-            />
-          </div>
+            ))
+          )}
         </div>
-        <Button onClick={handleUpdateProfile}>수정 완료</Button>
-      </Box>
-    </div>
+        <AddImage
+          isUpload={!!lifetimeItem.photoUrl}
+          onChangeUpload={(isUpload) => {
+            if (!isUpload) {
+              setLifetimeItem((prevItem) => ({
+                ...prevItem,
+                photoUrl: "", // 아이템 이미지 삭제 시 초기화
+              }));
+            }
+          }}
+          onChangeImgDelete={() =>
+            setLifetimeItem((prevItem) => ({
+              ...prevItem,
+              photoUrl: "", // 아이템 이미지 삭제 시 초기화
+            }))
+          }
+          postImage={null}
+          onChangeImage={handleItemImageUpload} // 아이템 이미지 핸들러 호출
+          isProfile={false} // 또는 필요에 따라 설정
+        />
+      </div>
+
+      <Button onClick={handleUpdateProfile}>수정 완료</Button>
+    </Box>
   );
 };
 

@@ -1,6 +1,44 @@
 import { Request, Response } from "express";
 import User from "../models/userModel";
+import path from "path";
+import fs from "fs";
 
+// 프로필 사진 업로드 컨트롤러
+export const uploadProfileImage = async (req: Request, res: Response) => {
+  try {
+    const { profileImage } = req.body;
+
+    // Base64 문자열에서 'data:image/png;base64,' 부분 제거
+    const base64Data = profileImage.replace(/^data:image\/png;base64,/, "");
+
+    // 저장할 파일 경로 설정
+    const filePath = path.join(__dirname, "../uploads/profile-images"); // 업로드 디렉토리 경로
+    const fileName = `profile_${req.user?.id}.png`; // 사용자 ID에 기반한 파일 이름
+
+    // 디렉토리가 존재하지 않으면 생성
+    if (!fs.existsSync(filePath)) {
+      fs.mkdirSync(filePath, { recursive: true });
+    }
+
+    // 파일 저장
+    fs.writeFileSync(path.join(filePath, fileName), base64Data, {
+      encoding: "base64",
+    });
+
+    // 성공 응답
+    res.json({
+      success: true,
+      message: "프로필 사진이 성공적으로 업로드되었습니다.",
+    });
+    return;
+  } catch (error) {
+    console.error("프로필 사진 업로드 중 오류 발생:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "프로필 사진 업로드 실패" });
+    return;
+  }
+};
 // // 비밀번호 변경 컨트롤러
 // export const updatePassword = async (
 //   req: Request,
@@ -53,6 +91,7 @@ import User from "../models/userModel";
 //       .json({ message: "비밀번호 변경 중 오류가 발생했습니다.", error });
 //   }
 // };
+
 export const updateProfile = async (req: Request, res: Response) => {
   const userId = req.user?._id;
   const { nickname, profileImage, bio, blogName, lifetimeItem } = req.body;
@@ -69,7 +108,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     // 필드 업데이트
     if (nickname) user.nickname = nickname;
-    if (profileImage) user.profileImage = profileImage;
+    if (profileImage) user.profileImage = profileImage; // 프로필 이미지 업데이트
     if (bio) user.bio = bio;
     if (blogName) user.blogName = blogName;
     if (lifetimeItem)
