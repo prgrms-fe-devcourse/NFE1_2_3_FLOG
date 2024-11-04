@@ -19,6 +19,7 @@ import CurationPage from "../pages/curation/CurationPage";
 import CurationDetailPage from "../pages/curation/CurationDetailPage";
 import CurationSubmissionPage from "../pages/curation/CurationSubmissionPage";
 import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage";
+import NotFoundPage from "../pages/notFoundPage/NotFoundPage";
 
 function App() {
   return (
@@ -41,11 +42,11 @@ function App() {
         <Route path="/mypage/edit" element={<MyPageEdit />} />
         <Route path="/curations" element={<CurationPage />} />
         <Route path="/curation/:curationId" element={<CurationDetailPage />} />
-        <Route
-          path="/curation/:curationId/submit"
-          element={<CurationSubmissionPage />}
-        />
+        <Route path="/curation/:curationId/submit" element={<CurationSubmissionPage />} />
         <Route path="/curation/create" element={<CurationCreateEditPage />} />
+
+        {/* 404페이지는 항상 맨 아래에 작성해야합니다. - 최하위에 위치하도록 해주세요. */}
+        <Route path="/*" element={<NotFoundPage />} />
       </Routes>
     </div>
   );
