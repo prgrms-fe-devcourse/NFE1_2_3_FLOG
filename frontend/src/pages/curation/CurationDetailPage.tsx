@@ -16,7 +16,7 @@ import useCurationCreateStore from "../../features/curation/CurationCreateStore"
 import heartIcon from "/heart.svg";
 import heartFilledIcon from "/heartFilled.svg";
 import commentIcon from "/comment.svg";
-
+import { FaCrown } from 'react-icons/fa';
 
 // Styled Components
 const Container = styled.div`
@@ -270,6 +270,24 @@ const CommentCount = styled.p`
   margin: 0;
   font-size: 14px;
 `;
+
+const GoldCrown = styled(FaCrown)`
+  color: gold;
+  font-size: 24px;
+  margin-bottom: 8px;
+`;
+
+const SilverCrown = styled(FaCrown)`
+  color: silver;
+  font-size: 24px;
+  margin-bottom: 8px;
+`;
+
+const BronzeCrown = styled(FaCrown)`
+  color: #cd7f32; // 청동색
+  font-size: 24px;
+  margin-bottom: 8px;
+`;
 interface ICuration {
   title: string;
   startDate: string;
@@ -504,6 +522,13 @@ const CurationDetailPage = (): JSX.Element => {
     }
   };
 
+  const renderCrown = (index: number) => {
+    if (index === 0) return <GoldCrown title="금색 왕관" />;
+    if (index === 1) return <SilverCrown title="은색 왕관" />;
+    if (index === 2) return <BronzeCrown title="동색 왕관" />;
+    return null;
+  };
+
   if (!curation) {
     return <p>큐레이션 정보를 불러오는 중입니다...</p>;
   }
@@ -567,8 +592,10 @@ const CurationDetailPage = (): JSX.Element => {
           <EntryListWrapper>
             <EntryTitleContainer>출품작 리스트</EntryTitleContainer>
             <EntryListContainer>
-              {entries.map((entry) => (
+              {entries.map((entry, index) => (
                 <EntryItem key={entry._id}>
+                {/* 1, 2, 3등 왕관 표시 */}
+                {renderCrown(index)}
                   <EntryTitle>{entry.title}</EntryTitle>
                   <PhotoSlider photos={entry.photos} />
                   <EntryDescription>{entry.description}</EntryDescription>
@@ -625,7 +652,7 @@ const CurationDetailPage = (): JSX.Element => {
         </ReactionItem>
       </ReactionBox>
 
-          {curation && <PostComments postId={curationId!} postType="Curation" />}
+      {curation && <PostComments postId={curationId!} postType="Curation" />}
         </>
       )}
     </Container>
