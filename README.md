@@ -32,7 +32,7 @@ cd NFE1_2_3_FLOG
    ```plaintext
    PORT=5000
    JWT_SECRET=your_secure_generated_secret_here
-   DB_URL=your_database_url
+   MONGO_URI=your_database_url
    ```
 
    - `JWT_SECRET`: 안전하게 생성된 비밀 키를 입력하세요.
