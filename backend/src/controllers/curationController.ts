@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { ICuration } from '../models/curationModel';
 import {
   getCurations,
   getCurationById,
@@ -6,9 +7,11 @@ import {
   updateCuration,
   deleteCuration,
   toggleCurationLike,
-  getRecommendCurationListService
+  getRecommendCurationListService,
+  distributePointsToParticipants
 } from '../services/curationService';
 import mongoose from 'mongoose';
+import cron from 'node-cron';
 
 // 추천 큐레이션 리스트 조회
 export const getRecommedCurationList = async (req: Request, res: Response) => {
@@ -119,8 +122,13 @@ export const getCuration = async (req: Request, res: Response): Promise<void> =>
     }
   
     try {
-      const newCuration = await createCuration({ ...req.body, adminId });
-      res.status(201).json({ success: true, curation: newCuration });
+      // newCuration을 명시적으로 ICuration으로 지정
+    const newCuration: ICuration = await createCuration({ ...req.body, adminId });
+
+    // _id와 endDate를 명확히 ObjectId와 Date로 처리
+    scheduleCurationPointDistribution(newCuration._id as mongoose.Types.ObjectId, newCuration.endDate as Date);
+
+    res.status(201).json({ success: true, curation: newCuration });
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ success: false, message: error.message });
@@ -196,3 +204,17 @@ export const deleteCurationController = async (req: Request, res: Response) => {
       }
     }
   };
+
+  // 포인트 지급을 위한 스케줄링 설정 함수
+const scheduleCurationPointDistribution = (curationId: mongoose.Types.ObjectId, endDate: Date) => {
+  const year = endDate.getFullYear();
+  const month = endDate.getMonth(); // 0-indexed
+  const day = endDate.getDate();
+  const hour = endDate.getHours();
+  const minute = endDate.getMinutes();
+
+  cron.schedule(`${minute} ${hour} ${day} ${month + 1} *`, () => {
+    console.log(`큐레이션 마감 포인트 분배 작업 실행: 큐레이션 ID ${curationId}`);
+    distributePointsToParticipants(curationId);
+  });
+};

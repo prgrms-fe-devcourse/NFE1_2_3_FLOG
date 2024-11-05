@@ -1,4 +1,6 @@
 import { Curation, ICuration } from '../models/curationModel';
+import User from '../models/userModel';
+import { Entry } from '../models/entryModel';
 import mongoose from 'mongoose';
 
 // 추천 큐레이션 리스트 조회
@@ -93,3 +95,32 @@ export const deleteCuration = async (curationId: string): Promise<boolean> => {
     await curation.save();
     return curation;
   };
+
+  // 포인트 분배 서비스 함수
+export const distributePointsToParticipants = async (curationId: mongoose.Types.ObjectId) => {
+  try {
+    // 해당 큐레이션의 출품작을 투표 수 내림차순으로 정렬하여 가져옴
+    const entries = await Entry.find({ curationId })
+      .populate('authorId') // 출품자 정보 포함
+      .sort({ votes: -1 }); // 투표 수 내림차순 정렬
+
+    if (entries.length === 0) return;
+
+    // 1, 2, 3위에게 포인트 지급
+    const prizePoints = [10000, 5000, 1000];
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const user = await User.findById(entry.authorId);
+      if (user) {
+        // 상위 3위까지만 각각 10000, 5000, 1000 포인트 지급, 나머지는 100 포인트
+        const points = prizePoints[i] || 100;
+        user.points = (user.points || 0) + points;
+        await user.save();
+      }
+    }
+
+    console.log(`포인트 지급 완료: 큐레이션 ID ${curationId}`);
+  } catch (error) {
+    console.error('포인트 지급 중 오류 발생:', error);
+  }
+};
