@@ -98,11 +98,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 };
 
 // 로그인 선택 미들웨어
-export const authOptionalMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const authOptionalMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -114,18 +110,13 @@ export const authOptionalMiddleware = async (
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "defaultSecret"
-    ) as DecodedToken;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "defaultSecret") as DecodedToken;
 
     // user 타입을 IUser | null로 설정하여 타입 추론 명확히
-const user: IUser | null = await User.findById(decoded.userId).select("-password");
+    const user: IUser | null = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      res
-        .status(401)
-        .json({ success: false, message: "유효하지 않은 사용자입니다." });
+      res.status(401).json({ success: false, message: "유효하지 않은 사용자입니다." });
       return;
     }
 
@@ -136,8 +127,6 @@ const user: IUser | null = await User.findById(decoded.userId).select("-password
 
     next();
   } catch (error) {
-    res
-      .status(403)
-      .json({ success: false, message: "유효하지 않은 토큰입니다." });
+    res.status(403).json({ success: false, message: "유효하지 않은 토큰입니다." });
   }
 };
