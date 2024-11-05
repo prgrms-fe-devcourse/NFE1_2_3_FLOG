@@ -46,18 +46,19 @@ export const createComment = async (req: Request, res: Response) => {
       content
     );
 
-    // 댓글 작성후 알림 생성 
+    // 댓글 작성후 알림 생성
     const post = await Post.findById(postId);
-    const postAuthorId = post?.authorId
+    const postAuthorId = post?.authorId;
 
-    if (postAuthorId && postAuthorId !== authorId) { // 본인 게시물에는 알림X
+    if (postAuthorId && postAuthorId !== authorId) {
+      // 본인 게시물에는 알림X
       await createNotification(
         new mongoose.Types.ObjectId(postAuthorId),
         authorId,
         "comment",
         new mongoose.Types.ObjectId(postId),
         "새 댓글이 달렸습니다"
-      )
+      );
     }
 
     res.status(201).json(comment);

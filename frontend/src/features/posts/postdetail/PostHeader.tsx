@@ -25,6 +25,16 @@ const Category = styled.p`
   margin: 0px;
 `;
 
+const PostInfoButton = styled.button`
+  border: none;
+  background-color: #ffffff;
+  cursor: pointer;
+  padding: 0px;
+  padding-right: 10px;
+  margin: 0px;
+  height: 16px;
+`;
+
 const Title = styled.p`
   font-size: 40px;
   font-weight: bold;
@@ -37,10 +47,10 @@ const PostInfoBox = styled.div`
   margin: 0px;
 `;
 const PostInfo = styled.p`
-  display: inline-block;
   color: #7d7d7d;
   font-size: 14px;
-  margin: 5px;
+  margin: 0px;
+  padding: 0px;
 `;
 const Button = styled.button`
   color: #7d7d7d;
@@ -50,7 +60,8 @@ const Button = styled.button`
   cursor: pointer;
 `;
 const P = styled.p`
-  margin: 5px;
+  margin: 0px;
+  padding: 0px;
 `;
 const ModalBox = styled.div`
   display: flex;
@@ -61,41 +72,45 @@ const ModalBox = styled.div`
 interface PostHeaderProps {
   authorId: string;
   Id: string;
-  isUser: boolean;
+  isAuthor: boolean;
   title: string;
   author: string;
   date: string;
   categories: string[];
   followers: string[];
-  following: string[];
 }
-export const USER_ID = localStorage.getItem("userId");
+
+export const USER_ID: string | null = localStorage.getItem("userId");
 
 const PostHeader = ({
   authorId,
   Id,
-  isUser,
+  isAuthor,
   title,
   author,
   date,
   categories,
   followers,
-  following,
 }: PostHeaderProps) => {
-  const { isModalOpen, openModal, closeModal } = useStore();
+  const { isModalOpen, closeModal } = useStore();
   const formatedDate = formatDate(date);
   const { postId } = useParams();
   const navigate = useNavigate();
 
+  //북마크 상태 관리
+  const [isBookMark, setIsBookMark] = useState(false);
+  //팔로우 상태 관리
+  const [isFollow, setIsFollow] = useState<boolean | null>(null);
+  //로그인 후 이용하는지
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const openNoTokenModal = () => {
     setIsTokenModalOpen(true);
   };
-
   const closeNoTokenModal = () => {
     setIsTokenModalOpen(false);
   };
 
+  //포스트 삭제
   const deletePost = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -113,25 +128,18 @@ const PostHeader = ({
     }
   };
 
-  //게시물이 본인인지 아닌지 확인
-  //이거 댓글도 수정 삭제 있어서 로직 뺄 수 있으면 공통으로 빼기
-  const isAuthor = isUser;
-
-  const [isFollow, setIsFollow] = useState<boolean | null>(null);
-  const [isBookMark, setIsBookMark] = useState(false);
-
-  //내 아이디로북마크한글가져오기
+  //북마크 관련 코드
   const fetchBookmarkedPosts = async () => {
     try {
       const response = await axios.get(
         `http://localhost:5000/api/users/profile/${USER_ID}/bookmarks`
       );
-      const bookmarkedPosts = response.data.items; // 성공적인 응답에서 글 목록 가져오기
+      const bookmarkedPosts = response.data.items;
+      //현재 게시물이 북마크 한 글인지 판단하기 위한 변수
       const isBookmarked = bookmarkedPosts.some(
-        (post) => post.postId === postId
+        (post: any) => post.postId === postId
       );
-      setIsBookMark(isBookmarked); // 초기값 설정
-      console.log("북마크한 글 목록:", bookmarkedPosts);
+      setIsBookMark(isBookmarked);
     } catch (error) {
       console.error("북마크 글 목록 가져오기 오류:", error);
     }
@@ -146,7 +154,6 @@ const PostHeader = ({
       openNoTokenModal();
       return;
     }
-
     try {
       if (isBookMark) {
         await axios.delete(
@@ -168,23 +175,21 @@ const PostHeader = ({
           }
         );
       }
-      setIsBookMark((prev) => !prev); // 북마크 상태 토글
+      setIsBookMark((prev) => !prev);
     } catch (error) {
       console.error("북마크 토글 오류:", error);
     }
   };
 
-  // 팔로우 상태 확인
+  // 팔로우 관련 함수
   useEffect(() => {
     if (followers && authorId) {
-      setIsFollow(followers.includes(USER_ID)); // 팔로우 목록에 authorId가 포함되어 있으면 true
+      setIsFollow(followers.includes(USER_ID || ""));
     } else {
-      setIsFollow(false); // following이 없으면 false로 설정
+      setIsFollow(false);
     }
-  }, [followers, authorId]); // following 또는 authorId가 변경될 때마다 실행
-  console.log(`isFollow:${isFollow}`);
-  console.log(`authorId:${authorId}`);
-  console.log(following);
+  }, [followers]);
+  //팔로우 또는 언팔로우
   const clickFollow = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -219,14 +224,8 @@ const PostHeader = ({
         <Title>{title}</Title>
       </div>
       <PostInfoBox>
-        <div>
-          <button
-            style={{
-              border: "none",
-              backgroundColor: "#ffffff",
-              cursor: "pointer",
-            }}
-          >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <PostInfoButton>
             <PostInfo
               onClick={() => {
                 navigate(`/user/${Id}`);
@@ -235,7 +234,7 @@ const PostHeader = ({
             >
               {author}
             </PostInfo>
-          </button>
+          </PostInfoButton>
           <PostInfo>{formatedDate}</PostInfo>
         </div>
         {isAuthor ? (
@@ -254,7 +253,11 @@ const PostHeader = ({
             </Button>
           </div>
         ) : (
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
             <Button onClick={clickFollow}>
               {isFollow ? <P>팔로잉</P> : <P>팔로우</P>}
             </Button>
@@ -263,9 +266,17 @@ const PostHeader = ({
               onClick={clickBookMark}
             >
               {isBookMark ? (
-                <img src={starFilledIcon} alt="starFilledIcon"></img>
+                <img
+                  style={{ marginTop: "-1.5px" }}
+                  src={starFilledIcon}
+                  alt="star"
+                ></img>
               ) : (
-                <img src={starIcon} alt="starIcon"></img>
+                <img
+                  style={{ marginTop: "-1.5px" }}
+                  src={starIcon}
+                  alt="starIcon"
+                ></img>
               )}
             </Button>
           </div>
@@ -281,7 +292,6 @@ const PostHeader = ({
             <Button onClick={closeModal}>취소</Button>
             <Button
               onClick={(e) => {
-                // 여기에서 삭제 로직 추가
                 e.preventDefault();
                 deletePost();
                 closeModal();

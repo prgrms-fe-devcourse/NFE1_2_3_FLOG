@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import userIcon from "/userIcon.svg";
 
 const Box = styled.div`
@@ -11,11 +11,13 @@ const Box = styled.div`
   width: 864px;
   margin-top: 50px;
 `;
+
 const ImageBox = styled.img`
   width: 50px;
   height: 50px;
   border-radius: 50px;
 `;
+
 const UserInfo = styled.div`
   display: flex;
   flex-direction: row;
@@ -68,13 +70,18 @@ const NicknameButton = styled.button`
   font-weight: bold;
 `;
 
-const MyPageFollow = ({ isFollow = true }) => {
+const MyPageFollow = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { followers } = location.state || { followers: [] };
-  const { following } = location.state || { following: [] };
+  const { tab, followers = [], following = [] } = location.state || {};
 
-  const [isFollowerOrIng, setIsFollowerOrIng] = useState("팔로워");
+  const [isFollowerOrIng, setIsFollowerOrIng] = useState<string>(
+    tab || "팔로워"
+  );
+
+  useEffect(() => {
+    setIsFollowerOrIng(tab || "팔로워"); // 페이지 로드 시 tab 상태에 맞게 초기화
+  }, [tab]);
 
   const handleNavigate = (userId: string) => {
     navigate(`/user/${userId}`);
@@ -99,64 +106,14 @@ const MyPageFollow = ({ isFollow = true }) => {
         </FollowBox>
         <UserInfoBox>
           {isFollowerOrIng === "팔로워" ? (
-            followers && followers.length > 0 ? (
+            followers.length > 0 ? (
               <ul>
-                {followers.map(
-                  (
-                    follower: { nickname: string; userId: string; bio: string },
-                    index: number
-                  ) => (
-                    <UserInfo key={index}>
-                      <ImageBox
-                        src={
-                          followers.profileImage === undefined
-                            ? userIcon
-                            : followers.profileImage
-                        }
-                        alt={"Profile"}
-                      ></ImageBox>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "5px",
-                          height: "50px",
-                          width: "700px",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <NicknameButton
-                          onClick={() => handleNavigate(follower.userId)}
-                        >
-                          {follower.nickname}
-                        </NicknameButton>
-                        <div>{follower.bio}</div>
-                      </div>
-                    </UserInfo>
-                  )
-                )}
-              </ul>
-            ) : (
-              <p style={{ paddingLeft: "340px" }}>
-                팔로워가 존재하지 않습니다.
-              </p>
-            )
-          ) : following && following.length > 0 ? (
-            <ul>
-              {following.map(
-                (
-                  follow: { nickname: string; userId: string; bio: string },
-                  index: number
-                ) => (
+                {followers.map((follower, index) => (
                   <UserInfo key={index}>
                     <ImageBox
-                      src={
-                        following.profileImage === undefined
-                          ? userIcon
-                          : following.profileImage
-                      }
+                      src={follower.profileImage || userIcon}
                       alt={"Profile"}
-                    ></ImageBox>
+                    />
                     <div
                       style={{
                         display: "flex",
@@ -168,15 +125,47 @@ const MyPageFollow = ({ isFollow = true }) => {
                       }}
                     >
                       <NicknameButton
-                        onClick={() => handleNavigate(follow.userId)}
+                        onClick={() => handleNavigate(follower.userId)}
                       >
-                        {follow.nickname}
+                        {follower.nickname}
                       </NicknameButton>
-                      <div>{follow.bio}</div>
+                      <div>{follower.bio}</div>
                     </div>
                   </UserInfo>
-                )
-              )}
+                ))}
+              </ul>
+            ) : (
+              <p style={{ paddingLeft: "340px" }}>
+                팔로워가 존재하지 않습니다.
+              </p>
+            )
+          ) : following.length > 0 ? (
+            <ul>
+              {following.map((follow, index) => (
+                <UserInfo key={index}>
+                  <ImageBox
+                    src={follow.profileImage || userIcon}
+                    alt={"Profile"}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "5px",
+                      height: "50px",
+                      width: "700px",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <NicknameButton
+                      onClick={() => handleNavigate(follow.userId)}
+                    >
+                      {follow.nickname}
+                    </NicknameButton>
+                    <div>{follow.bio}</div>
+                  </div>
+                </UserInfo>
+              ))}
             </ul>
           ) : (
             <p style={{ paddingLeft: "340px" }}>팔로잉이 존재하지 않습니다.</p>

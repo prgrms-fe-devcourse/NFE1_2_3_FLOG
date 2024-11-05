@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
 import styled from "styled-components";
-import axios from "axios";
 import sendIcon from "/send.svg";
+import { useState, useEffect } from "react";
 import Comment from "./Comment";
+import axios from "axios";
 
 const InputBox = styled.div`
   position: relative;
@@ -43,6 +43,7 @@ const Button = styled.button`
 interface PostCommentsProps {
   postId: string;
   postType: "Post" | "Curation"; // 포스트인지 큐레이션인지 구분
+  setCommentLength: (length: number) => void; // 댓글 길이를 업데이트하는 함수
 }
 
 const PostComments = ({
@@ -51,7 +52,7 @@ const PostComments = ({
   setCommentLength,
 }: PostCommentsProps) => {
   const [commentIds, setCommentIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  //댓글 input 내용 입력 상태 관리
   const [newComment, setNewComment] = useState("");
 
   // 특정 포스트 또는 큐레이션의 댓글 목록을 불러오는 함수
@@ -68,14 +69,11 @@ const PostComments = ({
         const commentsData = response.data.comments;
         const ids = commentsData.map((comment: { _id: string }) => comment._id);
         setCommentIds(ids);
-        console.log(response.data.comments);
       } else {
         console.error("댓글 데이터가 없습니다.");
       }
     } catch (error) {
       console.error("댓글 데이터를 가져오는 중 오류:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -100,8 +98,6 @@ const PostComments = ({
       console.error("댓글 작성 중 오류:", error);
     }
   };
-
-  if (loading) return <p>댓글을 불러오는 중입니다...</p>;
 
   return (
     <div>

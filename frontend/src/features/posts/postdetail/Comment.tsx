@@ -153,10 +153,6 @@ const AddCommentText = styled.textarea`
   margin-left: 13px;
 `;
 
-interface CommentProps {
-  commentId: string;
-}
-
 interface ReplyData {
   _id: string;
   authorId: { _id?: string; nickname?: string; profileImage?: string };
@@ -179,6 +175,7 @@ interface PostCommentsProps {
   commentId: string;
   postType: "Post" | "Curation"; // 포스트인지 큐레이션인지 구분
   fetchComments: () => Promise<void>; // fetchComments 함수 추가
+  setCommentLength: (length: number) => void; // 댓글 길이를 업데이트하는 함수
 }
 
 const Comment = ({
@@ -200,11 +197,12 @@ const Comment = ({
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyText, setEditingReplyText] = useState("");
   const popularComment = commentData && commentData.likes?.length >= 3; // BEST를 위해 좋아요 개수 검사
-  const [isLiked, setIsLiked] = useState(false); // 댓글 좋아요 상태 추가
-  const [liked, setLiked] = useState(false); // 대댓글조아요 상태 관리
-  const navigate = useNavigate();
-  // 댓글 데이터를 API로부터 가져오기
+  const [isLiked, setIsLiked] = useState(false); // 댓글 좋아요 상태
+  const [likedReplies, setLikedReplies] = useState<boolean[]>([]); //대댓글 좋아요 상태
 
+  const navigate = useNavigate();
+
+  // 댓글 데이터를 API로부터 가져오기
   const fetchComment = async () => {
     try {
       const response = await axios.get(
@@ -212,24 +210,21 @@ const Comment = ({
       );
       const currentUserId = localStorage.getItem("userId");
       // 댓글 좋아요 상태 확인
-
       if (response.data.likes.includes(currentUserId)) {
         setIsLiked(true);
       } else {
         setIsLiked(false);
       }
       // 대댓글 좋아요 상태 확인
-      response.data.replies.map((reply: any) => {
-        if (reply.likes.includes(currentUserId)) {
-          setLiked(true);
-        } else {
-          setLiked(false);
-        }
+      const newLikedReplies = response.data.replies.map((reply: any) => {
+        return reply.likes.includes(currentUserId);
       });
-
+      setLikedReplies(newLikedReplies); // 상태 업데이트
+      console.log(response.data.replies);
       setCommentData(response.data);
       setCommentText(response.data.content);
       setOriginalComment(response.data.content);
+
       // 댓글 + 대댓글 수 계산
       const singleCommentCount =
         1 + (response.data.replies ? response.data.replies.length : 0);
@@ -240,55 +235,28 @@ const Comment = ({
   };
 
   useEffect(() => {
-    console.log("Fetching comment data...");
     fetchComment();
   }, [commentId]);
 
   useEffect(() => {
-    console.log("Current commentData:", commentData); // commentData 업데이트 여부 확인
-    console.log("commentData.createdAt:", commentData?.createAt);
-
     if (commentData && commentData.createAt) {
       const timeAgo = formatDistanceToNow(new Date(commentData.createAt), {
         addSuffix: true,
         locale: ko,
       });
       setRelativeTime(timeAgo);
-      console.log("Updated relative time:", timeAgo); // relativeTime 설정 여부 확인
     } else {
       console.log("No createdAt found in commentData.");
     }
   }, [commentData?.createAt]);
 
-  console.log("Relative time:", relativeTime);
-
-  const handleLike = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        `http://localhost:5000/api/comments/${commentData?._id}/like`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` }, // 헤더에 토큰 설정
-        }
-      );
-      // 서버 요청 후 좋아요 상태를 반영하기 위해 수동으로 데이터 업데이트
-      fetchComment();
-      setIsLiked((prev) => !prev); // 현재 상태를 반전
-    } catch (error) {
-      console.error("좋아요 처리 중 오류:", error);
-    }
-  };
-
+  //댓글 수정, 저장, 취소, 삭제, 좋아요
   const handleEdit = () => {
     setOriginalComment(commentText); // 수정 시작 시 원래 댓글 내용 저장
     setIsEditing(true);
   };
-
   const handleSave = async () => {
-    const token = localStorage.getItem("token"); // 로컬 스토리지에서 토큰을 가져옴
-
+    const token = localStorage.getItem("token");
     try {
       await axios.put(
         `http://localhost:5000/api/comments/${commentData?._id}`,
@@ -296,7 +264,7 @@ const Comment = ({
           content: commentText,
         },
         {
-          headers: { Authorization: `Bearer ${token}` }, // 헤더에 토큰 설정
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setCommentData((prevData) =>
@@ -307,31 +275,39 @@ const Comment = ({
       console.error("댓글 수정 중 오류:", error);
     }
   };
-
   const handleCancel = () => {
     setCommentText(originalComment); // 원래 댓글 내용으로 복원
     setIsEditing(false);
   };
-
   const handleDelete = async () => {
-    const token = localStorage.getItem("token"); // 로컬 스토리지에서 토큰을 가져옴
-    if (!token) {
-      console.error("토큰이 없습니다. 삭제 요청을 수행할 수 없습니다.");
-      return; // 토큰이 없으면 함수를 종료
-    }
-
+    const token = localStorage.getItem("token");
     try {
       await axios.delete(
         `http://localhost:5000/api/comments/${postType}/${commentData?.postId}/${commentData?._id}`,
         {
-          headers: { Authorization: `Bearer ${token}` }, // 헤더에 토큰 설정
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       await fetchComments();
-
       closeModal();
     } catch (error) {
       console.error("댓글 삭제 중 오류:", error);
+    }
+  };
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:5000/api/comments/${commentData?._id}/like`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchComment();
+      setIsLiked((prev) => !prev);
+    } catch (error) {
+      console.error("좋아요 처리 중 오류:", error);
     }
   };
 
@@ -356,16 +332,14 @@ const Comment = ({
       console.error("대댓글 작성 중 오류:", error);
     }
   };
-
+  //대댓글 수정, 저장, 취소, 삭제, 좋아요
   const handleEditReply = (replyId: string, currentContent: string) => {
     setEditingReplyId(replyId);
     setEditingReplyText(currentContent);
   };
-
   const handleSaveReply = async (replyId: string) => {
     try {
       const token = localStorage.getItem("token");
-
       await axios.put(
         `http://localhost:5000/api/comments/${commentId}/replies/${replyId}`,
         {
@@ -381,12 +355,27 @@ const Comment = ({
       console.error("대댓글 수정 중 오류:", error);
     }
   };
-
   const handleCancelReplyEdit = () => {
     setEditingReplyId(null);
     setEditingReplyText("");
   };
-
+  const handleConfirmDeleteReply = async (replyId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `http://localhost:5000/api/comments/${commentId}/replies/${replyId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setReplyToDeleteId(null);
+      setIsReplyModalOpen(false);
+      console.log(`${commentId}///////${replyId}`);
+      await fetchComments();
+    } catch (error) {
+      console.error("대댓글 삭제 중 오류:", error);
+    }
+  };
   const handleLikeReply = async (replyId: string) => {
     try {
       const token = localStorage.getItem("token");
@@ -398,34 +387,14 @@ const Comment = ({
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setLiked((prev) => !prev); // 현재 상태를 반전
 
       fetchComment(); // 좋아요 후 대댓글 데이터 업데이트
     } catch (error) {
       console.error("대댓글 좋아요 처리 중 오류:", error);
     }
   };
-
-  const handleConfirmDeleteReply = async (replyId: string) => {
-    console.log(`replyto${replyToDeleteId}`);
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.delete(
-        `http://localhost:5000/api/comments/${commentId}/replies/${replyId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setReplyToDeleteId(null);
-      setIsReplyModalOpen(false);
-      await fetchComments();
-    } catch (error) {
-      console.error("대댓글 삭제 중 오류:", error);
-    }
-  };
   const currentUserId = localStorage.getItem("userId");
-  const USERID = localStorage.getItem("Id");
+  const Id = localStorage.getItem("Id");
   return (
     <Box>
       <CommentInfoBox>
@@ -438,12 +407,12 @@ const Comment = ({
           </Button>
           <p>랭킹</p>
           <NameButton
-            onClick={() => navigate(`/user/${USERID}`)}
+            onClick={() => navigate(`/user/${Id}`)}
             style={{ fontWeight: "bold" }}
           >
             {commentData?.authorId?.nickname || "Unknown User"}
           </NameButton>
-
+          {/* BEST 뱃지 */}
           {popularComment && (
             <BestBox>
               <p style={{ margin: "0px", fontSize: "12px", color: "#ffffff" }}>
@@ -459,7 +428,11 @@ const Comment = ({
               <Button onClick={handleEdit}>
                 <CommentText>수정</CommentText>
               </Button>
-              <Button onClick={openModal}>
+              <Button
+                onClick={() => {
+                  alert("댓글이 삭제되었습니다"), handleDelete();
+                }}
+              >
                 <CommentText>삭제</CommentText>
               </Button>
             </EditDeleteBox>
@@ -475,17 +448,14 @@ const Comment = ({
           )
         ) : null}
       </CommentInfoBox>
-
       {/* 수정 모드 */}
       <EditableCommentText
         isEditing={isEditing}
         value={commentText}
         onChange={(e) => setCommentText(e.target.value)}
       />
-
       {/* 일반 모드 */}
       {!isEditing && <CommentText>{commentText}</CommentText>}
-
       <ReactionBox>
         <Button
           style={{ marginLeft: "10px" }}
@@ -508,7 +478,6 @@ const Comment = ({
           </p>
         </ReactionItem>
       </ReactionBox>
-
       {/* 답글 입력란 */}
       {isAddComment && (
         <div>
@@ -525,10 +494,8 @@ const Comment = ({
           </Button>
         </div>
       )}
-
       {/* 대댓글 리스트 */}
-
-      {commentData?.replies.map((reply) => (
+      {commentData?.replies.map((reply, index) => (
         <Box
           key={reply._id}
           style={{
@@ -548,10 +515,9 @@ const Comment = ({
                 />
               </Button>
               <NameButton
-                onClick={() => navigate(`/user/${USERID}`)}
+                onClick={() => navigate(`/user/${Id}`)}
                 style={{ fontWeight: "bold" }}
               >
-                {" "}
                 {reply.authorId.nickname || "Unknown User"}
               </NameButton>
               <p style={{ color: "#7d7d7d" }}>{relativeTime}</p>
@@ -583,8 +549,8 @@ const Comment = ({
                   <Button
                     style={{ fontSize: "14px" }}
                     onClick={() => {
-                      setReplyToDeleteId(reply._id); // 대댓글 ID 설정
-                      setIsReplyModalOpen(true); // 모달 열기
+                      handleConfirmDeleteReply(reply._id);
+                      alert("댓글이 삭제되었습니다.");
                     }}
                   >
                     삭제
@@ -593,7 +559,7 @@ const Comment = ({
               )
             ) : null}
           </CommentInfoBox>
-
+          {/* 대댓글 수정중 */}
           {editingReplyId === reply._id ? (
             <EditableReplyText
               isEditing={true}
@@ -610,7 +576,7 @@ const Comment = ({
                 style={{ width: "20px", height: "20px" }}
               >
                 <img
-                  src={liked ? heartFilledIcon : heartIcon}
+                  src={likedReplies[index] ? heartFilledIcon : heartIcon}
                   alt="좋아요 아이콘"
                 />
               </Button>
@@ -619,7 +585,6 @@ const Comment = ({
           </ReactionBox>
         </Box>
       ))}
-
       {/* 모달 컴포넌트 */}
       {isModalOpen && (
         <Modal onClose={closeModal}>
@@ -632,7 +597,6 @@ const Comment = ({
           </ModalBox>
         </Modal>
       )}
-
       {/* 대댓글 삭제 모달 */}
       {isReplyModalOpen && (
         <Modal onClose={() => setIsReplyModalOpen(false)}>
@@ -649,7 +613,6 @@ const Comment = ({
                 }
               }}
             >
-              {" "}
               삭제
             </Button>
           </ModalBox>
