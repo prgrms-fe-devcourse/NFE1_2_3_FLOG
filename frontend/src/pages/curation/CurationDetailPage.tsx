@@ -570,7 +570,7 @@ const CurationDetailPage = (): JSX.Element => {
               {entries.map((entry) => (
                 <EntryItem key={entry._id}>
                   <EntryTitle>{entry.title}</EntryTitle>
-                  <EntryImage src={entry.photos[0]} alt="출품작 이미지" />
+                  <PhotoSlider photos={entry.photos} />
                   <EntryDescription>{entry.description}</EntryDescription>
                   <Link to={`/user/${entry.authorId._id}`}>
       <PostFlexStartWrap>

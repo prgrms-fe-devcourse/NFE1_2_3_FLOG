@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Post } from "../models/postModel";
+import { Curation } from "../models/curationModel";
 import { SearchLog } from "../models/searchlogModel";
 
 export const searchPosts = async (req: Request, res: Response) => {
@@ -43,6 +44,47 @@ export const searchPosts = async (req: Request, res: Response) => {
       .populate("authorId", "nickname profileImage userId")
     
     res.status(200).json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: "서버 오류 발생", err });
+  }
+};
+
+export const searchCurations = async (req: Request, res: Response) => {
+  const { query, gender, age, style } = req.query;
+
+  const searchConditions: any = {
+    title: { $regex: query, $options: "i" },
+    status: "published",
+  };
+
+  if (gender && gender !== "전체") {
+    const genderArray = Array.isArray(gender) ? gender : (gender as string).split(",");
+    searchConditions.genderFilter = { $all: genderArray };
+  }
+  if (age && age !== "전체") {
+    const ageArray = Array.isArray(age) ? age : (age as string).split(",");
+    searchConditions.ageFilter = { $all: ageArray };
+  }
+  if (style && style !== "전체") {
+    const styleArray = Array.isArray(style) ? style : (style as string).split(",");
+    searchConditions.styleFilter = { $all: styleArray };
+  }
+
+  try {
+    // 검색어 기록 저장
+    if (query) {
+      const existingLog = await SearchLog.findOne({ query });
+      if (existingLog) {
+        existingLog.searchCount += 1;
+        await existingLog.save();
+      } else {
+        const newLog = new SearchLog({ query, searchCount: 1, createdAt: new Date() });
+        await newLog.save();
+      }
+    }
+
+    const curations = await Curation.find(searchConditions).populate("adminId", "nickname profileImage userId");
+    res.status(200).json({ curations });
   } catch (err) {
     res.status(500).json({ message: "서버 오류 발생", err });
   }
