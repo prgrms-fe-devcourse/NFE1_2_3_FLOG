@@ -71,14 +71,28 @@ const CurationTemplate = () => {
       const response = await axios.get(`http://localhost:5000/api/curations`, {
         params: {
           page,
-          sortType,
           pageSize,
           ...filters, // 필터 파라미터 포함
         },
         headers: token ? { Authorization: `Bearer ${token}` } : {}, // 인증 헤더 추가
       });
       
-      const data = response.data.curations;
+      let data = response.data.curations;
+
+       // sortType에 따라 데이터 정렬하기
+    if (sortType === 'new') {
+      data = data.sort((a: CurationDataTypes, b: CurationDataTypes) => 
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+    } else if (sortType === 'like') {
+      data = data.sort((a: CurationDataTypes, b: CurationDataTypes) => 
+        b.likes.length - a.likes.length
+      );
+    } else if (sortType === 'comment') {
+      data = data.sort((a: CurationDataTypes, b: CurationDataTypes) => 
+        b.comments.length - a.comments.length
+      );
+    }
 
       // 추가할 데이터가 없으면 로딩 종료
       if (data.length === 0) {
