@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
-import usePostCreateStore, { IPostCreate } from "./PostCreateStore";
+import usePostCreateStore from "./PostCreateStore";
+import axios from "axios";
 
 const Editor = styled.div`
   width: 1000px;
@@ -18,27 +19,55 @@ const Editor = styled.div`
 const PostCreateEditor = () => {
   const { data, setData } = usePostCreateStore();
   const [value, setValue] = useState("");
-
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef();
   const formats = ["size", "align", "color", "background", "bold", "italic", "underline", "strike", "blockquote", "list", "bullet", "indent", "link", "image"];
+
+  const imageHandler = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.addEventListener("change", async () => {
+      const file = input?.files[0];
+      const formData = new FormData();
+      formData.append("image", file);
+      try {
+        const response = await axios.post("http://localhost:5000/api/posts/img", formData);
+        const imageUrl = response.data.url;
+        console.log("사진 url :", imageUrl);
+        const editor = quillRef?.current?.getEditor();
+        console.log("editor:", editor);
+        const range = editor.getSelection();
+        editor.insertEmbed(range.index, "image", imageUrl);
+        // editor.root.innerHTML += `<img src=${imageUrl} alt="사진첨부"/><br/>`; // 현재 있는 내용들 뒤에 써줘야한다.
+      } catch (error) {
+        console.error("Image upload failed", error);
+      }
+    });
+  };
 
   const modules = useMemo(
     () => ({
-      toolbar: [
-        [{ size: ["huge", "large", false, "small"] }],
-        [{ color: [] }, { background: [] }],
-        [{ align: [] }],
-        ["bold", "italic", "underline", "strike", "blockquote"],
-        [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
-        ["link", "image"],
-      ],
+      toolbar: {
+        container: [
+          [{ size: ["huge", "large", false, "small"] }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          ["bold", "italic", "underline", "strike", "blockquote"],
+          [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+          ["link", "image"],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
     }),
     []
   );
 
   useEffect(() => {
     setData({ ...data, content: value });
-    console.log(data.content);
   }, [value]);
 
   return (
