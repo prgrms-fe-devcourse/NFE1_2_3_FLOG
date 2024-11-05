@@ -34,7 +34,7 @@ export const getRecommedCurationList = async (req: Request, res: Response) => {
 
 // 큐레이션 리스트 조회 (어드민과 일반 사용자 구분)
 export const getCurationList = async (req: Request, res: Response) => {
-  const { page = 1, style = '전체', gender = '전체', age = '전체', searchQuery } = req.query;
+  const { page = 1, style = '전체', gender = '전체', age = '전체', searchQuery, status } = req.query;
   const isAdmin = (req as any).user?.isAdmin || false;  // 어드민 여부 확인 (JWT 등의 인증방식에서 가져옴)
 
    // 필터 객체 초기화
@@ -62,9 +62,13 @@ export const getCurationList = async (req: Request, res: Response) => {
     ];
   }
 
-  if (!isAdmin) {
-    // 어드민이 아닐 경우 출간된 큐레이션만 조회 가능
-    filters.status = 'published';
+   // 어드민일 경우 status를 요청에서 가져오고, 그렇지 않을 경우 'published'로 고정
+   if (isAdmin) {
+    if (status) {
+      filters.status = status; // 관리자가 임시저장(draft) 큐레이션을 조회하고 싶다면 이 필터 사용
+    }
+  } else {
+    filters.status = 'published'; // 일반 사용자는 출간된 큐레이션만 조회 가능
   }
 
   try {

@@ -10,7 +10,7 @@ import CurationCreateDatePicker from "../../features/curation/CurationCreateDate
 import CurationCreateTag from "../../features/curation/CurationCreateTag";
 import CurationCreateCategory from "../../features/curation/CurationCreateCategory";
 import CurationCreateEditor from "../../features/curation/CurationCreateEditor";
-import CurationCreateButtons from "../../features/curation/CurationCreateButtons";
+import CurationDraftButtons from "../../features/curation/CurationDraftButtons";
 import CurationEditButtons from "../../features/curation/CurationEditButtons";
 import useCurationCreateStore from "../../features/curation/CurationCreateStore";
 import heartIcon from "/heart.svg";
@@ -521,7 +521,7 @@ const CurationDetailPage = (): JSX.Element => {
           {curation?.status === 'published' ? (
             <CurationEditButtons />
           ) : (
-            <CurationCreateButtons />
+            <CurationDraftButtons />
           )}
         </div>
       ) : (
