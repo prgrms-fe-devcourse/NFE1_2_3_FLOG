@@ -102,11 +102,22 @@ const CurationCreateButtons = () => {
     }
   };
 
+  // 임시저장된 큐레이션 불러오기 버튼 클릭 핸들러
+const loadDraftCurations = () => {
+  const adminId = localStorage.getItem("userId");
+  if (adminId) {
+    navigate(`/curations/drafts/${adminId}`); // 어드민 ID를 포함한 URL로 이동
+  } else {
+    alert("로그인 정보가 없습니다.");
+  }
+};
+
   return (
     <ButtonBox>
       <Button onClick={() => navigate(-1)}>나가기</Button>
       <RightButtons>
         <Button onClick={saveDraftCuration}>임시저장</Button>
+        <Button onClick={loadDraftCurations}>불러오기</Button>
         <Button onClick={publishCuration}>출간하기</Button>
       </RightButtons>
     </ButtonBox>
