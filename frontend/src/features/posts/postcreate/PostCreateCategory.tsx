@@ -102,23 +102,35 @@ const PostCreateCategory = () => {
   const [genderFilter] = useState(["전체", "남자", "여자"]);
   const [ageFilter] = useState(["전체", "10대 미만", "10대", "20대", "30대", "40대", "50대 이상"]);
   const [styleFilter] = useState(["전체", "캐쥬얼", "스트릿", "페미닌", "펑크", "스포트", "비즈니스"]);
+  const [postTypes] = useState(["post", "promotion", "event"]);
   const { data, setData } = usePostCreateStore();
 
-  const handleSelect = (type: "gender" | "age" | "style", value: string) => {
+  const handleSelect = (type: "gender" | "age" | "style" | "postType", value: string) => {
     if (type === "gender") {
+      // 성별 필터는 복수 선택 가능
       const newGenderFilter = data.genderFilter.includes(value)
         ? data.genderFilter.filter((g) => g !== value) // 이미 선택된 경우 제거
         : [...data.genderFilter, value]; // 선택되지 않은 경우 추가
 
       setData({ ...data, genderFilter: newGenderFilter });
     } else if (type === "age") {
-      const newAgeFilter = data.ageFilter.includes(value) ? data.ageFilter.filter((a) => a !== value) : [...data.ageFilter, value];
+      // 나이 필터는 복수 선택 가능
+      const newAgeFilter = data.ageFilter.includes(value)
+        ? data.ageFilter.filter((a) => a !== value) // 이미 선택된 경우 제거
+        : [...data.ageFilter, value]; // 선택되지 않은 경우 추가
 
       setData({ ...data, ageFilter: newAgeFilter });
     } else if (type === "style") {
-      const newStyleFilter = data.styleFilter.includes(value) ? data.styleFilter.filter((s) => s !== value) : [...data.styleFilter, value];
+      // 스타일 필터는 복수 선택 가능
+      const newStyleFilter = data.styleFilter.includes(value)
+        ? data.styleFilter.filter((s) => s !== value) // 이미 선택된 경우 제거
+        : [...data.styleFilter, value]; // 선택되지 않은 경우 추가
 
       setData({ ...data, styleFilter: newStyleFilter });
+    } else if (type === "postType") {
+      // 포스트 종류는 단일 선택 가능 (이미 선택된 값이 있으면 그 값으로 덮어쓰거나 선택되지 않은 경우 추가)
+      const newPostType = data.postType === value ? "" : value; // 이미 선택된 값이면 해제, 아니면 선택
+      setData({ ...data, postType: newPostType });
     }
   };
 
@@ -159,6 +171,16 @@ const PostCreateCategory = () => {
                 {styleFilter.map((style, index) => (
                   <CategoryModalTagButton key={index} isClicked={data.styleFilter.includes(style)} onClick={() => handleSelect("style", style)}>
                     {style}
+                  </CategoryModalTagButton>
+                ))}
+              </CategoryModalTagInner>
+            </CategoryModalTagWrap>
+            <CategoryModalTagWrap>
+              <CategoryModalTagTitle>포스트 종류</CategoryModalTagTitle>
+              <CategoryModalTagInner>
+                {postTypes.map((postType, index) => (
+                  <CategoryModalTagButton key={index} isClicked={data.postType.includes(postType)} onClick={() => handleSelect("postType", postType)}>
+                    {postType}
                   </CategoryModalTagButton>
                 ))}
               </CategoryModalTagInner>
