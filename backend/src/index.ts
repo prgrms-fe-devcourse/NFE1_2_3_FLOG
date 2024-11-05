@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
-
+import path from "path";
 import curationRoutes from "./routes/curationRoutes"; // 큐레이션 라우트 임포트
 import authRoutes from "./routes/authRoutes"; // 인증 라우트 임포트
 import entryRoutes from "./routes/entryRoutes"; // 출품작 관련 라우트 임포트
@@ -32,8 +32,9 @@ app.use(express.json());
 /*app.use(express.urlencoded({ extended: false })); // 내부 url 파서 사용 */
 
 //포스트 관련 라우트 추가
-export const path = require("path");
-app.use(express.static(path.join(__dirname + "/public"))); // 정적 파일 위치 설정
+//export const path = require("path");
+// app.use(express.static(path.join(__dirname + "public/uploads"))); // 정적 파일 위치 설정
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 app.use("/", postRoutes);
 
 // 기본 라우트 (테스트용)

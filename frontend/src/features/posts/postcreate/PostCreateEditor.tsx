@@ -29,15 +29,15 @@ const PostCreateEditor = () => {
     input.click();
 
     input.addEventListener("change", async () => {
-      const file = input.files[0];
+      const file = input?.files[0];
       const formData = new FormData();
       formData.append("image", file);
-
       try {
         const response = await axios.post("http://localhost:5000/api/posts/img", formData);
         const imageUrl = response.data.url;
         console.log("사진 url :", imageUrl);
-        const editor = quillRef.current.getEditor(true);
+        const editor = quillRef?.current?.getEditor();
+        console.log("editor:", editor);
         const range = editor.getSelection();
         editor.insertEmbed(range.index, "image", imageUrl);
         // editor.root.innerHTML += `<img src=${imageUrl} alt="사진첨부"/><br/>`; // 현재 있는 내용들 뒤에 써줘야한다.

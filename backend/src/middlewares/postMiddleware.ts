@@ -1,5 +1,5 @@
 const multer = require("multer");
-import { path } from "../index";
+import path from "path";
 
 // multer 설정
 export const upload = multer({
