@@ -305,6 +305,7 @@ const Comment = ({
         }
       );
       fetchComment();
+
       setIsLiked((prev) => !prev);
     } catch (error) {
       console.error("좋아요 처리 중 오류:", error);
@@ -363,15 +364,17 @@ const Comment = ({
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `http://localhost:5000/api/comments/${commentId}/replies/${replyId}`,
+        `http://localhost:5000/api/comments/${commentId}/replies/${replyId}/delete`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
       setReplyToDeleteId(null);
       setIsReplyModalOpen(false);
+
       console.log(`${commentId}///////${replyId}`);
       await fetchComments();
+      window.location.reload();
     } catch (error) {
       console.error("대댓글 삭제 중 오류:", error);
     }

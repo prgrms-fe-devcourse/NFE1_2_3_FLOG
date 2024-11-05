@@ -43,7 +43,7 @@ router.get("/api/posts/:postId/comments", getPostComments);
 
 router.get("/api/comments/:commentId/replies/:replyId", getRepliesByCommentId);
 router.delete(
-  "/api/comments/:commentId/replies/:replyId",
+  "/api/comments/:commentId/replies/:replyId/delete",
   authMiddleware,
   deleteReplies
 );
