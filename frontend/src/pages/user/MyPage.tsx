@@ -59,8 +59,7 @@ const MyPage = () => {
   }, [userId]);
   //내 페이지인지 다른 유저 페이지인지 확인하는 로직 필요
   const mypage = userId === LOGINNED_ID;
-  console.log(`hi${JSON.stringify(profileData)}`);
-
+  console.log(profileData?.bookmarkedPosts);
   return (
     <div>
       <div

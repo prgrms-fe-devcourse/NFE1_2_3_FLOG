@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import MyPageHeader from "../../features/mypage/MyPageHeader";
 import AddImage from "../../features/mypage/AddImage";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Box = styled.div`
   display: flex;
@@ -40,11 +40,37 @@ const Input = styled.input`
   padding: 5px;
 `;
 
+const ImagePreview = styled.div`
+  position: relative;
+  margin-top: -90px;
+  margin-left: 700px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ImageBox = styled.img`
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+`;
+
+const DeleteButton = styled.button`
+  color: #7d7d7d;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0px;
+  margin: 20px;
+  font-size: 16px;
+`;
+
 const MyPageEdit = () => {
+  const navigate = useNavigate();
   const [blogName, setBlogName] = useState("");
   const [nickname, setNickname] = useState("");
   const [introduction, setIntroduction] = useState("");
-  const [lifeItems, setLifeItems] = useState(["", "", ""]); // Initialize as an array
   const [profileImage, setProfileImage] = useState("");
   const [lifetimeItem, setLifetimeItem] = useState({
     brandName: "",
@@ -52,6 +78,8 @@ const MyPageEdit = () => {
     description: "",
     photoUrl: "",
   });
+
+  const [lifetimeItemPreview, setLifetimeItemPreview] = useState<string>("");
 
   const userId = localStorage.getItem("Id");
 
@@ -69,6 +97,7 @@ const MyPageEdit = () => {
   const handleItemImageUpload = (file) => {
     const reader = new FileReader();
     reader.onloadend = () => {
+      setLifetimeItemPreview(reader.result as string); // base64 문자열로 미리보기 이미지 설정
       setLifetimeItem((prevItem) => ({
         ...prevItem,
         photoUrl: reader.result, // 아이템 이미지를 base64 문자열로 설정
@@ -77,6 +106,15 @@ const MyPageEdit = () => {
     if (file) {
       reader.readAsDataURL(file);
     }
+  };
+
+  // 이미지 삭제 함수
+  const handleItemImageDelete = () => {
+    setLifetimeItemPreview(""); // 미리보기 이미지 삭제
+    setLifetimeItem((prevItem) => ({
+      ...prevItem,
+      photoUrl: "", // 아이템 이미지 삭제
+    }));
   };
 
   useEffect(() => {
@@ -88,30 +126,19 @@ const MyPageEdit = () => {
 
         const user = response.data;
 
-        setBlogName(user.blogName || "블로그 이름을 입력하세요");
-        setNickname(user.nickname || "닉네임을 입력하세요");
-        setIntroduction(user.bio || "소개를 입력하세요");
+        setBlogName(user.blogName || "");
+        setNickname(user.nickname || "");
+        setIntroduction(user.bio || "");
         setProfileImage(user.profileImage || "");
 
-        // Ensure lifeItems is set correctly
         if (user.lifetimeItem) {
-          setLifeItems([
-            user.lifetimeItem.brandName || "브랜드 이름을 입력하세요",
-            user.lifetimeItem.productName || "아이템 이름을 입력하세요",
-            user.lifetimeItem.description || "아이템을 소개해주세요",
-          ]);
           setLifetimeItem({
-            brandName: user.lifetimeItem.brandName,
-            productName: user.lifetimeItem.productName,
-            description: user.lifetimeItem.description,
+            brandName: user.lifetimeItem.brandName || "",
+            productName: user.lifetimeItem.productName || "",
+            description: user.lifetimeItem.description || "",
             photoUrl: user.lifetimeItem.photoUrl || "",
           });
-        } else {
-          setLifeItems([
-            "브랜드 이름을 입력하세요",
-            "아이템 이름을 입력하세요",
-            "아이템을 소개해주세요",
-          ]);
+          setLifetimeItemPreview(user.lifetimeItem.photoUrl || ""); // 기존 아이템 이미지 URL 설정
         }
       } catch (error) {
         console.error("데이터를 가져오는 중 오류 발생:", error);
@@ -122,18 +149,21 @@ const MyPageEdit = () => {
   }, [userId]);
 
   const handleUpdateProfile = async () => {
+    if (
+      lifetimeItem.brandName === "" ||
+      lifetimeItem.productName === "" ||
+      lifetimeItem.description === ""
+    ) {
+      alert("브랜드 이름, 아이템 이름, 아이템 설명을 모두 입력해 주세요.");
+      return;
+    }
     const token = localStorage.getItem("token");
     const profileData = {
       blogName,
       nickname,
       bio: introduction,
       profileImage, // 프로필 이미지 URL 추가
-      lifetimeItem: {
-        brandName: lifeItems[0],
-        productName: lifeItems[1],
-        description: lifeItems[2],
-        photoUrl: lifetimeItem.photoUrl, // photoUrl 추가
-      },
+      lifetimeItem, // lifetimeItem 객체를 바로 보냄
     };
     try {
       const response = await axios.put(
@@ -146,6 +176,7 @@ const MyPageEdit = () => {
 
       if (response.data.success) {
         alert("프로필이 성공적으로 업데이트되었습니다.");
+        navigate(-1);
       } else {
         alert("프로필 업데이트에 실패했습니다.");
       }
@@ -162,7 +193,7 @@ const MyPageEdit = () => {
       <AddImage
         isUpload={!!profileImage}
         onChangeUpload={(isUpload) =>
-          setProfileImage(isUpload ? profileImage : "")
+          setProfileImage(isUpload ? "profileImage" : "")
         }
         onChangeImgDelete={() => setProfileImage("")}
         postImage={null}
@@ -185,7 +216,7 @@ const MyPageEdit = () => {
           placeholder="닉네임"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-        />{" "}
+        />
       </div>
       <div>
         <h3>소개</h3>
@@ -194,35 +225,34 @@ const MyPageEdit = () => {
           placeholder="소개"
           value={introduction}
           onChange={(e) => setIntroduction(e.target.value)}
-        />{" "}
+        />
       </div>
       <div>
         <h3>인생템</h3>
-        <div>
-          {lifeItems.length === 0 ? (
-            <p>인생템이 아직 없어요!</p>
-          ) : (
-            lifeItems.map((item, index) => (
-              <Input
-                key={index}
-                type="text"
-                placeholder={
-                  index === 0
-                    ? "브랜드 이름"
-                    : index === 1
-                      ? "아이템 이름"
-                      : "아이템 설명"
-                }
-                value={item}
-                onChange={(e) => {
-                  const newLifeItems = [...lifeItems];
-                  newLifeItems[index] = e.target.value;
-                  setLifeItems(newLifeItems);
-                }}
-              />
-            ))
-          )}
-        </div>
+        <Input
+          type="text"
+          placeholder="브랜드 이름"
+          value={lifetimeItem.brandName}
+          onChange={(e) =>
+            setLifetimeItem({ ...lifetimeItem, brandName: e.target.value })
+          }
+        />
+        <Input
+          type="text"
+          placeholder="아이템 이름"
+          value={lifetimeItem.productName}
+          onChange={(e) =>
+            setLifetimeItem({ ...lifetimeItem, productName: e.target.value })
+          }
+        />
+        <Input
+          type="text"
+          placeholder="아이템 설명"
+          value={lifetimeItem.description}
+          onChange={(e) =>
+            setLifetimeItem({ ...lifetimeItem, description: e.target.value })
+          }
+        />
         <AddImage
           isUpload={!!lifetimeItem.photoUrl}
           onChangeUpload={(isUpload) => {
@@ -243,6 +273,24 @@ const MyPageEdit = () => {
           onChangeImage={handleItemImageUpload} // 아이템 이미지 핸들러 호출
           isProfile={false} // 또는 필요에 따라 설정
         />
+
+        {/* 이미지 미리보기 및 삭제 버튼 */}
+        {lifetimeItemPreview && (
+          <ImagePreview>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: "0px",
+              }}
+            >
+              <ImageBox src={lifetimeItemPreview} alt="lifetime item preview" />
+              <DeleteButton onClick={handleItemImageDelete}>
+                이미지 삭제
+              </DeleteButton>{" "}
+            </div>{" "}
+          </ImagePreview>
+        )}
       </div>
 
       <Button onClick={handleUpdateProfile}>수정 완료</Button>

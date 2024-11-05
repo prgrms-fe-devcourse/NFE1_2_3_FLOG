@@ -45,14 +45,24 @@ const MoveText = styled.p`
 
 type ProfileProps = {
   Id: string;
-  followers: string[];
-  following: string[];
+  followers: {
+    userId: string;
+    nickname: string;
+    bio: string;
+    profileImage?: string;
+  }[];
+  following: {
+    userId: string;
+    nickname: string;
+    bio: string;
+    profileImage?: string;
+  }[];
   nickname: string;
   bio: string;
   profileImage: string;
   isFollow: boolean;
   authorId: string;
-  post: string[];
+  post: Array<{ id: string; content: string; authorId?: { nickname: string } }>;
   bookmark: string[];
 };
 
@@ -69,7 +79,15 @@ const MyPageProfile = ({
   bookmark,
 }: ProfileProps) => {
   const navigate = useNavigate();
-  console.log(followers);
+  const postsWithAuthorId = post.map((p) => ({
+    ...p,
+    authorId: { nickname: nickname }, // authorId 객체에 userId로 nickname 추가
+  }));
+
+  const handleNavigate = (tab: "팔로워" | "팔로잉") => {
+    navigate(`/user/${Id}/follow`, { state: { tab, followers, following } });
+  };
+
   return (
     <div>
       <UserInfo
@@ -81,26 +99,18 @@ const MyPageProfile = ({
         authorId={authorId}
       />
       <FollowBox>
-        {" "}
-        <Button
-          onClick={() =>
-            navigate(`/user/${Id}/follow`, { state: { followers } })
-          }
-        >
+        <Button onClick={() => handleNavigate("팔로워")}>
           <p>{followers.length}</p>팔로워
         </Button>
-        <Button
-          onClick={() =>
-            navigate(`/user/${authorId}/follow`, { state: { following } })
-          }
-        >
-          {" "}
+        <Button onClick={() => handleNavigate("팔로잉")}>
           <p>{following.length}</p>팔로잉
         </Button>
       </FollowBox>
       <MoveBox>
         <MoveButton
-          onClick={() => navigate(`/user/${Id}/post`, { state: { post } })}
+          onClick={() =>
+            navigate(`/user/${Id}/post`, { state: { post: postsWithAuthorId } })
+          }
         >
           <MoveText>포스트</MoveText>
         </MoveButton>
@@ -116,4 +126,5 @@ const MyPageProfile = ({
     </div>
   );
 };
+
 export default MyPageProfile;

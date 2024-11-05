@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import editIcon from "/edit.svg";
@@ -49,6 +49,7 @@ const AddImage = (props: AddImageProps) => {
   } = props;
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(testImg);
 
   const handleAddImage = () => {
     imageInputRef.current?.click();
@@ -58,6 +59,7 @@ const AddImage = (props: AddImageProps) => {
     onChangeImage(null);
     onChangeUpload(false);
     onChangeImgDelete(true);
+    setPreviewImage(testImg); // 기본 이미지로 재설정
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
@@ -79,6 +81,7 @@ const AddImage = (props: AddImageProps) => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
+        setPreviewImage(base64String); // 업로드할 이미지 미리보기
 
         try {
           const response = await axios.post(
@@ -94,10 +97,7 @@ const AddImage = (props: AddImageProps) => {
           );
 
           if (response.data.success) {
-            console.log("프로필 사진이 성공적으로 업로드되었습니다.");
             const photoUrl = response.data.photoUrl;
-            console.log(`photoUrl: ${photoUrl}`);
-
             onChangeImage(imgFile); // 로컬 상태 업데이트
             onChangeUpload(true);
           } else {
@@ -118,7 +118,7 @@ const AddImage = (props: AddImageProps) => {
 
         {isProfile ? (
           <ImageEditBox>
-            <ImageBox src={testImg} alt="profile image" />
+            <ImageBox src={previewImage} alt="profile image" />
 
             <Button
               onClick={isUpload ? handleDeleteImage : handleAddImage}
@@ -131,7 +131,11 @@ const AddImage = (props: AddImageProps) => {
           <Button
             onClick={isUpload ? handleDeleteImage : handleAddImage}
             title={isUpload ? "사진삭제" : "사진추가"}
-            style={{ marginLeft: "-457px", marginBottom: "-130px" }}
+            style={{
+              position: "relative",
+              marginLeft: "-454px",
+              marginBottom: "80px",
+            }}
           >
             인생템 이미지 업로드
           </Button>

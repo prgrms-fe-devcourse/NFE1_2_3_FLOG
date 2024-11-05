@@ -33,7 +33,10 @@ const MyPageItem = ({ lifetimeItem }: { lifetimeItem?: LifetimeItemType }) => {
     padding-top: 20px;
     padding-bottom: 20px;
   `;
-  console.log(lifetimeItem);
+  const isLifetimeItemEmpty =
+    lifetimeItem.brandName === "" ||
+    lifetimeItem.productName === "" ||
+    lifetimeItem.description === "";
   return (
     <div>
       <div>
@@ -52,21 +55,36 @@ const MyPageItem = ({ lifetimeItem }: { lifetimeItem?: LifetimeItemType }) => {
       ) : (
         <ItemBox>
           <div>
-            <img
-              src={lifetimeItem.photoUrl} // 서버에서 가져온 이미지 URL 사용
-              alt={lifetimeItem.productName} // 제품 이름을 alt 속성으로 사용
-              style={{ width: "150px", height: "auto", objectFit: "cover" }}
-            />
+            {lifetimeItem.photoUrl !== "" && (
+              <img
+                src={lifetimeItem.photoUrl} // 서버에서 가져온 이미지 URL 사용
+                alt={lifetimeItem.productName} // 제품 이름을 alt 속성으로 사용
+                style={{ width: "150px", height: "auto", objectFit: "cover" }}
+              />
+            )}
           </div>
           <ItemDetailBox>
-            <Text>
-              {lifetimeItem.brandName}{" "}
-              {lifetimeItem.brandName !== undefined && (
-                <NomalText>의 </NomalText>
-              )}
-              <Text>{lifetimeItem.productName}</Text>
-            </Text>
-            <p>{lifetimeItem.description}</p>
+            {isLifetimeItemEmpty ? (
+              <Text style={{ position: "relative", left: 200 }}>
+                아직 인생템이 없어요
+              </Text>
+            ) : (
+              <div>
+                <Text>
+                  {lifetimeItem.brandName}{" "}
+                  {lifetimeItem.brandName !== "" ||
+                  lifetimeItem.productName !== "" ? (
+                    <NomalText>의 </NomalText>
+                  ) : (
+                    <Text style={{ position: "relative", left: 300 }}>
+                      아직 인생템이 없어요!
+                    </Text>
+                  )}
+                  <Text>{lifetimeItem.productName}</Text>
+                </Text>
+                <p>{lifetimeItem.description}</p>
+              </div>
+            )}
           </ItemDetailBox>
         </ItemBox>
       )}

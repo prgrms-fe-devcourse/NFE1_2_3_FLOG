@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import commentIcon from "/comment.svg";
 import heartIcon from "/heart.svg";
 import heartFilledIcon from "/heartFilled.svg";
 import NoTokenModal from "../../../shared/utils/noTokenModal";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const Box = styled.div`
   display: flex;
@@ -59,39 +59,33 @@ const ReactionItem = styled.div`
 interface PostFooterProps {
   tags: string[];
   likes: string[];
-  comments: string[];
   commentLength: number;
 }
 
-const PostFooter = ({
-  tags,
-  likes,
-  comments,
-  commentLength,
-}: PostFooterProps) => {
+const PostFooter = ({ tags, likes, commentLength }: PostFooterProps) => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
+  //좋아요 누를 때 로그인 안 되어있으면 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openNoTokenModal = () => {
     setIsModalOpen(true);
   };
-
   const closeNoTokenModal = () => {
     setIsModalOpen(false);
   };
 
   // 사용자 ID 가져오기
-  const userId = localStorage.getItem("userId") || "";
-
-  // 상태 설정
-  const [isUserLiked, setIsUserLiked] = useState(likes.includes(userId)); // 사용자가 좋아요를 눌렀는지 확인
+  const isAuthor = localStorage.getItem("userId") || "";
+  //사용자가 좋아요 눌렀는지 확인하는 상태 관리
+  const [isUserLiked, setIsUserLiked] = useState(likes.includes(isAuthor));
+  //포스트 좋아요 개수 상태 관리
   const [likeCount, setLikeCount] = useState(likes.length);
 
   useEffect(() => {
     setLikeCount(likes.length); // likes 배열이 변경되면 개수를 업데이트
-    setIsUserLiked(likes.includes(userId)); // 좋아요 상태 업데이트
-  }, [likes, userId]);
+    setIsUserLiked(likes.includes(isAuthor)); // 좋아요 상태 업데이트
+  }, [likes]);
 
   const clickLike = async () => {
     try {
@@ -110,7 +104,7 @@ const PostFooter = ({
       );
       if (response.data.success) {
         setIsUserLiked((prev) => !prev);
-        setLikeCount((prev) => (isUserLiked ? prev - 1 : prev + 1)); // 좋아요 개수 업데이트
+        setLikeCount((prev) => (isUserLiked ? prev - 1 : prev + 1));
       }
     } catch (error) {
       console.error("좋아요 토글 오류:", error);

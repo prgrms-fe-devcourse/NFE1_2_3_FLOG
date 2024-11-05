@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { useState } from "react";
 import Modal from "../../shared/components/Modal";
 import useStore from "../../app/store";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Button = styled.button`
   display: flex;
@@ -51,23 +53,70 @@ const Input = styled.input`
 `;
 
 const MyPageAuth = ({ Id }: any) => {
+  const navigate = useNavigate();
   const { isModalOpen, openModal, closeModal } = useStore();
+  const USER_Id = localStorage.getItem("userId");
 
   // 비밀번호 변경 상태 관리
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
   const [error, setError] = useState("");
 
-  const handleChangePassword = () => {
-    const storedPassword = "현재비밀번호"; // 실제로는 서버에서 관리하는 비밀번호로 교체해야 함
+  const [isLogin, setIsLogin] = useState(!!localStorage.getItem("token"));
+  // 헤더 알림 모달 상태 관리
+  const [isAdmin, setIsAdmin] = useState(
+    localStorage.getItem("userRole") === "admin"
+  ); // 어드민 여부 상태
 
-    if (currentPassword !== storedPassword) {
-      setError("현재 비밀번호가 맞지 않습니다.");
-    } else {
-      console.log("비밀번호 변경:", newPassword);
-      closeModal(); // 모달 닫기
-      // 비밀번호 변경 로직 추가 (예: API 호출)
+  const handleChangePassword = async () => {
+    // 비밀번호 변경 API 호출
+    if (newPassword !== confirmNewPassword) {
+      setError("새 비밀번호가 일치하지 않습니다.");
+      return;
     }
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/users/profile/${USER_Id}/password`,
+        {
+          currentPassword,
+          newPassword,
+          confirmNewPassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 Authorization 헤더에 추가
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert(response.data.message); // 성공 메시지 표시
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setError("");
+        closeModal();
+      } else {
+        setError(response.data.message); // 서버에서 전달된 오류 메시지 표시
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setError("비밀번호 변경 중 오류가 발생했습니다.");
+    }
+  };
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // 로컬 스토리지에서 토큰 제거
+    localStorage.removeItem("userId");
+    localStorage.removeItem("Id");
+    localStorage.removeItem("userRole"); // 어드민 여부 데이터도 삭제
+    setIsLogin(false); // 로그인 상태를 false로 설정
+    setIsAdmin(false);
+    navigate("/"); // 로그아웃 후 홈으로 리디렉션
   };
 
   return (
@@ -84,7 +133,9 @@ const MyPageAuth = ({ Id }: any) => {
           <Button onClick={openModal}>비밀번호 변경</Button>
         </div>
         <div>
-          <Button>로그아웃</Button>
+          <Button onClick={handleLogout} style={{ cursor: "pointer" }}>
+            로그아웃
+          </Button>
         </div>
       </AuthBox>
       {isModalOpen && (
@@ -94,19 +145,22 @@ const MyPageAuth = ({ Id }: any) => {
           </ModalBox>
           <div>
             <Input
-              type="password"
+              type="text"
               placeholder="현재 비밀번호"
               value={currentPassword}
-              onChange={(e) => {
-                setCurrentPassword(e.target.value);
-                setError(""); // 오류 메시지 초기화
-              }}
+              onChange={(e) => setCurrentPassword(e.target.value)}
             />
             <Input
-              type="password"
+              type="text"
               placeholder="새 비밀번호"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="새 비밀번호 확인"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
             />
             {error && <ErrorMessage>{error}</ErrorMessage>}
           </div>

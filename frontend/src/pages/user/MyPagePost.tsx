@@ -17,7 +17,7 @@ const Box = styled.div`
 const MyPagePost = () => {
   const location = useLocation();
   const post = location.state?.post;
-
+  console.log(JSON.stringify(post));
   return (
     <div>
       <div
