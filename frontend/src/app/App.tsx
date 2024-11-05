@@ -16,6 +16,7 @@ import MyPageFollow from "../pages/user/MyPageFollow";
 import MyPageBook from "../pages/user/MyPageBook";
 import MyPagePost from "../pages/user/MyPagePost";
 import CurationPage from "../pages/curation/CurationPage";
+import SearchCurationsPage from "../pages/curation/SearchCurationsPage"; 
 import CurationDetailPage from "../pages/curation/CurationDetailPage";
 import CurationSubmissionPage from "../pages/curation/CurationSubmissionPage";
 import CurationCreateEditPage from "../pages/curation/CurationCreateEditPage";
@@ -42,6 +43,7 @@ function App() {
         <Route path="/user/:userId/post" element={<MyPagePost />}></Route>
         <Route path="/mypage/edit" element={<MyPageEdit />} />
         <Route path="/curations" element={<CurationPage />} />
+        <Route path="/search/curations" element={<SearchCurationsPage />} />
         <Route path="/curation/:curationId" element={<CurationDetailPage />} />
         <Route path="/curation/:curationId/submit" element={<CurationSubmissionPage />} />
         <Route path="/curation/create" element={<CurationCreateEditPage />} />

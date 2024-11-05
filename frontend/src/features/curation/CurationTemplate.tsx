@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import Search from "../../shared/components/search/Search";
+import SearchCurations from "../../shared/components/search/SearchCurations";
 import Sort from "../../shared/components/search/Sort";
 import CurationItem from "./CurationItem"; // CurationItem import
 
@@ -115,6 +115,14 @@ const CurationTemplate = () => {
     setHasMore(true); // 로드 가능 상태로 변경
   };
 
+   // 필터 업데이트 함수 (SearchCurations로부터 전달받음)
+   const updateFilters = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    setCurationList([]); // 리스트 초기화
+    setPage(1); // 페이지 초기화
+    setHasMore(true); // 무한 스크롤 가능 상태로 설정
+  };
+
   // 무한 스크롤 설정
   useEffect(() => {
     const observer = new IntersectionObserver(onIntersection, {
@@ -145,7 +153,7 @@ const CurationTemplate = () => {
     <div>
       <CurationTemplateRightWrap>
         <SearchSortWrap>
-          {/* <Search /> */}
+        <SearchCurations onUpdateFilters={updateFilters} />
           <Sort onSortingPost={onSortingCuration} />
         </SearchSortWrap>
         <CurationTemplateWrapper>
